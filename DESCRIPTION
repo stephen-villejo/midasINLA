@@ -14,3 +14,5 @@ Imports:
     rlist,
     matrixStats,
     Matrix
+URL: https://github.com/stephen-villejo/midasINLA
+BugReports: https://github.com/stephen-villejo/midasINLA/issues
