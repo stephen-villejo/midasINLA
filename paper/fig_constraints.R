@@ -1,0 +1,30 @@
+
+
+
+##### Almon #####
+
+vals <- vector(mode = "list", length = 2)
+vals[[1]]$gamma1 = 0.002 # rapidly declining weights
+vals[[1]]$gamma2 = -.005
+vals[[2]]$gamma1 = 0.001 # slowly declining weights
+vals[[2]]$gamma2 = -.0005
+
+compile_weights <- vector(mode = "list", length = 2)
+for(j in 1:2){
+  for(i in 0:100){
+    compile_weights[[j]] <- c(compile_weights[[j]],
+                              exp((vals[[j]]$gamma1*(i^1)) +
+                                    vals[[j]]$gamma2*(i^2)))
+  }
+  compile_weights[[j]] <- compile_weights[[j]]/sum(compile_weights[[j]])
+}
+
+png("paper/figures/Almon_weights_illustration.png", width=25, height=10, units = 'cm', res = 300)
+par(mfrow=c(1,2))
+plot(compile_weights[[1]], type="l", col="blue", lwd = 2,
+     ylab="weights", xlab="lag",
+     main=expression(paste(gamma[1]==0.002,",", " ",gamma[2]==-0.005)))
+plot(compile_weights[[2]], type="l", col="blue", lwd = 2,
+     ylab="weights", xlab="lag",
+     main=expression(paste(gamma[1]==0.001,",", " ",gamma[2]==-0.0005)))
+dev.off()
