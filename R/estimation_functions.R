@@ -10,7 +10,7 @@
 create_lag_Xmatrix <- function(tsdata,
                                lags,
                                frequency){
-  X_matrix <- Matrix::mls(tsdata, lags, frequency)
+  X_matrix <- midasr::mls(tsdata, lags, frequency)
   compile_names <- c()
   for(i in 0:(ncol(X_matrix)-1)){
     compile_names <- c(compile_names,paste0("lag",i))
