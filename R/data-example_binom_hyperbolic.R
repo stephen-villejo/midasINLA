@@ -21,7 +21,7 @@
 #' @source Simulated data
 #'
 #' @examples
-#' data(data_binom_hyperbolic)
 #' str(data_binom_hyperbolic)
 "data_binom_hyperbolic"
-``
+
+#devtools::document()
