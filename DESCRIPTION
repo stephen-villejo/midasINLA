@@ -4,8 +4,7 @@ Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
 Description: Tools for fitting MIDAS (Mixed Data Sampling) models using the INLA framework
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
@@ -13,7 +12,11 @@ Imports:
     midasr,
     rlist,
     matrixStats,
-    Matrix
+    Matrix,
+    INLA,
+    dLagM,
+    stats,
+    methods
 URL: https://github.com/stephen-villejo/midasINLA
 BugReports: https://github.com/stephen-villejo/midasINLA/issues
 Suggests: 
@@ -21,5 +24,5 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Depends: 
-    R (>= 3.5)
-LazyData: true
+    R (>= 4.2)
+Maintainer: Stephen Jun Villejo <s.villejo@imperial.ac.uk>
