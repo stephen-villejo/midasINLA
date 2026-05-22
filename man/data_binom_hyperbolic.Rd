@@ -17,7 +17,7 @@ A list with the following components:
 Simulated data
 }
 \usage{
-data_binom_hyperbolic
+data(data_binom_hyperbolic)
 }
 \description{
 This dataset contains simulated high-frequency covariates and a

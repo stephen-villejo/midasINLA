@@ -13,7 +13,6 @@ Imports:
     rlist,
     matrixStats,
     Matrix,
-    INLA,
     dLagM,
     stats,
     methods

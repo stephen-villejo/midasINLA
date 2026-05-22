@@ -1,6 +1,7 @@
 library(midasINLA)
 library(ggplot2)
 library(midasr)
+library(INLA)
 
 data("data_binom_hyperbolic")
 str(data_binom_hyperbolic)
