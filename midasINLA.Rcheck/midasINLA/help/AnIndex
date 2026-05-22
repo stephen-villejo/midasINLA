@@ -1,0 +1,11 @@
+compute_score	compute_score
+create_lag_Xmatrix	create_lag_Xmatrix
+fit_Minla	fit_Minla
+fit_Minla_spatial	fit_Minla_spatial
+predict_midas	predict_midas
+rgeneric.Almon2.midas	rgeneric.Almon2.midas
+rgeneric.Almon3.midas	rgeneric.Almon3.midas
+rgeneric.Beta.midas	rgeneric.Beta.midas
+rgeneric.Beta2.midas	rgeneric.Beta2.midas
+rgeneric.Gaussian.midas	rgeneric.Gaussian.midas
+rgeneric.Hyperbolic.midas	rgeneric.Hyperbolic.midas

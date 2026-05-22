@@ -1,0 +1,19 @@
+compute_score           Compute scores for model assessment
+create_lag_Xmatrix      Create lag matrix
+fit_Minla               Prepare MIDAS objects for INLA estimation
+fit_Minla_spatial       Prepare spatial MIDAS objects for INLA
+                        estimation
+predict_midas           Make predictions form a MIDAS model output
+rgeneric.Almon2.midas   Rgeneric MIDAS model with Almon polynomial
+                        constraint, d = 2
+rgeneric.Almon3.midas   Rgeneric MIDAS model with Almon polynomial
+                        constraint, d = 3
+rgeneric.Beta.midas     Rgeneric MIDAS model with Beta polynomial
+                        constraint where gamma_1 is fixed to 1
+rgeneric.Beta2.midas    Rgeneric MIDAS model with Beta polynomial
+                        constraint
+rgeneric.Gaussian.midas
+                        Rgeneric MIDAS model with Gaussian constraint
+rgeneric.Hyperbolic.midas
+                        Rgeneric MIDAS model with Hyperbolic scheme
+                        constraint

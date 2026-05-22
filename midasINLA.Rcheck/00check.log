@@ -1,0 +1,133 @@
+* using log directory 'C:/Users/sv20/Documents/midasINLA/midasINLA.Rcheck'
+* using R version 4.6.0 (2026-04-24 ucrt)
+* using platform: x86_64-w64-mingw32
+* R was compiled by
+    gcc.exe (GCC) 14.3.0
+    GNU Fortran (GCC) 14.3.0
+* running under: Windows 11 x64 (build 26100)
+* using session charset: UTF-8
+* current time: 2026-05-22 01:05:47 UTC
+* using options '--no-manual --no-build-vignettes'
+* checking for file 'midasINLA/DESCRIPTION' ... OK
+* this is package 'midasINLA' version '0.0.0.9000'
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... INFO
+Vignette dependency required without any vignettes: 'knitr'
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking whether package 'midasINLA' can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... NOTE
+Namespaces in Imports field not imported from:
+  'dLagM' 'matrixStats' 'methods' 'rlist' 'stats'
+  All declared Imports should be used.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+compute_score: no visible binding for global variable 'y_all'
+compute_score: no visible binding for global variable 'Midas_objects'
+compute_score: no visible global function definition for
+  'complete.cases'
+compute_score: no visible global function definition for 'dnorm'
+compute_score: no visible binding for global variable 'var'
+compute_score: no visible global function definition for 'dpois'
+compute_score: no visible global function definition for 'dbinom'
+fit_Minla: no visible global function definition for 'complete.cases'
+fit_Minla: no visible global function definition for
+  'inla.rgeneric.define'
+fit_Minla: no visible global function definition for 'mls'
+fit_Minla_spatial: no visible global function definition for
+  'complete.cases'
+fit_Minla_spatial: no visible global function definition for
+  'inla.rgeneric.define'
+predict_midas: no visible global function definition for
+  'inla.posterior.sample'
+predict_midas : <anonymous>: no visible global function definition for
+  'rnorm'
+predict_midas: no visible binding for global variable 'sd'
+predict_midas: no visible global function definition for 'rowQuantiles'
+predict_midas : <anonymous>: no visible global function definition for
+  'rpois'
+predict_midas : <anonymous>: no visible global function definition for
+  'rbinom'
+rgeneric.Almon2.midas : interpret.theta: no visible binding for global
+  variable 'x'
+rgeneric.Almon2.midas : graph: no visible binding for global variable
+  'x'
+rgeneric.Almon2.midas : mu: no visible binding for global variable 'x'
+rgeneric.Almon2.midas : log.prior: no visible global function
+  definition for 'dnorm'
+rgeneric.Almon3.midas : interpret.theta: no visible binding for global
+  variable 'x'
+rgeneric.Almon3.midas : graph: no visible binding for global variable
+  'x'
+rgeneric.Almon3.midas : mu: no visible binding for global variable 'x'
+rgeneric.Almon3.midas : log.prior: no visible global function
+  definition for 'dnorm'
+rgeneric.Beta.midas : interpret.theta: no visible binding for global
+  variable 'x'
+rgeneric.Beta.midas : graph: no visible binding for global variable 'x'
+rgeneric.Beta.midas : mu: no visible binding for global variable 'x'
+rgeneric.Beta.midas : log.prior: no visible global function definition
+  for 'dnorm'
+rgeneric.Beta2.midas : interpret.theta: no visible binding for global
+  variable 'x'
+rgeneric.Beta2.midas : graph: no visible binding for global variable
+  'x'
+rgeneric.Beta2.midas : mu: no visible binding for global variable 'x'
+rgeneric.Beta2.midas : log.prior: no visible global function definition
+  for 'dnorm'
+rgeneric.Gaussian.midas : interpret.theta: no visible binding for
+  global variable 'x'
+rgeneric.Gaussian.midas : graph: no visible binding for global variable
+  'x'
+rgeneric.Gaussian.midas : mu: no visible binding for global variable
+  'x'
+rgeneric.Gaussian.midas : log.prior: no visible global function
+  definition for 'dnorm'
+rgeneric.Hyperbolic.midas : interpret.theta: no visible binding for
+  global variable 'x'
+rgeneric.Hyperbolic.midas : graph: no visible binding for global
+  variable 'x'
+rgeneric.Hyperbolic.midas : mu: no visible binding for global variable
+  'x'
+rgeneric.Hyperbolic.midas : log.prior: no visible global function
+  definition for 'dnorm'
+Undefined global functions or variables:
+  Midas_objects complete.cases dbinom dnorm dpois inla.posterior.sample
+  inla.rgeneric.define mls rbinom rnorm rowQuantiles rpois sd var x
+  y_all
+Consider adding
+  importFrom("stats", "complete.cases", "dbinom", "dnorm", "dpois",
+             "rbinom", "rnorm", "rpois", "sd", "var")
+to your NAMESPACE file.
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking examples ... NONE
+* DONE
+Status: 2 NOTEs

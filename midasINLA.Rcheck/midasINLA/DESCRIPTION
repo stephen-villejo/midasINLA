@@ -8,20 +8,14 @@ License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
-Imports: 
-    midasr,
-    rlist,
-    matrixStats,
-    Matrix,
-    dLagM,
-    stats,
-    methods
+Imports: midasr, rlist, matrixStats, Matrix, dLagM, stats, methods
 URL: https://github.com/stephen-villejo/midasINLA
 BugReports: https://github.com/stephen-villejo/midasINLA/issues
-Suggests: 
-    knitr,
-    rmarkdown
+Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-Depends: 
-    R (>= 4.2)
+Depends: R (>= 4.2)
 Maintainer: Stephen Jun Villejo <s.villejo@imperial.ac.uk>
+NeedsCompilation: no
+Packaged: 2026-05-22 01:05:46 UTC; sv20
+Author: First Last [aut, cre]
+Built: R 4.6.0; ; 2026-05-22 01:05:49 UTC; windows
