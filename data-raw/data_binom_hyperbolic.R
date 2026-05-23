@@ -53,5 +53,3 @@ data_binom_hyperbolic <- list(x = x,
 usethis::use_data(data_binom_hyperbolic, overwrite = TRUE)
 
 
-#source("data-raw/data_binom_hyperbolic.R")
-
