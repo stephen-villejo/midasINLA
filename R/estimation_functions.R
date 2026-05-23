@@ -439,7 +439,7 @@ compute_score <- function(y,
 
 
 
-#' Create lag matrix
+#' Compute weights estimates
 #' @param model midas model result
 #' @param constraint constraint function
 #' @param lag_k maximum lag considered
@@ -453,7 +453,7 @@ compute_weights <- function(model,
 
   if(constraint == "hyperbolic"){
 
-    theta2_samples <- inla.rmarginal(n.samples, model$marginals.hyperpar$`Theta2 for idx`)
+    theta2_samples <- INLA::inla.rmarginal(n.samples, model$marginals.hyperpar$`Theta2 for idx`)
     gamma_samples <- exp(theta2_samples)/(1+exp(theta2_samples))
     compile_sum <- vector(length = n.samples)
     for(lag in 0:lag_k){
@@ -471,8 +471,8 @@ compute_weights <- function(model,
       compile_w_list[[i+1]] <- temp
     }
     mean <- lapply(1:(lag_k+1), function(x) mean(compile_w_list[[x]]))
-    q2.5 <- lapply(1:(lag_k+1), function(x) quantile(compile_w_list[[x]], probs = 0.025))
-    q97.5 <- lapply(1:(lag_k+1), function(x) quantile(compile_w_list[[x]], probs = 0.975))
+    q2.5 <- lapply(1:(lag_k+1), function(x) stats::quantile(compile_w_list[[x]], probs = 0.025))
+    q97.5 <- lapply(1:(lag_k+1), function(x) stats::quantile(compile_w_list[[x]], probs = 0.975))
 
     weights_ests_df <- data.frame(mean = unlist(mean),
                                   q2.5 = unlist(q2.5),
