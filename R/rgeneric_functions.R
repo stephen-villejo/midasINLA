@@ -31,7 +31,10 @@
 rgeneric.Beta.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                        "log.prior", "quit"),
                                theta = NULL){
+
   envir = parent.env(environment())
+  x <- envir$x
+
   ## artificial high precision to be added to the mean-model
   prec.high = exp(15)
 
@@ -102,8 +105,8 @@ rgeneric.Beta.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.
     return(numeric(0))
   }
   log.prior = function() {
-    val = (dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[2L], mean=0, sd=1, log=TRUE))
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE))
     return(val)
   }
   initial = function() {
@@ -150,7 +153,10 @@ rgeneric.Beta.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.
 rgeneric.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                         "log.prior", "quit"),
                                 theta = NULL){
+
   envir = parent.env(environment())
+  x <- envir$x
+
   ## artificial high precision to be added to the mean-model
   prec.high = exp(15)
 
@@ -221,9 +227,9 @@ rgeneric.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm
     return(numeric(0))
   }
   log.prior = function() {
-    val = (dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[3L], mean=0, sd=1, log=TRUE))
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[3L], mean=0, sd=1, log=TRUE))
     return(val)
   }
   initial = function() {
@@ -273,6 +279,8 @@ rgeneric.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
                                  theta = NULL){
 
   envir = parent.env(environment())
+  x <- envir$x
+
   ## artificial high precision to be added to the mean-model
   prec.high = exp(15)
 
@@ -352,9 +360,9 @@ rgeneric.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
   #   }
   # }
   log.prior = function() {
-    val = (dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[3L], mean=0, sd=1, log=TRUE))
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[3L], mean=0, sd=1, log=TRUE))
     return(val)
   }
   initial = function() {
@@ -404,6 +412,8 @@ rgeneric.Almon3.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
                                  theta = NULL){
 
   envir = parent.env(environment())
+  x <- envir$x
+
   ## artificial high precision to be added to the mean-model
   prec.high = exp(15)
 
@@ -484,10 +494,10 @@ rgeneric.Almon3.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
   #   }
   # }
   log.prior = function() {
-    val = (dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[3L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[4L], mean=0, sd=1, log=TRUE))
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[3L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[4L], mean=0, sd=1, log=TRUE))
     return(val)
   }
   initial = function() {
@@ -534,7 +544,10 @@ rgeneric.Almon3.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
 rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                              "log.prior", "quit"),
                                      theta = NULL){
+
   envir = parent.env(environment())
+  x <- envir$x
+
   ## artificial high precision to be added to the mean-model
   prec.high = exp(15)
 
@@ -613,8 +626,8 @@ rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log
   #   }
   # }
   log.prior = function() {
-    val = (dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[2L], mean=0, sd=1, log=TRUE))
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE))
     return(val)
   }
   initial = function() {
@@ -662,7 +675,10 @@ rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log
 rgeneric.Gaussian.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                            "log.prior", "quit"),
                                    theta = NULL){
+
   envir = parent.env(environment())
+  x <- envir$x
+
   ## artificial high precision to be added to the mean-model
   prec.high = exp(15)
 
@@ -733,9 +749,9 @@ rgeneric.Gaussian.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.n
     return(numeric(0))
   }
   log.prior = function() {
-    val = (dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
-             dnorm(theta[3L], mean=0, sd=1, log=TRUE))
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[3L], mean=0, sd=1, log=TRUE))
     return(val)
   }
   initial = function() {
