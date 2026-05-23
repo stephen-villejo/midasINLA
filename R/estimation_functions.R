@@ -353,11 +353,10 @@ predict_midas <- function(model,
 #' @param family  Likelihood family for response data
 #' @return Computed scores
 #' @export
-compute_score <- function(y,
-                          Midas_y,
-                          Ntrials,
-                          pred_res,
-                          family = "gaussian"){
+compute_forecast_scores <- function(y,
+                                    Midas_object,
+                                    pred_res,
+                                    family = "binomial"){
 
 
   if(family == "gaussian"){
@@ -366,7 +365,7 @@ compute_score <- function(y,
 
     SE = (y_forecast - pred_res$computed_y$mean[-c(1:max(which(!is.na(Midas_y))))])^2
 
-    compile_logscore <- matrix(NA,nrow=length(y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
+    compile_logscore <- matrix(NA,nrow=length(y_forecast),ncol=ncol(pred_res$samples$latent_predictor))
     for(i in 1:ncol(pred_res$samples$latent_predictor)){
       score <- stats::dnorm(y_forecast,
                             mean = pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i],
@@ -389,7 +388,7 @@ compute_score <- function(y,
 
     SE = (y_forecast - pred_res$computed_y$mean[-c(1:max(which(!is.na(Midas_y))))])^2
 
-    compile_logscore <- matrix(NA,nrow=length(y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
+    compile_logscore <- matrix(NA,nrow=length(y_forecast),ncol=ncol(pred_res$samples$latent_predictor))
     for(i in 1:ncol(pred_res$samples$latent_predictor)){
       score <- stats::dpois(y_forecast,
                             lambda = exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i]))
@@ -408,22 +407,22 @@ compute_score <- function(y,
 
   }else if(family == "binomial"){
 
-    y_forecast <- y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
+    y_forecast <- y[-c(1:(length(data_binom_hyperbolic$y)-length(Midas_objects$data$y)))][-c(1:max(which(!is.na(Midas_object$data$y))))]
 
-    SE = (y_forecast - pred_res$computed_y$mean[-c(1:max(which(!is.na(Midas_y))))])^2
+    SE = (y_forecast - pred_res$computed_y$mean[-c(1:max(which(!is.na(Midas_object$data$y))))])^2
 
-    compile_logscore <- matrix(NA,nrow=length(y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
+    compile_logscore <- matrix(NA,nrow=length(y_forecast),ncol=ncol(pred_res$samples$latent_predictor))
     for(i in 1:ncol(pred_res$samples$latent_predictor)){
       score <- stats::dbinom(y_forecast,
-                             size = Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))],
-                             prob = exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i])/(1+exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i])))
+                             size = Midas_object$Ntrials[-c(1:max(which(!is.na(Midas_object$data$y))))],
+                             prob = exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_object$data$y)))),i])/(1+exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_object$data$y)))),i])))
       compile_logscore[,i] <- log(score)
     }
 
-    p_temp <- exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),])/(1+exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),]))
-    post_E <- rowMeans(p_temp) * Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
-    post_Var <- (Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))] * rowMeans(p_temp * (1 - p_temp))) +
-      ((Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]^2) * apply(p_temp, 1, stats::var))
+    p_temp <- exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_object$data$y)))),])/(1+exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_object$data$y)))),]))
+    post_E <- rowMeans(p_temp) * Midas_objects$Ntrials[-c(1:max(which(!is.na(Midas_object$data$y))))]
+    post_Var <- (Midas_objects$Ntrials[-c(1:max(which(!is.na(Midas_object$data$y))))] * rowMeans(p_temp * (1 - p_temp))) +
+      ((Midas_objects$Ntrials[-c(1:max(which(!is.na(Midas_object$data$y))))]^2) * apply(p_temp, 1, stats::var))
 
     scores <- data.frame(
       SE = SE,
