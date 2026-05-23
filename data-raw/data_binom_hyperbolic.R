@@ -45,7 +45,10 @@ data_binom_hyperbolic <- list(x = x,
                               y = y,
                               p = p,
                               Ntrials = Ntrials,
-                              weights = weights)
+                              weights = weights,
+                              beta0 = beta0,
+                              beta1 = beta1,
+                              trend = trend)
 
 usethis::use_data(data_binom_hyperbolic, overwrite = TRUE)
 
