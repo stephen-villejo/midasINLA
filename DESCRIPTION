@@ -9,13 +9,11 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
 Imports: 
+    INLA,
     midasr,
-    rlist,
     matrixStats,
     Matrix,
-    dLagM,
-    stats,
-    methods
+    stats
 URL: https://github.com/stephen-villejo/midasINLA
 BugReports: https://github.com/stephen-villejo/midasINLA/issues
 Suggests: 
@@ -25,3 +23,4 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 4.2)
 Maintainer: Stephen Jun Villejo <s.villejo@imperial.ac.uk>
+LazyData: true

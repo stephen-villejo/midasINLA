@@ -3,3 +3,4 @@
 ^\.positai$
 ^\.claude$
 ^README\.Rmd$
+^data-raw$

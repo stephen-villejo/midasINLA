@@ -47,7 +47,7 @@ fit_Minla <- function(xdata,
 
   temp_data <- as.data.frame(X_matrix)
 
-  rm.row <- which(complete.cases(temp_data) == FALSE)
+  rm.row <- which(stats::complete.cases(temp_data) == FALSE)
 
   if(family == "gaussian"){
     if(length(rm.row > 0) > 0){
@@ -75,39 +75,39 @@ fit_Minla <- function(xdata,
 
 
   if(constraint == "beta"){
-    rgen = inla.rgeneric.define(model = rgeneric.Beta.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Beta.midas,
+                                      x = temp_data)
   }else if(constraint == "beta2"){
-    rgen = inla.rgeneric.define(model = rgeneric.Beta2.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Beta2.midas,
+                                      x = temp_data)
   }else if(constraint == "almon2"){
-    rgen = inla.rgeneric.define(model = rgeneric.Almon2.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Almon2.midas,
+                                      x = temp_data)
   }else if(constraint == "almon3"){
-    rgen = inla.rgeneric.define(model = rgeneric.Almon3.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Almon3.midas,
+                                      x = temp_data)
   }else if(constraint == "hyperbolic"){
-    rgen = inla.rgeneric.define(model = rgeneric.Hyperbolic.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Hyperbolic.midas,
+                                      x = temp_data)
   }else if(constraint == "gaussian"){
-    rgen = inla.rgeneric.define(model = rgeneric.Gaussian.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Gaussian.midas,
+                                      x = temp_data)
   }
 
   if(lagY == 0){
     data = temp_data
   }else{
-    lagYdata <- matrix(NA, nrow = nrow(temp_data), ncol = lagY)
-    for(i in 1:lagY){
-      lagYdata[,i] <- as.vector(mls(temp_data$y, i, 1))
-    }
-    lagYdata <- as.data.frame(lagYdata)
-    compile_names <- c()
-    for(i in 1:lagY){
-      compile_names <- c(compile_names,paste0("lagy",i))
-    }
-    names(lagYdata) <- compile_names
-    data <- cbind(temp_data, lagYdata)
+    # lagYdata <- matrix(NA, nrow = nrow(temp_data), ncol = lagY)
+    # for(i in 1:lagY){
+    #   lagYdata[,i] <- as.vector(mls(temp_data$y, i, 1))
+    # }
+    # lagYdata <- as.data.frame(lagYdata)
+    # compile_names <- c()
+    # for(i in 1:lagY){
+    #   compile_names <- c(compile_names,paste0("lagy",i))
+    # }
+    # names(lagYdata) <- compile_names
+    # data <- cbind(temp_data, lagYdata)
   }
 
   if(family == "binomial"){
@@ -171,13 +171,13 @@ fit_Minla_spatial <- function(xdata,
 
     compile_X_matrix <- rbind(compile_X_matrix,
                               X_matrix)
-    counter_time <- c(counter_time, 1:length(which(complete.cases(X_matrix) == TRUE)))
-    counter_loc <- c(counter_loc, rep(i, times = length(which(complete.cases(X_matrix) == TRUE))))
+    counter_time <- c(counter_time, 1:length(which(stats::complete.cases(X_matrix) == TRUE)))
+    counter_loc <- c(counter_loc, rep(i, times = length(which(stats::complete.cases(X_matrix) == TRUE))))
   }
 
   temp_data <- as.data.frame(compile_X_matrix)
 
-  rm.row <- which(complete.cases(temp_data) == FALSE)
+  rm.row <- which(stats::complete.cases(temp_data) == FALSE)
 
   if(family == "gaussian"){
     if(length(rm.row > 0) > 0){
@@ -204,20 +204,20 @@ fit_Minla_spatial <- function(xdata,
 
 
   if(constraint == "beta"){
-    rgen = inla.rgeneric.define(model = rgeneric.Beta.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Beta.midas,
+                                      x = temp_data)
   }else if(constraint == "beta2"){
-    rgen = inla.rgeneric.define(model = rgeneric.Beta2.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Beta2.midas,
+                                      x = temp_data)
   }else if(constraint == "almon2"){
-    rgen = inla.rgeneric.define(model = rgeneric.Almon2.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Almon2.midas,
+                                      x = temp_data)
   }else if(constraint == "almon3"){
-    rgen = inla.rgeneric.define(model = rgeneric.Almon3.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Almon3.midas,
+                                      x = temp_data)
   }else if(constraint == "hyperbolic"){
-    rgen = inla.rgeneric.define(model = rgeneric.Hyperbolic.midas,
-                                x = temp_data)
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Hyperbolic.midas,
+                                      x = temp_data)
   }
 
   if(lagY == 0){
@@ -272,7 +272,7 @@ predict_midas <- function(model,
   if(family == "gaussian"){
 
     # generate posterior samples
-    temp <- inla.posterior.sample(n = nsamples, model)
+    temp <- INLA::inla.posterior.sample(n = nsamples, model)
 
     # samples of linear predictor and gaussian variance
     latent_predictor <- sapply(1:nsamples, function(i) temp[[i]]$latent[1:nrow(data)])
@@ -284,19 +284,20 @@ predict_midas <- function(model,
 
     # samples of y
     sample_y <- sapply(1:nsamples,
-                       function(i) temp[[i]]$latent[1:nrow(data)] + rnorm(nrow(data),
-                                                                          mean = 0,
-                                                                          sd = sqrt(1/unname(temp[[i]]$hyperpar[which(names(temp[[i]]$hyperpar) == "Precision for the Gaussian observations")]))))
+                       function(i) temp[[i]]$latent[1:nrow(data)] +
+                         stats::rnorm(nrow(data),
+                                      mean = 0,
+                                      sd = sqrt(1/unname(temp[[i]]$hyperpar[which(names(temp[[i]]$hyperpar) == "Precision for the Gaussian observations")]))))
     # summarise samples of y
     computed_y <- list(mean = rowMeans(sample_y),
-                       sd = apply(sample_y, 1, sd),
-                       q2.5 = rowQuantiles(sample_y, probs = 0.025),
-                       q97.5 = rowQuantiles(sample_y, probs = 0.975))
+                       sd = apply(sample_y, 1, stats::sd),
+                       q2.5 = matrixStats::rowQuantiles(sample_y, probs = 0.025),
+                       q97.5 = matrixStats::rowQuantiles(sample_y, probs = 0.975))
 
   }else if(family == "poisson"){
 
     # generate posterior samples
-    temp <- inla.posterior.sample(n = nsamples, model)
+    temp <- INLA::inla.posterior.sample(n = nsamples, model)
 
     # samples of linear predictor
     latent_predictor <- sapply(1:nsamples, function(i) temp[[i]]$latent[1:nrow(data)])
@@ -306,19 +307,19 @@ predict_midas <- function(model,
 
     # samples of y
     sample_y <- sapply(1:nsamples,
-                       function(i) rpois(n = nrow(data),
-                                         lambda = exp(temp[[i]]$latent[1:nrow(data)])))
+                       function(i) stats::rpois(n = nrow(data),
+                                                lambda = exp(temp[[i]]$latent[1:nrow(data)])))
 
     # summarise samples of y
     computed_y <- list(mean = rowMeans(sample_y),
-                       sd = apply(sample_y, 1, sd),
-                       q2.5 = rowQuantiles(sample_y, probs = 0.025),
-                       q97.5 = rowQuantiles(sample_y, probs = 0.975))
+                       sd = apply(sample_y, 1, stats::sd),
+                       q2.5 = matrixStats::rowQuantiles(sample_y, probs = 0.025),
+                       q97.5 = matrixStats::rowQuantiles(sample_y, probs = 0.975))
 
   }else if(family == "binomial"){
 
     # generate posterior samples
-    temp <- inla.posterior.sample(n = nsamples, model)
+    temp <- INLA::inla.posterior.sample(n = nsamples, model)
 
     # samples of linear predictor
     latent_predictor <- sapply(1:nsamples, function(i) temp[[i]]$latent[1:nrow(data)])
@@ -328,15 +329,14 @@ predict_midas <- function(model,
 
     # samples of y
     sample_y <- sapply(1:nsamples,
-                       function(i) rbinom(n = nrow(data),
-                                          size = Ntrials,
-                                          prob = exp(temp[[i]]$latent[1:nrow(data)])/(1+exp(temp[[i]]$latent[1:nrow(data)]))))
-
+                       function(i) stats::rbinom(n = nrow(data),
+                                                 size = Ntrials,
+                                                 prob = exp(temp[[i]]$latent[1:nrow(data)])/(1+exp(temp[[i]]$latent[1:nrow(data)]))))
     # summarise samples of y
     computed_y <- list(mean = rowMeans(sample_y),
-                       sd = apply(sample_y, 1, sd),
-                       q2.5 = rowQuantiles(sample_y, probs = 0.025),
-                       q97.5 = rowQuantiles(sample_y, probs = 0.975))
+                       sd = apply(sample_y, 1, stats::sd),
+                       q2.5 = matrixStats::rowQuantiles(sample_y, probs = 0.025),
+                       q97.5 = matrixStats::rowQuantiles(sample_y, probs = 0.975))
 
   }
 
@@ -353,29 +353,29 @@ predict_midas <- function(model,
 #' @param family  Likelihood family for response data
 #' @return Computed scores
 #' @export
-compute_score <- function(y = y_all,
-                          Midas_y = Midas_objects$data$y,
-                          Ntrials = Ntrials,
-                          pred_res = pred_res,
+compute_score <- function(y,
+                          Midas_y,
+                          Ntrials,
+                          pred_res,
                           family = "gaussian"){
 
 
   if(family == "gaussian"){
 
-    y_forecast <- y[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
+    y_forecast <- y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
 
     SE = (y_forecast - pred_res$computed_y$mean[-c(1:max(which(!is.na(Midas_y))))])^2
 
-    compile_logscore <- matrix(NA,nrow=length(y[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
+    compile_logscore <- matrix(NA,nrow=length(y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
     for(i in 1:ncol(pred_res$samples$latent_predictor)){
-      score <- dnorm(y_forecast, #y[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
-                     mean = pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i],
-                     sd = sqrt(pred_res$samples$sigma2[i]))
+      score <- stats::dnorm(y_forecast,
+                            mean = pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i],
+                            sd = sqrt(pred_res$samples$sigma2[i]))
       compile_logscore[,i] <- log(score)
     }
 
     post_E <- rowMeans(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),])
-    post_Var <- mean(pred_res$samples$sigma2) + apply(pred_res$samples$latent_predictor, 1, var)[-c(1:max(which(!is.na(Midas_y))))]
+    post_Var <- mean(pred_res$samples$sigma2) + apply(pred_res$samples$latent_predictor, 1, stats::var)[-c(1:max(which(!is.na(Midas_y))))]
 
     scores <- data.frame(
       SE = SE,
@@ -385,20 +385,20 @@ compute_score <- function(y = y_all,
 
   }else if(family == "poisson"){
 
-    y_forecast <- y[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
+    y_forecast <- y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
 
     SE = (y_forecast - pred_res$computed_y$mean[-c(1:max(which(!is.na(Midas_y))))])^2
 
-    compile_logscore <- matrix(NA,nrow=length(y[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
+    compile_logscore <- matrix(NA,nrow=length(y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
     for(i in 1:ncol(pred_res$samples$latent_predictor)){
-      score <- dpois(y_forecast,
-                     lambda = exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i]))
+      score <- stats::dpois(y_forecast,
+                            lambda = exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i]))
       compile_logscore[,i] <- log(score)
     }
 
     post_E <- rowMeans(exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),]))
     post_Var <- rowMeans(exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),])) +
-      apply(exp(pred_res$samples$latent_predictor), 1, var)[-c(1:max(which(!is.na(Midas_y))))]
+      apply(exp(pred_res$samples$latent_predictor), 1, stats::var)[-c(1:max(which(!is.na(Midas_y))))]
 
     scores <- data.frame(
       SE = SE,
@@ -408,22 +408,22 @@ compute_score <- function(y = y_all,
 
   }else if(family == "binomial"){
 
-    y_forecast <- y[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
+    y_forecast <- y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
 
     SE = (y_forecast - pred_res$computed_y$mean[-c(1:max(which(!is.na(Midas_y))))])^2
 
-    compile_logscore <- matrix(NA,nrow=length(y[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
+    compile_logscore <- matrix(NA,nrow=length(y[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]),ncol=ncol(pred_res$samples$latent_predictor))
     for(i in 1:ncol(pred_res$samples$latent_predictor)){
-      score <- dbinom(y_forecast,
-                      size = Ntrials[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))],
-                      prob = exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i])/(1+exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i])))
+      score <- stats::dbinom(y_forecast,
+                             size = Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))],
+                             prob = exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i])/(1+exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),i])))
       compile_logscore[,i] <- log(score)
     }
 
     p_temp <- exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),])/(1+exp(pred_res$samples$latent_predictor[-c(1:max(which(!is.na(Midas_y)))),]))
-    post_E <- rowMeans(p_temp) * Ntrials[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
-    post_Var <- (Ntrials[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))] * rowMeans(p_temp * (1 - p_temp))) +
-      ((Ntrials[complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]^2) * apply(p_temp, 1, var))
+    post_E <- rowMeans(p_temp) * Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]
+    post_Var <- (Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))] * rowMeans(p_temp * (1 - p_temp))) +
+      ((Ntrials[stats::complete.cases(y)][-c(1:max(which(!is.na(Midas_y))))]^2) * apply(p_temp, 1, stats::var))
 
     scores <- data.frame(
       SE = SE,

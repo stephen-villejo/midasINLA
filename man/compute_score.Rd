@@ -4,13 +4,7 @@
 \alias{compute_score}
 \title{Compute scores for model assessment}
 \usage{
-compute_score(
-  y = y_all,
-  Midas_y = Midas_objects$data$y,
-  Ntrials = Ntrials,
-  pred_res = pred_res,
-  family = "gaussian"
-)
+compute_score(y, Midas_y, Ntrials, pred_res, family = "gaussian")
 }
 \arguments{
 \item{y}{Response vector}
