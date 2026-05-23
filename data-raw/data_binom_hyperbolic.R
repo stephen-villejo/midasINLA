@@ -24,7 +24,7 @@ for(lag in 0:lag_k){
   xi <- c(xi, temp)
 }
 weights <- xi/sum(xi)
-plot(weights, type = "l")
+#plot(weights, type = "l")
 
 # compute covariate, Ntrials, and linear predictor
 
@@ -41,10 +41,10 @@ y[!is.na(p)] <- rbinom(
   prob = p[!is.na(p)]
 )
 
-data_binom_hyperbolic <- list(x = x,
-                              y = y,
-                              p = p,
-                              Ntrials = Ntrials,
+data_binom_hyperbolic <- list(x = x[-c(1:7)],
+                              y = y[!is.na(p)],
+                              p = p[!is.na(p)],
+                              Ntrials = Ntrials[!is.na(p)],
                               weights = weights,
                               beta0 = beta0,
                               beta1 = beta1,
