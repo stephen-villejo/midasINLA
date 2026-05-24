@@ -66,7 +66,7 @@ res = inla(y ~ 1 +f(idx,
 summary(res)
 
 
-png("paper/figures/Example_binomial_hyperbolic_paramestimates.png", width=30, height=10, units = 'cm', res = 300)
+png("inst/paper/figures/Example_binomial_hyperbolic_paramestimates.png", width=30, height=10, units = 'cm', res = 300)
 par(mfrow=c(1,3))
 
 plot(inla.smarginal(res$marginals.fixed[["(Intercept)"]]),
@@ -79,14 +79,14 @@ abline(v = quantile(inla.rmarginal(200, res$marginals.fixed$`(Intercept)`), prob
 plot(inla.smarginal(res$marginals.fixed[['trend']]),
      type="l", lwd=3, col="red", xlab=expression(beta[2]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_binom_hyperbolic$trend, col = 'blue', lty = 1, lwd = 2)
+abline(v = data_binom_hyperbolic$beta1, col = 'blue', lty = 1, lwd = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.fixed[['trend']]), prob = 0.025), lty = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.fixed[['trend']]), prob = 0.975), lty = 2)
 
 plot(inla.smarginal(res$marginals.hyperpar[['Theta1 for idx']]),
      type="l", lwd=3, col="red", xlab=expression(beta[1]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_binom_hyperbolic$beta1, col = 'blue', lty = 1, lwd = 2)
+abline(v = data_binom_hyperbolic$beta2, col = 'blue', lty = 1, lwd = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta1 for idx`), prob = 0.025), lty = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta1 for idx`), prob = 0.975), lty = 2)
 
@@ -99,7 +99,9 @@ dev.off()
 res_weights <- compute_weights(model = res,
                                constraint = "hyperbolic",
                                lag_k = 13)
+str(res_weights)
 
+png("inst/paper/figures/Example_binomial_hyperbolic_weights.png", width=27, height=12, units = 'cm', res = 300)
 res_weights$lag <- factor(res_weights$lag, levels=unique(res_weights$lag))
 ggplot(res_weights, aes(x=lag, y=mean)) +
   geom_point(aes(col="Posterior mean")) +
@@ -110,24 +112,23 @@ ggplot(res_weights, aes(x=lag, y=mean)) +
                      breaks=c('Posterior mean', 'True value'),
                      values=c('Posterior mean'='red', 'True value'='blue')) +
   theme_bw() +
-  theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=16,face="bold"),
+  theme(axis.text=element_text(size=20),
+        axis.title=element_text(size=20,face="bold"),
         legend.position = "bottom",
-        legend.text=element_text(size=20, face = "plain"),
+        legend.text=element_text(size=24, face = "plain"),
         legend.title=element_blank()) +
   ylab("")
-
-
+dev.off()
 
 
 
 #### Compare observed versus predicted values ####
 
-pred_data <- Midas_objects$data
+pred_data <- Midas_objects[["data"]]
 pred_res <- predict_midas(model = res,
                           data = pred_data,
                           family = "binomial",
-                          Ntrials = Midas_objects$Ntrials,
+                          Ntrials = Midas_objects[["Ntrials"]],
                           nsamples = 30)
 both_ts <- ts(data.frame(observed = as.vector(data_binom_hyperbolic$y)[(length(data_binom_hyperbolic$y)-length(Midas_objects$data$y)+1):length(data_binom_hyperbolic$y)],
                          predicted = pred_res$computed_y$mean),
@@ -138,7 +139,7 @@ PI <- data.frame(lower = pred_res$computed_y$q2.5,
 PI$Time <- time(both_ts)
 
 
-png("C:/Users/sv20/Downloads/PredsVsObs_hyperbolic_binomial.png", width=25, height=12, units = 'cm', res = 300)
+png("inst/paper/figures/Example_binomial_hyperbolic_predsVSobs.png", width=25, height=12, units = 'cm', res = 300)
 autoplot(both_ts) +
   geom_ribbon(data = PI,
               aes(x = Time, ymin = lower, ymax = upper),
@@ -163,15 +164,15 @@ dev.off()
 
 #### Fit a baseline approach ####
 
-df <- data.frame(y = Midas_objects$data$y,
-                 x = Midas_objects$data$lag0,
-                 trend = 1:length(Midas_objects$data$y),
-                 Ntrials = Midas_objects$Ntrials)
+df <- data.frame(y = Midas_objects[["data"]][["y"]],
+                 x = Midas_objects[["data"]][["lag0"]],
+                 trend = 1:length(Midas_objects[["data"]][["y"]]),
+                 Ntrials = Midas_objects[["Ntrials"]])
 
 res_baseline = inla(y ~ 1 + f(x, model = "linear") + f(trend, model = "linear"),
                     data = df,
                     family = "binomial",
-                    Ntrials = Ntrials,
+                    Ntrials = df$Ntrials,
                     verbose = TRUE,
                     control.compute=list(config = TRUE))
 
@@ -180,7 +181,7 @@ summary(res_baseline)
 pred_res_baseline <- predict_midas(model = res_baseline,
                                    data = df,
                                    family = "binomial",
-                                   Ntrials = Midas_objects$Ntrials,
+                                   Ntrials = Midas_objects[["Ntrials"]],
                                    nsamples = 30)
 
 both_ts_baseline <- ts(data.frame(observed = as.vector(data_binom_hyperbolic$y)[(length(data_binom_hyperbolic$y)-length(Midas_objects$data$y)+1):length(data_binom_hyperbolic$y)],
@@ -188,7 +189,7 @@ both_ts_baseline <- ts(data.frame(observed = as.vector(data_binom_hyperbolic$y)[
                        start = 1, end = length(pred_res_baseline$computed_y$mean))
 
 
-png("C:/Users/sv20/Downloads/PredsVsObs_hyperbolic_baseline_binomial.png", width=25, height=12, units = 'cm', res = 300)
+png("inst/paper/figures/PredsVsObs_hyperbolic_baseline_binomial.png", width=25, height=12, units = 'cm', res = 300)
 autoplot(both_ts_baseline) +
   geom_ribbon(data = cbind(as.data.frame(pred_res_baseline$computed_y),
                            Time = 1:length(pred_res_baseline$computed_y$mean)),
@@ -216,10 +217,12 @@ dev.off()
 #### Compute scores ####
 
 
-res_scores <- compute_forecast_scores(y = data_binom_hyperbolic$y,
+res_scores <- compute_forecast_scores(y = data_binom_hyperbolic[["y"]],
                                       Midas_object = Midas_objects,
                                       pred_res = pred_res,
                                       family = "binomial")
+str(res_scores)
+
 res_scores$scores$Approach <- "Lag-distributed model"
 res_scores$scores
 
