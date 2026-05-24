@@ -12,6 +12,9 @@ A list with the following components:
 \item{p}{Underlying success probabilities}
 \item{Ntrials}{Number of trials for each observation}
 \item{weights}{Lag weights used in the MIDAS structure}
+\item{beta0}{True value of intercept \eqn{\beta_0}}
+\item{beta1}{True value of \eqn{\beta_1}}
+\item{beta2}{True value of \eqn{\beta_2}}
 }
 }
 \source{
