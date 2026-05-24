@@ -10,8 +10,8 @@ library(midasr)
 n <- 260
 m <- 7
 beta0 = -2.5
-trend = 0.01
-beta1 = 1.2
+beta1 = 0.01 # trend coefficient
+beta2 = 1.2
 
 gamma_param <- 0.9
 lag_k <- 13 # 0:lag_k, this implies (lag_k + 1) high freq covariate associated with each response y
@@ -30,7 +30,7 @@ weights <- xi/sum(xi)
 
 set.seed(9912)
 x <- rnorm(m*n,2,3) # covariate data
-eta <- beta0 + trend*c(1:n) + beta1*mls(x,0:lag_k,m)%*%weights
+eta <- beta0 + beta1*c(1:n) + beta2*mls(x,0:lag_k,m)%*%weights
 p <- as.vector(exp(eta)/(1+exp(eta)))
 Ntrials <- sample(50:150, size = n, replace = TRUE)
 
@@ -48,7 +48,7 @@ data_binom_hyperbolic <- list(x = x[-c(1:7)],
                               weights = weights,
                               beta0 = beta0,
                               beta1 = beta1,
-                              trend = trend)
+                              beta2 = beta2)
 
 usethis::use_data(data_binom_hyperbolic, overwrite = TRUE)
 
