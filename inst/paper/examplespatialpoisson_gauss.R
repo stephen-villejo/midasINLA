@@ -31,7 +31,7 @@ ggplot(for_plot, aes(y = x, x= Time, group = loc, color = loc)) +
 
 
 data_y <- data_spatialpoisson_gauss[["data_y"]]
-data_y[which(data_y[["Time"]] %in% 54:59),"y"] <- NA
+data_y[which(data_y[["Time"]] %in% 50:59),"y"] <- NA
 #rm <- (length(data_y[which(data_y[["loc"]]==1),"Time"])-5):(nrow(data_y[which(data_y[["loc"]]==1),]))
 
 
@@ -98,7 +98,7 @@ res_weights <- compute_weights(model = res,
                                lag_k = 30)
 str(res_weights)
 
-png("inst/paper/figures/Example_spatialpoisson_gauss_weights.png", width=27, height=12, units = 'cm', res = 300)
+png("inst/paper/figures/Example_spatialpoisson_gauss_weights.png", width=35, height=14, units = 'cm', res = 300)
 res_weights$lag <- factor(res_weights$lag, levels=unique(res_weights$lag))
 ggplot(res_weights, aes(x=lag, y=mean)) +
   geom_point(aes(col="Posterior mean")) +
@@ -109,7 +109,7 @@ ggplot(res_weights, aes(x=lag, y=mean)) +
                      breaks=c('Posterior mean', 'True value'),
                      values=c('Posterior mean'='red', 'True value'='blue')) +
   theme_bw() +
-  theme(axis.text=element_text(size=20),
+  theme(axis.text=element_text(size=17),
         axis.title=element_text(size=20,face="bold"),
         legend.position = "bottom",
         legend.text=element_text(size=24, face = "plain"),
@@ -159,6 +159,7 @@ both_long_sub <- both_long[which(both_long$loc %in% 1:4),]
 vlines_df_sub <- vlines_df[which(vlines_df$loc %in% 1:4),]
 PI_sub <- PI[which(PI$loc %in% 1:4),]
 
+png("inst/paper/figures/Example_spatialpoisson_gauss_predsVSobs.png", width=35, height=20, units = 'cm', res = 300)
 ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
   geom_line() +
   geom_ribbon(data = PI_sub,
@@ -167,7 +168,8 @@ ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
               alpha = 0.2,
               fill  = "red") +
   theme_minimal() +
-  facet_wrap(~loc, ncol = 2) +
+  facet_wrap(~loc, ncol = 2,
+             labeller = labeller(loc = function(x) paste("Loc =", x))) +
   scale_colour_manual(
     values = c("blue","red")
   ) +
@@ -182,5 +184,6 @@ ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
         axis.title=element_text(size=16,face="bold"),
         legend.position = "bottom",
         legend.text=element_text(size=20, face = "plain"),
-        legend.title=element_blank())
-
+        legend.title=element_blank(),
+        strip.text = element_text(size=20))
+dev.off()
