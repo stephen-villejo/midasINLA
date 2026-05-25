@@ -16,7 +16,7 @@ set.seed(5109)
 phi_sd <- 0.5
 phi <- rnorm(locs,0,phi_sd)
 
-lag_k <- 30 # 0:lag_k, (lag_k + 1) high freq covariate associated with each response y
+lag_k <- 29 # 0:lag_k, (lag_k + 1) high freq covariate associated with each response y
 
 mu_f <- 8
 sigma_f <- 7
@@ -47,8 +47,8 @@ for(i in 1:locs){
     lambda = mu[!is.na(mu)]
   )
 
-  y <- y[-which(is.na(y))]
-  x <- x[-c(1:30)]
+  #y <- y[-which(is.na(y))]
+  #x <- x[-c(1:30)]
 
   x_list[[i]] <- data.frame(
     x = x,
