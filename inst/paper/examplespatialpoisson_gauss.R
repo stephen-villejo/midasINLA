@@ -43,7 +43,7 @@ Midas_objects <- fit_Minla_spatial(xdata = data_spatialpoisson_gauss[["data_x"]]
                                    loc_x = data_spatialpoisson_gauss[["data_x"]][["loc"]],
                                    loc_y = data_y[["loc"]],
                                    constraint = "gaussian",
-                                   K = 0:30,
+                                   K = 0:29,
                                    m = 30,
                                    family = "poisson")
 
@@ -95,7 +95,7 @@ dev.off()
 
 res_weights <- compute_weights(model = res,
                                constraint = "gaussian",
-                               lag_k = 30)
+                               lag_k = 29)
 str(res_weights)
 
 png("inst/paper/figures/Example_spatialpoisson_gauss_weights.png", width=35, height=14, units = 'cm', res = 300)
@@ -126,7 +126,7 @@ pred_res <- predict_midas(model = res,
                           family = "poisson",
                           nsamples = 30)
 
-both_ts <- data.frame(observed = data_spatialpoisson_gauss[["data_y"]][["y"]][-which(data_spatialpoisson_gauss[["data_y"]][["Time"]] == 1)],
+both_ts <- data.frame(observed = data_spatialpoisson_gauss[["data_y"]][["y"]], #[-which(data_spatialpoisson_gauss[["data_y"]][["Time"]] == 1)],
                       predicted = pred_res$computed_y$mean,
                       loc = Midas_objects[["idx_loc"]],
                       Time = Midas_objects[["idx_time"]])
