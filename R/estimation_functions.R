@@ -113,7 +113,7 @@ fit_Minla <- function(xdata,
   if(family == "binomial"){
     if(length(rm.row > 0) > 0){
       return(out = list(data = data,
-                        X_matrix = X_matrix,
+                        X_matrix = X_matrix[-rm.row,],
                         rgen = rgen,
                         rm.row = rm.row,
                         Ntrials = Ntrials[-rm.row]))
@@ -125,10 +125,7 @@ fit_Minla <- function(xdata,
     }
 
   }else{
-    return(out = list(data = data,
-                      X_matrix = X_matrix,
-                      rgen = rgen,
-                      rm.row = rm.row))
+
   }
 
 
@@ -163,7 +160,9 @@ fit_Minla_spatial <- function(xdata,
   counter_time <- c()
   counter_loc <- c()
   unique_loc_x <- unique(loc_x)
+
   for(i in unique_loc_x){
+
     temp_xdata <- xdata[which(loc_x == i)]
     X_matrix <- create_lag_Xmatrix(tsdata = temp_xdata,
                                    lags = K,
@@ -171,8 +170,10 @@ fit_Minla_spatial <- function(xdata,
 
     compile_X_matrix <- rbind(compile_X_matrix,
                               X_matrix)
+
     counter_time <- c(counter_time, 1:length(which(stats::complete.cases(X_matrix) == TRUE)))
     counter_loc <- c(counter_loc, rep(i, times = length(which(stats::complete.cases(X_matrix) == TRUE))))
+
   }
 
   temp_data <- as.data.frame(compile_X_matrix)
@@ -229,7 +230,7 @@ fit_Minla_spatial <- function(xdata,
   if(family == "binomial"){
     if(length(rm.row > 0) > 0){
       return(out = list(data = data,
-                        X_matrix = compile_X_matrix,
+                        X_matrix = compile_X_matrix[-rm.row,],
                         rgen = rgen,
                         rm.row = rm.row,
                         Ntrials = Ntrials[-rm.row],
@@ -244,11 +245,23 @@ fit_Minla_spatial <- function(xdata,
                         counter_loc = counter_loc))
     }
 
+  }else if(family == "poisson"){
+    if(length(rm.row > 0) > 0){
+      return(out = list(data = data,
+                        X_matrix = compile_X_matrix[-rm.row,],
+                        rgen = rgen,
+                        rm.row = rm.row,
+                        counter_time = counter_time,
+                        counter_loc = counter_loc))
+    }else{
+      return(out = list(data = data,
+                        X_matrix = compile_X_matrix,
+                        rgen = rgen,
+                        counter_time = counter_time,
+                        counter_loc = counter_loc))
+    }
   }else{
-    return(out = list(data = data,
-                      X_matrix = X_matrix,
-                      rgen = rgen,
-                      rm.row = rm.row))
+
   }
 
 
