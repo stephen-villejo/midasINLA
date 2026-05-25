@@ -493,8 +493,8 @@ compute_weights <- function(model,
                                   q97.5 = unlist(q97.5),
                                   lag = 0:lag_k)
   }else if(constraint == "gaussian"){
-    theta2_samples <- INLA::inla.rmarginal(200, res$marginals.hyperpar$`Theta2 for idx`)
-    theta3_samples <- INLA::inla.rmarginal(200, res$marginals.hyperpar$`Theta3 for idx`)
+    theta2_samples <- INLA::inla.rmarginal(200, model$marginals.hyperpar$`Theta2 for idx`)
+    theta3_samples <- INLA::inla.rmarginal(200, model$marginals.hyperpar$`Theta3 for idx`)
 
     mu_val_samples <- lag_k * (1 / (1 + exp(-theta2_samples)))
     sigma_val_samples <- exp(theta3_samples)
@@ -514,8 +514,8 @@ compute_weights <- function(model,
       compile_w_list[[i+1]] <- temp
     }
     mean <- lapply(1:(lag_k+1), function(x) mean(compile_w_list[[x]]))
-    q2.5 <- lapply(1:(lag_k+1), function(x) quantile(compile_w_list[[x]],probs=0.025))
-    q97.5 <- lapply(1:(lag_k+1), function(x) quantile(compile_w_list[[x]],probs=0.975))
+    q2.5 <- lapply(1:(lag_k+1), function(x) stats::quantile(compile_w_list[[x]],probs=0.025))
+    q97.5 <- lapply(1:(lag_k+1), function(x) stats::quantile(compile_w_list[[x]],probs=0.975))
 
     weights_ests_df <- data.frame(mean = unlist(mean),
                                   q2.5 = unlist(q2.5),
