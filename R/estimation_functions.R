@@ -124,8 +124,17 @@ fit_Minla <- function(xdata,
                         Ntrials = Ntrials))
     }
 
-  }else{
-
+  }else if(family == "poisson"){
+    if(length(rm.row > 0) > 0){
+      return(out = list(data = data,
+                        X_matrix = X_matrix[-rm.row,],
+                        rgen = rgen,
+                        rm.row = rm.row))
+    }else{
+      return(out = list(data = data,
+                        X_matrix = X_matrix,
+                        rgen = rgen))
+    }
   }
 
 
