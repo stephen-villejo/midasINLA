@@ -251,14 +251,14 @@ fit_Minla_spatial <- function(xdata,
                         X_matrix = compile_X_matrix[-rm.row,],
                         rgen = rgen,
                         rm.row = rm.row,
-                        counter_time = counter_time,
-                        counter_loc = counter_loc))
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
     }else{
       return(out = list(data = data,
                         X_matrix = compile_X_matrix,
                         rgen = rgen,
-                        counter_time = counter_time,
-                        counter_loc = counter_loc))
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
     }
   }else{
 
