@@ -31,9 +31,9 @@ ggplot(for_plot, aes(y = x, x= Time, group = loc, color = loc)) +
 
 
 data_y <- data_spatialpoisson_gauss[["data_y"]]
+data_y[which(data_y[["Time"]] %in% 54:59),"y"] <- NA
+#rm <- (length(data_y[which(data_y[["loc"]]==1),"Time"])-5):(nrow(data_y[which(data_y[["loc"]]==1),]))
 
-rm <- (length(data_y[which(data_y$loc==1),"Time"])-5):(nrow(data_y[which(data_y$loc==1),]))
-data_y[which(data_y$Time %in% rm),"y"] <- NA
 
 
 #### Model fitting ####
@@ -47,7 +47,9 @@ Midas_objects <- fit_Minla_spatial(xdata = data_spatialpoisson_gauss[["data_x"]]
                                    m = 30,
                                    family = "poisson")
 
-res = inla(y ~ 1 + f(idx, model = Midas_objects[["rgen"]], n = nrow(Midas_objects[["data"]])) +
+res = inla(y ~ 1 +
+             f(idx, model = Midas_objects[["rgen"]],
+                     n = nrow(Midas_objects[["data"]])) +
              f(iid_loc, model = "iid"),
            data = data.frame(y = Midas_objects[["data"]][["y"]],
                              idx = 1:nrow(Midas_objects[["data"]]),
