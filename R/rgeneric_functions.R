@@ -616,15 +616,6 @@ rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log
   log.norm.const = function() {
     return(numeric(0))
   }
-  # log.prior = function() {
-  #   par = interpret.theta()
-  #   n.params <- length(par)
-  #   val <- 0
-  #   for(i in 1:n.params){
-  #     temp <- dnorm(par[[i]], mean=0, sd=1, log=TRUE)
-  #     val <- val + temp
-  #   }
-  # }
   log.prior = function() {
     val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
              stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE))
