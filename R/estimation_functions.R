@@ -237,15 +237,15 @@ fit_Minla_spatial <- function(xdata,
                         rgen = rgen,
                         rm.row = rm.row,
                         Ntrials = Ntrials[-rm.row],
-                        counter_time = counter_time,
-                        counter_loc = counter_loc))
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
     }else{
       return(out = list(data = data,
                         X_matrix = compile_X_matrix,
                         rgen = rgen,
                         Ntrials = Ntrials,
-                        counter_time = counter_time,
-                        counter_loc = counter_loc))
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
     }
 
   }else if(family == "poisson"){
