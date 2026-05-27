@@ -253,3 +253,102 @@ rgeneric.Hyperbolic.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initi
   val = do.call(match.arg(cmd), args = list())
   return(val)
 }
+
+
+
+rgeneric.Hyperbolic.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
+                                                        "log.prior", "quit"),
+                                                theta = NULL){
+
+  envir = parent.env(environment())
+  x <- envir$x
+  lag_k_region = envir$args$lag_k_region
+
+  regions = sort(unique(x$region))
+  n_regions = length(regions)
+
+  ## artificial high precision to be added to the mean-model
+  prec.high = exp(15)
+
+  interpret.theta = function() {
+
+    gamma_raw <- theta[1:n_regions]
+    beta <- theta[(n_regions + 1):(2*n_regions)]
+    gamma_val <- exp(gamma_raw)/(1+exp(gamma_raw))
+
+    w_region <- list()
+
+    for(r in 1:n_regions){
+
+      K_r <- lag_k_region[r]
+      psi <- numeric(K_r + 1)
+
+      for(lag in 0:K_r){
+        psi[lag + 1] <- gamma(lag+gamma_val[r]) / (gamma(lag+1)*gamma(gamma_val[r]))
+      }
+
+      w_region[[r]] <- psi / sum(psi)
+
+    }
+    return(list(beta = beta,
+                gamma = gamma_val,
+                w = w_region))
+  }
+  graph = function() {
+    G = Matrix::Diagonal(n = length(x$lag0), x=1)
+    return(G)
+  }
+  Q = function() {
+    Q = prec.high * graph()
+    return(Q)
+  }
+  mu = function() {
+
+    par <- interpret.theta()
+
+    eta <- numeric(nrow(x))
+
+    for(i in 1:nrow(x)){
+
+      r <- as.integer(x$region[i])
+
+      K_r <- lag_k_region[r]
+
+      agg <- 0
+
+      for(lag in 0:K_r){
+        agg <- agg +
+          par$w[[r]][lag + 1] *
+          x[i, paste0("lag", lag)]
+      }
+
+      eta[i] <- par$beta[r] * agg
+    }
+
+    return(eta)
+  }
+  log.norm.const = function() {
+    return(numeric(0))
+  }
+  log.prior = function() {
+    lp_gamma <- sum(
+      stats::dnorm(theta[1:n_regions],
+                   mean = 0,
+                   sd = 1,
+                   log = TRUE))
+    lp_beta <- sum(stats::dnorm(theta[(n_regions + 1):(2*n_regions)],
+                                mean = 0,
+                                sd = 1,
+                                log = TRUE))
+    return(lp_gamma + lp_beta)
+  }
+  initial = function() {
+    return(rep(0, 2*n_regions))
+  }
+  quit = function() {
+    return(invisible())
+  }
+
+  val = do.call(match.arg(cmd), args = list())
+  return(val)
+}
