@@ -472,7 +472,7 @@ rgeneric.Almon3.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
 #'
 #' @details
 #' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
-#' polynomial transformation of lag indices. The parameter \code{theta[2]}
+#' polynomial transformation of lag indices. The parameter \code{theta[1]}
 #' controls the shape of the lag weighting function.
 #'
 #' @importFrom Matrix Diagonal
@@ -491,34 +491,23 @@ rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log
   interpret.theta = function() {
 
     lag_k = ncol(x)-2
-    gamma_val = exp(theta[2L])/(1+exp(theta[2L]))
+    gamma_val = exp(theta[1L])/(1+exp(theta[1L]))
+    beta1 <- theta[2L]
+
+    psi <- numeric(lag_k + 1)
     for(lag in 0:lag_k){
-      temp <- gamma(lag+gamma_val) / (gamma(lag+1)*gamma(gamma_val))
-      assign(paste0("psi",lag), temp)
+      psi[lag + 1] <- gamma(lag+gamma_val) / (gamma(lag+1)*gamma(gamma_val))
     }
 
-    compile_sum <- 0
+    w <- psi / sum(psi)
+
+    out_list <- list()
     for(lag in 0:lag_k){
-      compile_sum <- compile_sum + get(paste0("psi", lag))
+      out_list[[paste0("w",lag)]] <- w[lag + 1]
     }
 
-    for(lag in 0:lag_k){
-      temp <- get(paste0("psi",lag))
-      assign(paste0("w",lag),temp/compile_sum)
-    }
+    out_list[["beta1"]] <- beta1
 
-    out_list <- vector(mode = "list", length = 1 + lag_k + 1)
-    out_list[[1]] <- theta[1L]
-    for(lag in 0:lag_k){
-      out_list[[lag+2]] <- get(paste0("w",lag))
-    }
-
-    compile_names <- c()
-    for(lag in 0:lag_k){
-      compile_names <- c(compile_names, paste0("w",lag))
-    }
-    names_vec <- c("beta1", compile_names)
-    names(out_list) <- names_vec
     return(out_list)
 
   }
@@ -564,7 +553,7 @@ rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log
   quit = function() {
     return(invisible())
   }
-  10
+
   val = do.call(match.arg(cmd), args = list())
   return(val)
 }
