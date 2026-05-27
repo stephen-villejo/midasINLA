@@ -140,4 +140,74 @@ dev.off()
 
 
 
+#### Compare observed versus predicted values ####
+
+pred_data <- Midas_objects[["data"]]
+pred_res <- predict_midas(model = res,
+                          data = pred_data,
+                          family = "poisson",
+                          nsamples = 30)
+
+both_ts <- data.frame(observed = data_spatialpoisson_varybeta_gauss[["data_y"]][["y"]], #[-which(data_spatialpoisson_gauss[["data_y"]][["Time"]] == 1)],
+                      predicted = pred_res$computed_y$mean,
+                      loc = Midas_objects[["idx_loc"]],
+                      Time = Midas_objects[["idx_time"]])
+
+PI <- data.frame(lower = pred_res$computed_y$q2.5,
+                 upper = pred_res$computed_y$q97.5,
+                 loc = Midas_objects[["idx_loc"]],
+                 Time = Midas_objects[["idx_time"]])
+
+both_long <- both_ts |>
+  pivot_longer(
+    cols = c(observed, predicted),
+    names_to = "series",
+    values_to = "value"
+  )
+
+first_na_idx <- which(diff(c(FALSE, is.na(Midas_objects[["data"]][["y"]]))) == 1)
+idx <- seq_along(Midas_objects$data$y)
+non_na <- !is.na(Midas_objects$data$y)
+segment <- cumsum(non_na != dplyr::lag(non_na, default = TRUE))
+segment[!non_na] <- NA
+rel_idx <- ave(idx, segment, FUN = seq_along)
+first_na <- which(diff(c(FALSE, is.na(Midas_objects$data$y))) == 1)
+
+vlines_df <- data.frame(cut = rel_idx[first_na - 1] + 1,
+                        loc = 1:20)
+
+
+both_long_sub <- both_long[which(both_long$loc %in% 1:4),]
+vlines_df_sub <- vlines_df[which(vlines_df$loc %in% 1:4),]
+PI_sub <- PI[which(PI$loc %in% 1:4),]
+
+png("inst/paper/figures/Example_spatialpoisson_varybeta_gauss_predsVSobs.png", width=35, height=20, units = 'cm', res = 300)
+ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
+  geom_line() +
+  geom_ribbon(data = PI_sub,
+              aes(x = Time, ymin = lower, ymax = upper),
+              inherit.aes = FALSE,
+              alpha = 0.2,
+              fill  = "red") +
+  theme_minimal() +
+  facet_wrap(~loc, ncol = 2,
+             labeller = labeller(loc = function(x) paste("Loc =", x))) +
+  scale_colour_manual(
+    values = c("blue","red")
+  ) +
+  ylab("y") +
+  geom_vline(
+    data = vlines_df_sub,
+    aes(xintercept = cut),
+    colour = "black",
+    size = 1
+  ) +
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=16,face="bold"),
+        legend.position = "bottom",
+        legend.text=element_text(size=20, face = "plain"),
+        legend.title=element_blank(),
+        strip.text = element_text(size=20))
+dev.off()
+
 
