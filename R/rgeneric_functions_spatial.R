@@ -385,3 +385,133 @@ rgeneric.Hyperbolic.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "ini
   val = do.call(match.arg(cmd), args = list())
   return(val)
 }
+
+
+
+#' Rgeneric MIDAS spatial model with Gaussian constraint
+#'
+#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+#' implementing MIDAS-type lag weights using a Gaussian structure,
+#' and where \code{beta[i]} and the lag structure varies for each location
+#'
+
+#' @param cmd Character string indicating the INLA command.
+#'   One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
+#'   \code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.
+#' @param theta Numeric vector of hyperparameters controlling the MIDAS weights.
+#'
+#' @return Depends on \code{cmd}:
+#' \itemize{
+#'   \item \code{graph}: Sparse precision structure
+#'   \item \code{Q}: Precision matrix
+#'   \item \code{mu}: Mean vector
+#'   \item \code{initial}: Initial values for \code{theta}
+#'   \item \code{log.norm.const}: Normalizing constant (numeric(0))
+#'   \item \code{log.prior}: Log prior density
+#' }
+#'
+#' @details
+#' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
+#' polynomial transformation of lag indices. The parameters \code{theta[i]}
+#' control the shape of the lag weighting function.
+#'
+#' @importFrom Matrix Diagonal
+#'
+#' @export
+rgeneric.Gaussian.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
+                                                      "log.prior", "quit"),
+                                              theta = NULL){
+
+  envir = parent.env(environment())
+  x <- envir$x
+  lag_k_region <- envir$args$lag_k_region
+
+  regions = sort(unique(x$region))
+  n_regions = length(regions)
+
+  ## artificial high precision to be added to the mean-model
+  prec.high = exp(15)
+
+  interpret.theta = function() {
+
+    mu_raw <- theta[1:n_regions]
+    sigma_raw <- theta[(n_regions + 1):(2*n_regions)]
+    beta <- theta[(2*n_regions + 1):(3*n_regions)]
+
+    sigma_val = exp(sigma_raw)
+
+    w_region <- list()
+
+    for(r in 1:n_regions){
+
+      K_r <- lag_k_region[r]
+
+      mu_val <- K_r * (1 / (1 + exp(-mu_raw[r])))
+
+      psi <- numeric(K_r + 1)
+      for(lag in 0:K_r){
+        psi[lag + 1] <- exp( -(lag-mu_val)^2 / (2 * (sigma_val[r] ^ 2)) )
+      }
+
+      w_region[[r]] <- psi / sum(psi)
+
+    }
+
+    return(list(beta = beta,
+                w = w_region))
+
+  }
+  graph = function() {
+    G = Matrix::Diagonal(n = length(x$lag0), x=1)
+    return(G)
+  }
+  Q = function() {
+    Q = prec.high * graph()
+    return(Q)
+  }
+  mu = function() {
+    par = interpret.theta()
+
+    eta <- numeric(nrow(x))
+
+    for(i in 1:nrow(x)){
+
+      r <- as.integer(x$region[i])
+      K_r <- lag_k_region[r]
+      agg <- 0
+
+      for(lag in 0:K_r){
+        agg <- agg + par$w[[r]][lag+1] * x[i, paste0("lag",lag)]
+      }
+
+      eta[i] <- par$beta[r] * agg
+
+    }
+    return(eta)
+  }
+  log.norm.const = function() {
+    return(numeric(0))
+  }
+  log.prior = function() {
+
+    lp_mu <- sum(
+      stats::dnorm(theta[1:n_regions], 0, 1, log = TRUE)
+    )
+    lp_sigma <- sum(
+      stats::dnorm(theta[(n_regions + 1):(2*n_regions)], 0, 1, log = TRUE)
+    )
+    lp_beta <- sum(
+      stats::dnorm(theta[(2*n_regions + 1):(3*n_regions)], 0, 1, log = TRUE)
+    )
+    lp_mu + lp_sigma + lp_beta
+  }
+  initial = function() {
+    return(rep(0, n_regions*3))
+  }
+  quit = function() {
+    return(invisible())
+  }
+
+  val = do.call(match.arg(cmd), args = list())
+  return(val)
+}

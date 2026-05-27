@@ -784,11 +784,11 @@ fit_Minla_spatial_varylagstr <- function(xdata,
                                         lag_k_region = K
                                       ))
   }else if(constraint == "gaussian"){
-    # rgen = INLA::inla.rgeneric.define(model = rgeneric.Gaussian.varylagstr.midas,
-    #                                   x = temp_data,
-    #                                   args = list(
-    #                                     lag_k_region = K
-    #                                   ))
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Gaussian.varylagstr.midas,
+                                      x = temp_data,
+                                      args = list(
+                                        lag_k_region = K
+                                      ))
   }
 
   if(lagY == 0){
