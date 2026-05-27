@@ -679,3 +679,160 @@ fit_Minla_spatial_varybeta <- function(xdata,
 }
 
 
+
+
+
+
+#' Prepare spatial MIDAS with varying beta and lag structure for INLA estimation
+#' @param xdata High-frequency covariate data
+#' @param ydata Low-frequency response data
+#' @param loc_x Spatial index for the covariate data
+#' @param loc_y Spatial index for the response data
+#' @param constraint constraint function for lag-response association
+#' @param K vector of lags to be considered
+#' @param m Number of covariates values associated with each response
+#' @param lagY Number of lagged response values to be considered
+#' @param family Likelihood family for response data
+#' @param Ntrials Number of trials for a binomial family response
+#' @return A list of objects that will be used to run inla
+#' @export
+fit_Minla_spatial_varylagstr <- function(xdata,
+                                         ydata,
+                                         loc_x,
+                                         loc_y,
+                                         constraint,
+                                         K,
+                                         m,
+                                         lagY = 0,
+                                         family = "gaussian",
+                                         Ntrials){
+
+  compile_X_matrix <- matrix(NA, ncol = max(K) + 2)
+  counter_time <- c()
+  counter_loc <- c()
+  unique_loc_x <- unique(loc_x)
+
+  for(i in unique_loc_x){
+
+    temp_xdata <- xdata[which(loc_x == i)]
+    X_matrix <- create_lag_Xmatrix(tsdata = temp_xdata,
+                                   lags = 0:(K[i]),
+                                   frequency = m)
+    if(ncol(X_matrix) == (max(K)+1)){
+      X_matrix <- X_matrix
+    }else{
+      diff <- max(K) - ncol(X_matrix)
+      names <- paste0("lag",(K[i]+1):(max(K)))
+      temp <- matrix(NA, nrow = nrow(X_matrix), ncol = length(names))
+      newnames <- c(colnames(X_matrix), names)
+      X_matrix <- cbind(X_matrix, temp)
+      colnames(X_matrix) <- newnames
+    }
+    X_matrix <- cbind(X_matrix,rep(i, nrow(X_matrix)))
+
+    compile_X_matrix <- rbind(compile_X_matrix,
+                              X_matrix)
+
+    counter_time <- c(counter_time, 1:nrow(X_matrix))
+    counter_loc <- c(counter_loc, rep(i, times = nrow(X_matrix)))
+
+  }
+
+  compile_X_matrix <- compile_X_matrix[-1,]
+  temp_data <- as.data.frame(compile_X_matrix)
+
+  #rm.row <- which(stats::complete.cases(temp_data) == FALSE)
+  rm.row <- c()
+
+  if(family == "gaussian"){
+    if(length(rm.row > 0) > 0){
+      temp_data$y <- as.vector(ydata)
+      temp_data <- temp_data[-rm.row,]
+    }else{
+      temp_data$y <- as.vector(ydata)
+    }
+  }else if(family == "binomial"){
+    if(length(rm.row > 0) > 0){
+      temp_data$y <- as.vector(ydata)
+      temp_data <- temp_data[-rm.row,]
+    }else{
+      temp_data$y <- as.vector(ydata)
+    }
+  }else if(family == "poisson"){
+    if(length(rm.row > 0) > 0){
+      temp_data$y <- as.vector(ydata)
+      temp_data <- temp_data[-rm.row,]
+    }else{
+      temp_data$y <- as.vector(ydata)
+    }
+  }
+
+  names(temp_data)[ncol(temp_data) - 1] <- "region"
+
+  if(constraint == "beta"){
+
+  }else if(constraint == "beta2"){
+
+  }else if(constraint == "almon2"){
+
+  }else if(constraint == "almon3"){
+
+  }else if(constraint == "hyperbolic"){
+    rgen = INLA::inla.rgeneric.define(model = rgeneric.Hyperbolic.varylagstr.midas,
+                                      x = temp_data,
+                                      args = list(
+                                        lag_k_region = K
+                                      ))
+  }else if(constraint == "gaussian"){
+    # rgen = INLA::inla.rgeneric.define(model = rgeneric.Gaussian.varylagstr.midas,
+    #                                   x = temp_data,
+    #                                   args = list(
+    #                                     lag_k_region = K
+    #                                   ))
+  }
+
+  if(lagY == 0){
+    data = temp_data
+  }else{
+
+  }
+
+  if(family == "binomial"){
+    if(length(rm.row > 0) > 0){
+      return(out = list(data = data,
+                        X_matrix = compile_X_matrix[-rm.row,],
+                        rgen = rgen,
+                        rm.row = rm.row,
+                        Ntrials = Ntrials[-rm.row],
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
+    }else{
+      return(out = list(data = data,
+                        X_matrix = compile_X_matrix,
+                        rgen = rgen,
+                        Ntrials = Ntrials,
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
+    }
+
+  }else if(family == "poisson"){
+    if(length(rm.row > 0) > 0){
+      return(out = list(data = data,
+                        X_matrix = compile_X_matrix[-rm.row,],
+                        rgen = rgen,
+                        rm.row = rm.row,
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
+    }else{
+      return(out = list(data = data,
+                        X_matrix = compile_X_matrix,
+                        rgen = rgen,
+                        idx_time = counter_time,
+                        idx_loc = counter_loc))
+    }
+  }else{
+
+  }
+
+
+}
