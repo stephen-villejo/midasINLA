@@ -476,8 +476,8 @@ compute_weights <- function(model,
 
   if(constraint == "hyperbolic"){
 
-    theta2_samples <- INLA::inla.rmarginal(n.samples, model$marginals.hyperpar$`Theta2 for idx`)
-    gamma_samples <- exp(theta2_samples)/(1+exp(theta2_samples))
+    theta1_samples <- INLA::inla.rmarginal(n.samples, model$marginals.hyperpar$`Theta1 for idx`)
+    gamma_samples <- exp(theta1_samples)/(1+exp(theta1_samples))
     compile_sum <- vector(length = n.samples)
     for(lag in 0:lag_k){
       temp <- gamma(lag+gamma_samples)/(gamma(lag+1)*gamma(gamma_samples))
@@ -502,11 +502,11 @@ compute_weights <- function(model,
                                   q97.5 = unlist(q97.5),
                                   lag = 0:lag_k)
   }else if(constraint == "gaussian"){
+    theta1_samples <- INLA::inla.rmarginal(200, model$marginals.hyperpar$`Theta1 for idx`)
     theta2_samples <- INLA::inla.rmarginal(200, model$marginals.hyperpar$`Theta2 for idx`)
-    theta3_samples <- INLA::inla.rmarginal(200, model$marginals.hyperpar$`Theta3 for idx`)
 
-    mu_val_samples <- lag_k * (1 / (1 + exp(-theta2_samples)))
-    sigma_val_samples <- exp(theta3_samples)
+    mu_val_samples <- lag_k * (1 / (1 + exp(-theta1_samples)))
+    sigma_val_samples <- exp(theta2_samples)
     compile_sum <- vector(length = 200)
     for(lag in 0:lag_k){
       temp <- exp( -(lag-mu_val_samples)^2 / (2 * (sigma_val_samples^2)) )
