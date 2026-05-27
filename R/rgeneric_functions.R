@@ -244,8 +244,8 @@ rgeneric.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm
 #'
 #' @details
 #' The MIDAS lag weights are constructed using a normalized Almon polynomial
-#' transformation of lag indices. The parameters \code{theta[2]} and
-#' \code{theta[3]} control the shape of the lag weighting function.
+#' transformation of lag indices. The parameters \code{theta[1]} and
+#' \code{theta[2]} control the shape of the lag weighting function.
 #'
 #' @importFrom Matrix Diagonal
 #'
@@ -263,35 +263,25 @@ rgeneric.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
   interpret.theta = function() {
 
     lag_k <- ncol(x)-2
-    gamma1 <- 0.01*sin(theta[2L])
-    gamma2 <- 0.01*sin(theta[3L])
+    gamma1 <- 0.01*sin(theta[1L])
+    gamma2 <- 0.01*sin(theta[2L])
+    beta1 <- theta[1L]
+
+    psi <- numeric(lag_k + 1)
     for(lag in 0:lag_k){
-      temp <- exp(gamma1*(lag^1) + gamma2*(lag^2))
-      assign(paste0("psi",lag), temp)
+      psi[lag + 1] <- exp(gamma1*(lag^1) + gamma2*(lag^2))
     }
 
-    compile_sum <- 0
-    for(lag in 0:lag_k){
-      compile_sum <- compile_sum + get(paste0("psi", lag))
-    }
+    w <- psi / sum(psi)
+
+    out_list <- list()
 
     for(lag in 0:lag_k){
-      temp <- get(paste0("psi",lag))
-      assign(paste0("w",lag),temp/compile_sum)
+      out_list[[paste0("w",lag)]] <- w[lag + 1]
     }
 
-    out_list <- vector(mode = "list", length = 1 + lag_k + 1)
-    out_list[[1]] <- theta[1L]
-    for(lag in 0:lag_k){
-      out_list[[lag+2]] <- get(paste0("w",lag))
-    }
+    out_list[["beta1"]] <- beta1
 
-    compile_names <- c()
-    for(lag in 0:lag_k){
-      compile_names <- c(compile_names, paste0("w",lag))
-    }
-    names_vec <- c("beta1", compile_names)
-    names(out_list) <- names_vec
     return(out_list)
 
   }
@@ -326,15 +316,6 @@ rgeneric.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
   log.norm.const = function() {
     return(numeric(0))
   }
-  # log.prior = function() {
-  #   par = interpret.theta()
-  #   n.params <- length(par)
-  #   val <- 0
-  #   for(i in 1:n.params){
-  #     temp <- dnorm(par[[i]], mean=0, sd=1, log=TRUE)
-  #     val <- val + temp
-  #   }
-  # }
   log.prior = function() {
     val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
              stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
