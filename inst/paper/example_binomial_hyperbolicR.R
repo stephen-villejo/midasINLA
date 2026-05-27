@@ -77,18 +77,18 @@ abline(v = quantile(inla.rmarginal(200, res$marginals.fixed$`(Intercept)`), prob
 abline(v = quantile(inla.rmarginal(200, res$marginals.fixed$`(Intercept)`), prob = 0.975), lty = 2)
 
 plot(inla.smarginal(res$marginals.fixed[['trend']]),
-     type="l", lwd=3, col="red", xlab=expression(beta[2]), ylab="",
+     type="l", lwd=3, col="red", xlab=expression(beta[1]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
 abline(v = data_binom_hyperbolic$beta1, col = 'blue', lty = 1, lwd = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.fixed[['trend']]), prob = 0.025), lty = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.fixed[['trend']]), prob = 0.975), lty = 2)
 
-plot(inla.smarginal(res$marginals.hyperpar[['Theta1 for idx']]),
-     type="l", lwd=3, col="red", xlab=expression(beta[1]), ylab="",
+plot(inla.smarginal(res$marginals.hyperpar[['Theta2 for idx']]),
+     type="l", lwd=3, col="red", xlab=expression(beta[2]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
 abline(v = data_binom_hyperbolic$beta2, col = 'blue', lty = 1, lwd = 2)
-abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta1 for idx`), prob = 0.025), lty = 2)
-abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta1 for idx`), prob = 0.975), lty = 2)
+abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta2 for idx`), prob = 0.025), lty = 2)
+abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta2 for idx`), prob = 0.975), lty = 2)
 
 dev.off()
 
@@ -151,7 +151,7 @@ autoplot(both_ts) +
     values = c("blue","red")
   ) +
   ylab("y") +
-  geom_vline(xintercept = max(which(!is.na(Midas_objects$data$y))) + 0.5, linetype = "solid", colour = "black", size = 1) +
+  geom_vline(xintercept = max(which(!is.na(Midas_objects$data$y))) + 0.5, linetype = "solid", colour = "black", linewidth = 1) +
   theme(axis.text=element_text(size=16),
         axis.title=element_text(size=16,face="bold"),
         legend.position = "bottom",
@@ -201,7 +201,7 @@ autoplot(both_ts_baseline) +
   scale_colour_manual(
     values = c("blue","red")
   ) +
-  geom_vline(xintercept = max(which(!is.na(Midas_objects$data$y))) + 0.5, linetype = "solid", colour = "black", size = 1) +
+  geom_vline(xintercept = max(which(!is.na(Midas_objects$data$y))) + 0.5, linetype = "solid", colour = "black", linewidth = 1) +
   #scale_x_continuous(limits = c(180, NA)) +
   ylab("y") +
   theme(axis.text=element_text(size=16),
