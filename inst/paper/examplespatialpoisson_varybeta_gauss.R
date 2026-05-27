@@ -200,7 +200,7 @@ ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
     data = vlines_df_sub,
     aes(xintercept = cut),
     colour = "black",
-    size = 1
+    linewidth = 1
   ) +
   theme(axis.text=element_text(size=16),
         axis.title=element_text(size=16,face="bold"),
