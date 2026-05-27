@@ -583,8 +583,8 @@ rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log
 #'
 #' @details
 #' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
-#' polynomial transformation of lag indices. The parametesr \code{theta[2]} and
-#' \code{theta[3]} control the shape of the lag weighting function.
+#' polynomial transformation of lag indices. The parametesr \code{theta[1]} and
+#' \code{theta[2]} control the shape of the lag weighting function.
 #'
 #' @importFrom Matrix Diagonal
 #'
@@ -602,35 +602,24 @@ rgeneric.Gaussian.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.n
   interpret.theta = function() {
 
     lag_k = ncol(x)-2
-    mu_val <- lag_k * (1 / (1 + exp(-theta[2L])))
-    sigma_val = exp(theta[3L])
+    mu_val <- lag_k * (1 / (1 + exp(-theta[1L])))
+    sigma_val = exp(theta[2L])
+    beta1 <- theta[3L]
+
+    psi <- numeric(lag_k + 1)
     for(lag in 0:lag_k){
-      temp <- exp( -(lag-mu_val)^2 / (2 * (sigma_val ^ 2)) )
-      assign(paste0("psi",lag), temp)
+      psi[lag + 1] <- exp( -(lag-mu_val)^2 / (2 * (sigma_val ^ 2)) )
     }
 
-    compile_sum <- 0
+    w <- psi / sum(psi)
+
+    out_list <- list()
     for(lag in 0:lag_k){
-      compile_sum <- compile_sum + get(paste0("psi", lag))
+      out_list[[paste0("w",lag)]] <- w[lag + 1]
     }
 
-    for(lag in 0:lag_k){
-      temp <- get(paste0("psi",lag))
-      assign(paste0("w",lag),temp/compile_sum)
-    }
+    out_list[["beta1"]] <- beta1
 
-    out_list <- vector(mode = "list", length = 1 + lag_k + 1)
-    out_list[[1]] <- theta[1L]
-    for(lag in 0:lag_k){
-      out_list[[lag+2]] <- get(paste0("w",lag))
-    }
-
-    compile_names <- c()
-    for(lag in 0:lag_k){
-      compile_names <- c(compile_names, paste0("w",lag))
-    }
-    names_vec <- c("beta1", compile_names)
-    names(out_list) <- names_vec
     return(out_list)
 
   }

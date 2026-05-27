@@ -33,6 +33,6 @@ implementing MIDAS-type lag weights using a Gaussian structure.
 }
 \details{
 The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
-polynomial transformation of lag indices. The parametesr \code{theta[2]} and
-\code{theta[3]} control the shape of the lag weighting function.
+polynomial transformation of lag indices. The parametesr \code{theta[1]} and
+\code{theta[2]} control the shape of the lag weighting function.
 }
