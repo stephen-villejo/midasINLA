@@ -33,6 +33,6 @@ implementing MIDAS-type lag weights using an Almon polynomial structure.
 }
 \details{
 The MIDAS lag weights are constructed using a normalized Almon polynomial
-transformation of lag indices. The parameters \code{theta[2]}, \code{theta[3]},
-and \code{theta[4]} control the shape of the lag weighting function.
+transformation of lag indices. The parameters \code{theta[1]}, \code{theta[2]},
+and \code{theta[3]} control the shape of the lag weighting function.
 }
