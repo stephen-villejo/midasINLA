@@ -256,6 +256,39 @@ rgeneric.Hyperbolic.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initi
 
 
 
+
+
+
+#' Rgeneric MIDAS spatial model with Hyperbolic scheme constraint
+#'
+#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+#' implementing MIDAS-type lag weights using a Hyperbolic scheme structure,
+#' and where \code{beta[i]} and the lag structure varies for each location
+#'
+
+#' @param cmd Character string indicating the INLA command.
+#'   One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
+#'   \code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.
+#' @param theta Numeric vector of hyperparameters controlling the MIDAS weights.
+#'
+#' @return Depends on \code{cmd}:
+#' \itemize{
+#'   \item \code{graph}: Sparse precision structure
+#'   \item \code{Q}: Precision matrix
+#'   \item \code{mu}: Mean vector
+#'   \item \code{initial}: Initial values for \code{theta}
+#'   \item \code{log.norm.const}: Normalizing constant (numeric(0))
+#'   \item \code{log.prior}: Log prior density
+#' }
+#'
+#' @details
+#' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
+#' polynomial transformation of lag indices. The parameters \code{theta[i]}
+#' control the shape of the lag weighting function.
+#'
+#' @importFrom Matrix Diagonal
+#'
+#' @export
 rgeneric.Hyperbolic.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                         "log.prior", "quit"),
                                                 theta = NULL){
