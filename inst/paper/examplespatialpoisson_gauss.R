@@ -73,12 +73,12 @@ abline(v = data_spatialpoisson_gauss$beta0, col = 'blue', lty=1, lwd = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.fixed$`(Intercept)`), prob = 0.025), lty = 2)
 abline(v = quantile(inla.rmarginal(200, res$marginals.fixed$`(Intercept)`), prob = 0.975), lty = 2)
 
-plot(inla.smarginal(res$marginals.hyperpar[['Theta1 for idx']]),
+plot(inla.smarginal(res$marginals.hyperpar[['Theta3 for idx']]),
      type="l", lwd=3, col="red", xlab=expression(beta[1]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
 abline(v = data_spatialpoisson_gauss$beta1, col = 'blue', lty = 1, lwd = 2)
-abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta1 for idx`), prob = 0.025), lty = 2)
-abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta1 for idx`), prob = 0.975), lty = 2)
+abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta3 for idx`), prob = 0.025), lty = 2)
+abline(v = quantile(inla.rmarginal(200, res$marginals.hyperpar$`Theta3 for idx`), prob = 0.975), lty = 2)
 
 plot(inla.smarginal(res$marginals.hyperpar[['Precision for iid_loc']]),
      type="l", lwd=3, col="red", xlab=expression(tau), ylab="",
