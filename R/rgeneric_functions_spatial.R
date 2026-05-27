@@ -503,7 +503,7 @@ rgeneric.Gaussian.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "initi
     lp_beta <- sum(
       stats::dnorm(theta[(2*n_regions + 1):(3*n_regions)], 0, 1, log = TRUE)
     )
-    lp_mu + lp_sigma + lp_beta
+    return(lp_mu + lp_sigma + lp_beta)
   }
   initial = function() {
     return(rep(0, n_regions*3))
