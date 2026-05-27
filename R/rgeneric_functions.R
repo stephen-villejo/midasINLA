@@ -144,7 +144,7 @@ rgeneric.Beta.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.
 #'
 #' @details
 #' The MIDAS lag weights are constructed using a normalized Beta polynomial
-#' transformation of lag indices. The parameters \code{theta[2]} and \code{theta[3]}
+#' transformation of lag indices. The parameters \code{theta[1]} and \code{theta[2]}
 #' control the shape of the lag weighting function.
 #'
 #' @importFrom Matrix Diagonal
@@ -163,36 +163,24 @@ rgeneric.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm
   interpret.theta = function() {
 
     lag_k <- ncol(x)-2
-    gamma1 <- exp(theta[2L]) + 1
-    gamma2 <- exp(theta[3L]) + 1
+    gamma1 <- exp(theta[1L]) + 1
+    gamma2 <- exp(theta[2L]) + 1
+    beta1 <- theta[3L]
     for(lag in 0:lag_k){
       x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
-      temp <- (x_temp^(gamma1-1))*((1-x_temp)^(gamma2-1))
-      assign(paste0("psi",lag), temp)
+      psi[lag + 1] <- (x_temp^(gamma1-1))*((1-x_temp)^(gamma2-1))
     }
 
-    compile_sum <- 0
-    for(lag in 0:lag_k){
-      compile_sum <- compile_sum + get(paste0("psi", lag))
-    }
+    w = psi / sum(psi)
+
+    out_list <- list()
 
     for(lag in 0:lag_k){
-      temp <- get(paste0("psi",lag))
-      assign(paste0("w",lag),temp/compile_sum)
+      out_list[[paste0("w", lag)]] <- w[lag + 1]
     }
 
-    out_list <- vector(mode = "list", length = 1 + lag_k + 1)
-    out_list[[1]] <- theta[1L]
-    for(lag in 0:lag_k){
-      out_list[[lag+2]] <- get(paste0("w",lag))
-    }
+    out_list[["beta1"]] <- beta1
 
-    compile_names <- c()
-    for(lag in 0:lag_k){
-      compile_names <- c(compile_names, paste0("w",lag))
-    }
-    names_vec <- c("beta1", compile_names)
-    names(out_list) <- names_vec
     return(out_list)
   }
   graph = function() {

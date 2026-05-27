@@ -33,6 +33,6 @@ implementing MIDAS-type lag weights using a Beta polynomial structure.
 }
 \details{
 The MIDAS lag weights are constructed using a normalized Beta polynomial
-transformation of lag indices. The parameters \code{theta[2]} and \code{theta[3]}
+transformation of lag indices. The parameters \code{theta[1]} and \code{theta[2]}
 control the shape of the lag weighting function.
 }
