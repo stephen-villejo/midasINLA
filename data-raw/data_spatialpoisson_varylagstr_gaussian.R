@@ -18,7 +18,7 @@ set.seed(5109)
 phi_sd <- 0.5
 phi <- rnorm(locs,0,phi_sd)
 
-lag_k <- 29
+lag_k <- rep(29, times = 5)
 
 # compute weights
 
@@ -28,7 +28,7 @@ sigma_f <- rep(7, times = 5)
 weights <- list()
 for(i in 1:locs){
   xi <- c()
-  for(lag in 0:lag_k){
+  for(lag in 0:lag_k[i]){
     temp <- exp( -(lag-mu_f[i])^2 / (2 * (sigma_f[i]^2)) )
     xi <- c(xi, temp)
   }
@@ -51,7 +51,7 @@ for(i in 1:locs){
 
   set.seed(9912 + i)
   x <- rnorm(m*n,3,2)
-  eta <- beta0 + beta[i]*mls(x,0:lag_k,m)%*%weights[[i]] + phi[i]
+  eta <- beta0 + beta[i]*mls(x,0:lag_k[i],m)%*%weights[[i]] + phi[i]
   mu <- exp(eta)
 
   y <- matrix(NA, nrow = length(mu), ncol = 1)
