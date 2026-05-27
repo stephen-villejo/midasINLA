@@ -86,4 +86,4 @@ data_spatialpoisson_varybeta_gauss <- list(data_x = data_x,
 usethis::use_data(data_spatialpoisson_varybeta_gauss, overwrite = TRUE)
 
 
-source("data-raw/data_spatialpoisson_varybeta_gaussian.R")
+#source("data-raw/data_spatialpoisson_varybeta_gaussian.R")
