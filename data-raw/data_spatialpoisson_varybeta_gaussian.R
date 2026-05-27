@@ -73,18 +73,17 @@ data_x <- do.call(rbind, x_list)
 data_y <- do.call(rbind, y_list)
 
 
-data_spatialpoisson_varybeta_gaussian <- list(data_x = data_x,
-                                              data_y = data_y,
-                                              weights = weights,
-                                              eta = eta,
-                                              beta0 = beta0,
-                                              beta = beta,
-                                              phi_sd = phi_sd,
-                                              phi = phi)
+data_spatialpoisson_varybeta_gauss <- list(data_x = data_x,
+                                           data_y = data_y,
+                                           weights = weights,
+                                           eta = eta,
+                                           beta0 = beta0,
+                                           beta = beta,
+                                           phi_sd = phi_sd,
+                                           phi = phi)
 
 
-
-usethis::use_data(data_spatialpoisson_varybeta_gaussian, overwrite = TRUE)
+usethis::use_data(data_spatialpoisson_varybeta_gauss, overwrite = TRUE)
 
 
 source("data-raw/data_spatialpoisson_varybeta_gaussian.R")
