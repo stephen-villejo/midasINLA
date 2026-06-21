@@ -11,7 +11,7 @@ n <- 60
 m <- 30
 beta0 = 1
 beta1 = 1.2
-beta2 = -1
+beta2 = -0.5
 
 mu_f <- 8
 sigma_f <- 7
@@ -48,41 +48,14 @@ data_poiss_gaussianc <- list(x1 = x1,
                              mu = mu,
                              weights = weights,
                              beta0 = beta0,
-                             beta1 = beta1)
+                             beta1 = beta1,
+                             beta2 = beta2)
 
 
 usethis::use_data(data_poiss_gaussianc, overwrite = TRUE)
 
 
-#source("data-raw/data_poisson_gaussianc.R")
+#source("data-raw/data_poiss_gaussianc.R")
 
 
-
-
-# x <- data_poiss_gaussian[["x"]]
-# y <- data_poiss_gaussian[["y"]]
-#
-#
-# Midas_objects <- fit_Minla(xdata = x,
-#                            ydata = y,
-#                            constraint = "gaussian",
-#                            K = 0:29,
-#                            m = 30,
-#                            lagY = 0,
-#                            family = "poisson")
-# data <- Midas_objects$data
-#
-#
-#
-#
-# res_rgeneric = inla(y ~ 1 +f(idx,
-#                     model = Midas_objects[["rgen"]],
-#                     n = nrow(Midas_objects[["data"]])),
-#            data = data.frame(y = Midas_objects[["data"]][["y"]],
-#                              idx = 1:nrow(Midas_objects[["data"]])),
-#            verbose = TRUE,
-#            family = "poisson",
-#            control.compute=list(config = TRUE))
-#
-# summary(res_rgeneric)
 
