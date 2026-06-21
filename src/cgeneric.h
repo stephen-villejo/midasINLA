@@ -13,7 +13,7 @@
 
 //
 
-#       include <omp.h>
+// #       include <omp.h>
 
 __BEGIN_DECLS
 #       include <assert.h>
