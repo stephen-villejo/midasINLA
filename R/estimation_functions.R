@@ -141,6 +141,134 @@ fit_Minla <- function(xdata,
 }
 
 
+#' Prepare MIDAS objects for INLA estimation
+#' @param xdata High-frequency covariate data
+#' @param ydata Low-frequency response data
+#' @param covariate_data covariate data frame
+#' @param constraint constraint function for lag-response association
+#' @param K Lags to be considered
+#' @param m Number of covariates values associated with each response
+#' @param lagY Number of lagged response values to be considered
+#' @param family Likelihood family for response data
+#' @param Ntrials Number of trials for a binomial family response
+#' @return A list of objects that will be used to run inla
+#' @export
+fit_Minla_c <- function(xdata,
+                        ydata,
+                        covariate_data,
+                        constraint,
+                        K,
+                        m,
+                        lagY = 0,
+                        family = "gaussian",
+                        Ntrials){
+
+  X_matrix <- create_lag_Xmatrix(tsdata = xdata,
+                                 lags = K,
+                                 frequency = m)
+
+  temp_data <- as.data.frame(X_matrix)
+
+  rm.row <- which(stats::complete.cases(temp_data) == FALSE)
+
+  if(family == "gaussian"){
+    if(length(rm.row > 0) > 0){
+      temp_data$y <- as.vector(ydata)
+      temp_data <- temp_data[-rm.row,]
+    }else{
+      temp_data$y <- as.vector(ydata)
+    }
+  }else if(family == "binomial"){
+    if(length(rm.row > 0) > 0){
+      temp_data$y <- as.vector(ydata)
+      temp_data <- temp_data[-rm.row,]
+    }else{
+      temp_data$y <- as.vector(ydata)
+    }
+  }else if(family == "poisson"){
+    if(length(rm.row > 0) > 0){
+      temp_data$y <- as.vector(ydata)
+      temp_data <- temp_data[-rm.row,]
+    }else{
+      temp_data$y <- as.vector(ydata)
+    }
+  }
+
+
+  shlib <- system.file("libs", "midasINLA.so", package = "midasINLA")
+
+  if(constraint == "beta"){
+
+  }else if(constraint == "beta2"){
+
+  }else if(constraint == "almon2"){
+
+  }else if(constraint == "almon3"){
+
+  }else if(constraint == "hyperbolic"){
+    cmodel <- inla.cgeneric.define(model = "inla_cgeneric_hyperbolic_midas",
+                                   shlib = shlib,
+                                   n = as.integer(nrow(temp_data)),
+                                   debug = TRUE,
+                                   K = max(K),
+                                   x = t(as.matrix(temp_data)[,1:(max(K+1))]))
+  }else if(constraint == "gaussian"){
+    cmodel <- inla.cgeneric.define(model = "inla_cgeneric_gaussian_midas",
+                                   shlib = shlib,
+                                   n = as.integer(nrow(temp_data)),
+                                   debug = TRUE,
+                                   K = max(K),
+                                   x = t(as.matrix(temp_data)[,1:(max(K+1))]))
+  }
+
+  if(lagY == 0){
+    data = temp_data
+  }else{
+  }
+
+
+  if(family == "binomial"){
+    if(length(rm.row > 0) > 0){
+      return(out = list(data = data,
+                        X_matrix = X_matrix[-rm.row,],
+                        cmodel = cmodel,
+                        rm.row = rm.row,
+                        Ntrials = Ntrials[-rm.row]))
+    }else{
+      return(out = list(data = data,
+                        X_matrix = X_matrix,
+                        cmodel = cmodel,
+                        Ntrials = Ntrials))
+    }
+
+  }else if(family == "poisson"){
+    if(length(rm.row > 0) > 0){
+      return(out = list(data = data,
+                        X_matrix = X_matrix[-rm.row,],
+                        rgen = rgen,
+                        cmodel = cmodel))
+    }else{
+      return(out = list(data = data,
+                        X_matrix = X_matrix,
+                        cmodel = cmodel))
+    }
+
+  }else if(family  == "gaussian"){
+    if(length(rm.row > 0) > 0){
+      return(out = list(data = data,
+                        X_matrix = X_matrix[-rm.row,],
+                        cmodel = cmodel,
+                        rm.row = rm.row))
+    }else{
+      return(out = list(data = data,
+                        X_matrix = X_matrix,
+                        cmodel = cmodel))
+    }
+
+  }
+
+
+}
 
 
 #' Prepare spatial MIDAS objects for INLA estimation
