@@ -53,7 +53,7 @@
 #' with parameter mu = 8, sigma = 7, and lag length 29
 #'
 #' @source Simulated data
-"data_poisson_gaussianc"
+"data_poiss_gaussianc"
 
 #devtools::document()
 
