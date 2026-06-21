@@ -4,7 +4,7 @@
 \alias{rgeneric.Gaussian.midas}
 \title{Rgeneric MIDAS model with Gaussian constraint}
 \usage{
-\method{rgeneric}{Gaussian.midas}(
+rgeneric.Gaussian.midas(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const", "log.prior", "quit"),
   theta = NULL
 )

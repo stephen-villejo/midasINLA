@@ -4,7 +4,7 @@
 \alias{rgeneric.Hyperbolic.midas}
 \title{Rgeneric MIDAS model with Hyperbolic scheme constraint}
 \usage{
-\method{rgeneric}{Hyperbolic.midas}(
+rgeneric.Hyperbolic.midas(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const", "log.prior", "quit"),
   theta = NULL
 )

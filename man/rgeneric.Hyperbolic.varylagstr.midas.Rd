@@ -4,7 +4,7 @@
 \alias{rgeneric.Hyperbolic.varylagstr.midas}
 \title{Rgeneric MIDAS spatial model with Hyperbolic scheme constraint}
 \usage{
-\method{rgeneric}{Hyperbolic.varylagstr.midas}(
+rgeneric.Hyperbolic.varylagstr.midas(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const", "log.prior", "quit"),
   theta = NULL
 )

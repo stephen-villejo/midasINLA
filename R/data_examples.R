@@ -28,7 +28,35 @@
 #devtools::document()
 
 
+#' Example MIDAS dataset
+#'
+#' Simulated dataset generated using a poisson sampling model and gaussian weighting scheme.
+#'
+#' @description
+#' This dataset contains simulated high-frequency covariates and a
+#' poisson response constructed using MIDAS lag weights.
+#'
+#' @format A list with the following components:
+#' \describe{
+#'   \item{x1}{Numeric vector of high-frequency covariate}
+#'   \item{x2}{Numeric vector of low-frequency covaraite}
+#'   \item{y}{Integer vector of binomial response counts}
+#'   \item{p}{Underlying success probabilities}
+#'   \item{Ntrials}{Number of trials for each observation}
+#'   \item{weights}{Lag weights used in the MIDAS structure}
+#'   \item{beta0}{True value of intercept \eqn{\beta_0}}
+#'   \item{beta1}{True value of \eqn{\beta_1}}
+#'   \item{beta2}{True value of \eqn{\beta_2}}
+#' }
+#'
+#' @details
+#' The dataset is generated using a hyperbolic weighting scheme
+#' with parameter gamma = 0.9 and lag length 13.
+#'
+#' @source Simulated data
+"data_poiss_gaussianc"
 
+#devtools::document()
 
 
 #' Example MIDAS dataset

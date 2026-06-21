@@ -4,7 +4,7 @@
 \alias{rgeneric.Gaussian.varylagstr.midas}
 \title{Rgeneric MIDAS spatial model with Gaussian constraint}
 \usage{
-\method{rgeneric}{Gaussian.varylagstr.midas}(
+rgeneric.Gaussian.varylagstr.midas(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const", "log.prior", "quit"),
   theta = NULL
 )

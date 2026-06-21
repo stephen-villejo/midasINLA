@@ -4,7 +4,7 @@
 \alias{rgeneric.Beta2.midas}
 \title{Rgeneric MIDAS model with Beta polynomial constraint}
 \usage{
-\method{rgeneric}{Beta2.midas}(
+rgeneric.Beta2.midas(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const", "log.prior", "quit"),
   theta = NULL
 )

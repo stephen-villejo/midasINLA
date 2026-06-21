@@ -32,7 +32,7 @@ weights <- xi/sum(xi)
 set.seed(9912)
 x1 <- rnorm(m*n,3,2) # covariate data
 x2 <- rnorm(n,0,1) # low frequency covariate
-eta <- beta0 + beta1*mls(x,0:lag_k,m)%*%weights + beta2*x2
+eta <- beta0 + beta1*mls(x1,0:lag_k,m)%*%weights + beta2*x2
 mu <- exp(eta)
 
 y <- matrix(NA, nrow = length(mu), ncol = 1)
@@ -42,14 +42,15 @@ y[!is.na(mu)] <- rpois(
   lambda = mu[!is.na(mu)]
 )
 
-data_poiss_gaussianc <- list(x = x,
+data_poiss_gaussianc <- list(x1 = x1,
+                             x2 = x2,
                              y = y,
                              mu = mu,
                              weights = weights,
                              beta0 = beta0,
                              beta1 = beta1)
-                            
-                            
+
+
 usethis::use_data(data_poiss_gaussianc, overwrite = TRUE)
 
 
@@ -60,8 +61,8 @@ usethis::use_data(data_poiss_gaussianc, overwrite = TRUE)
 
 # x <- data_poiss_gaussian[["x"]]
 # y <- data_poiss_gaussian[["y"]]
-# 
-# 
+#
+#
 # Midas_objects <- fit_Minla(xdata = x,
 #                            ydata = y,
 #                            constraint = "gaussian",
@@ -70,10 +71,10 @@ usethis::use_data(data_poiss_gaussianc, overwrite = TRUE)
 #                            lagY = 0,
 #                            family = "poisson")
 # data <- Midas_objects$data
-# 
-# 
-# 
-# 
+#
+#
+#
+#
 # res_rgeneric = inla(y ~ 1 +f(idx,
 #                     model = Midas_objects[["rgen"]],
 #                     n = nrow(Midas_objects[["data"]])),
@@ -82,6 +83,6 @@ usethis::use_data(data_poiss_gaussianc, overwrite = TRUE)
 #            verbose = TRUE,
 #            family = "poisson",
 #            control.compute=list(config = TRUE))
-# 
+#
 # summary(res_rgeneric)
 
