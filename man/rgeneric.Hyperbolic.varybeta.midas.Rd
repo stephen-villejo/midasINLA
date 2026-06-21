@@ -4,7 +4,7 @@
 \alias{rgeneric.Hyperbolic.varybeta.midas}
 \title{Rgeneric MIDAS spatial model with Hyperbolic scheme constraint}
 \usage{
-rgeneric.Hyperbolic.varybeta.midas(
+\method{rgeneric}{Hyperbolic.varybeta.midas}(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const", "log.prior", "quit"),
   theta = NULL
 )

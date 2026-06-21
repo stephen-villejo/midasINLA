@@ -33,13 +33,13 @@ create_lag_Xmatrix <- function(tsdata,
 #' @return A list of objects that will be used to run inla
 #' @export
 fit_Minla <- function(xdata,
-                      ydata,
-                      constraint,
-                      K,
-                      m,
-                      lagY = 0,
-                      family = "gaussian",
-                      Ntrials){
+                        ydata,
+                        constraint,
+                        K,
+                        m,
+                        lagY = 0,
+                        family = "gaussian",
+                        Ntrials){
 
   X_matrix <- create_lag_Xmatrix(tsdata = xdata,
                                  lags = K,
@@ -139,6 +139,8 @@ fit_Minla <- function(xdata,
 
 
 }
+
+
 
 
 #' Prepare spatial MIDAS objects for INLA estimation

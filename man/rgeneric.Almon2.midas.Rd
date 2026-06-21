@@ -4,7 +4,7 @@
 \alias{rgeneric.Almon2.midas}
 \title{Rgeneric MIDAS model with Almon polynomial constraint, d = 2}
 \usage{
-rgeneric.Almon2.midas(
+\method{rgeneric}{Almon2.midas}(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const", "log.prior", "quit"),
   theta = NULL
 )
