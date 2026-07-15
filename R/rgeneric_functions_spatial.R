@@ -1,10 +1,11 @@
 
-#' Rgeneric MIDAS spatially-varying coefficient model with hyperblic scheme constraint
+#' Rgeneric MIDAS spatially-varying coefficient model with hyperbolic
+#' scheme constraint
 #'
 #' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a Gaussian structure,
+#' implementing MIDAS-type lag weights using a hyperbolic scheme structure,
 #' and where \code{beta[i]} varies for each location
-#' based on the iCAR process
+#' following an iCAR model
 #'
 
 #' @param cmd Character string indicating the INLA command.
@@ -30,9 +31,9 @@
 #' @importFrom Matrix Diagonal
 #'
 #' @export
-rgeneric.svc.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
-                                                 "log.prior", "quit"),
-                                         theta = NULL){
+rgeneric.svc.Hyperbolic.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
+                                                      "log.prior", "quit"),
+                                              theta = NULL){
 
   envir <- parent.env(environment())
 
@@ -260,140 +261,15 @@ rgeneric.svc.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", 
 
 }
 
-#' Rgeneric MIDAS spatial model with Gaussian constraint
+
+
+
+#' Rgeneric MIDAS spatially-varying coefficient model with hyperbolic
+#' scheme constraint
 #'
 #' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a Gaussian structure,
-#' and where \code{beta[i]} varies for each location
-#'
-
-#' @param cmd Character string indicating the INLA command.
-#'   One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
-#'   \code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.
-#' @param theta Numeric vector of hyperparameters controlling the MIDAS weights.
-#'
-#' @return Depends on \code{cmd}:
-#' \itemize{
-#'   \item \code{graph}: Sparse precision structure
-#'   \item \code{Q}: Precision matrix
-#'   \item \code{mu}: Mean vector
-#'   \item \code{initial}: Initial values for \code{theta}
-#'   \item \code{log.norm.const}: Normalizing constant (numeric(0))
-#'   \item \code{log.prior}: Log prior density
-#' }
-#'
-#' @details
-#' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
-#' polynomial transformation of lag indices. The parameters \code{theta[1]} and
-#' \code{theta[2]} control the shape of the lag weighting function.
-#'
-#' @importFrom Matrix Diagonal
-#'
-#' @export
-rgeneric.Gaussian.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
-                                                    "log.prior", "quit"),
-                                            theta = NULL){
-
-  envir = parent.env(environment())
-  x <- envir$x
-
-  regions = sort(unique(x$region))
-  n_regions = length(regions)
-
-  ## artificial high precision to be added to the mean-model
-  prec.high = exp(15)
-
-  interpret.theta = function() {
-
-    lag_k = ncol(x)-3
-
-    beta = theta[3:(n_regions + 2)]
-
-    mu_val <- lag_k * (1 / (1 + exp(-theta[1L])))
-    sigma_val = exp(theta[2L])
-
-    psi = numeric(lag_k + 1)
-    for(lag in 0:lag_k){
-      psi[lag + 1] = exp( -(lag-mu_val)^2 / (2 * (sigma_val ^ 2)) )
-    }
-    w = psi / sum(psi)
-
-    out_list = list()
-    for(lag in 0:lag_k){
-      out_list[[paste0("w", lag)]] = w[lag + 1]
-    }
-
-    for(b in 1:n_regions){
-      out_list[[paste0("beta", b)]] = beta[b]
-    }
-
-    return(out_list)
-
-  }
-  graph = function() {
-    G = Matrix::Diagonal(n = length(x$lag0), x=1)
-    return(G)
-  }
-  Q = function() {
-    Q = prec.high * graph()
-    return(Q)
-  }
-  mu = function() {
-    par = interpret.theta()
-
-    lag_k = ncol(x)-3
-    compile_lag_label <- c()
-    for(lag in 0:lag_k){
-      compile_lag_label <- c(compile_lag_label, paste0("lag",lag))
-    }
-    compile_w_label <- c()
-    for(lag in 0:lag_k){
-      compile_w_label <- c(compile_w_label, paste0("w",lag))
-    }
-
-    agg <- 0
-    for(lag in 0:lag_k){
-      agg <- agg + par[[compile_w_label[[lag+1]]]] * x[,which(names(x) == compile_lag_label[[lag+1]])]
-    }
-
-    beta_vec <- numeric(length(x$region))
-
-    for(i in seq_along(x$region)){
-      beta_vec[i] <- par[[paste0("beta",x$region[i])]]
-    }
-
-    return(beta_vec * agg)
-  }
-  log.norm.const = function() {
-    return(numeric(0))
-  }
-  log.prior = function() {
-    lp_gauss= stats::dnorm(theta[1L], mean = 0, sd = 1, log = TRUE) +
-      stats::dnorm(theta[2L], mean = 0, sd = 1, log = TRUE)
-    lp_beta = sum(
-      stats::dnorm(theta[3:(n_regions + 2)], mean = 0, sd = 1, log = TRUE)
-    )
-    return(lp_gauss + lp_beta)
-  }
-  initial = function() {
-    return(rep(0, n_regions+2))
-  }
-  quit = function() {
-    return(invisible())
-  }
-
-  val = do.call(match.arg(cmd), args = list())
-  return(val)
-}
-
-
-
-
-#' Rgeneric MIDAS spatial model with Hyperbolic scheme constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a Hyperbolic scheme structure,
-#' and where \code{beta[i]} varies for each location
+#' implementing MIDAS-type lag weights using a hyperbolic scheme structure,
+#' and where \code{beta} is constant for all locations
 #'
 
 #' @param cmd Character string indicating the INLA command.
@@ -414,45 +290,42 @@ rgeneric.Gaussian.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initial
 #' @details
 #' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
 #' polynomial transformation of lag indices. The parameter \code{theta[1]}
-#' controls the shape of the lag weighting function.
+#' control the shape of the lag weighting function.
 #'
 #' @importFrom Matrix Diagonal
 #'
 #' @export
-rgeneric.Hyperbolic.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
-                                                      "log.prior", "quit"),
-                                              theta = NULL){
+rgeneric.globalbeta.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
+                                                        "log.prior", "quit"),
+                                                theta = NULL){
 
   envir = parent.env(environment())
   x <- envir$x
-
-  regions = sort(unique(x$region))
-  n_regions = length(regions)
 
   ## artificial high precision to be added to the mean-model
   prec.high = exp(15)
 
   interpret.theta = function() {
 
-    lag_k = ncol(x)-3
-
-    beta = theta[2:(n_regions + 1)]
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    lag_k <- length(lag_cols) - 1L
 
     gamma_val = exp(theta[1L])/(1+exp(theta[1L]))
-    psi = numeric(lag_k + 1)
-    for(lag in 0:lag_k){
-      psi[lag + 1] = gamma(lag+gamma_val) / (gamma(lag+1)*gamma(gamma_val))
-    }
-    w = psi / sum(psi)
+    beta1 <- theta[2L]
 
-    out_list = list()
+    psi <- numeric(lag_k + 1)
     for(lag in 0:lag_k){
-      out_list[[paste0("w", lag)]] = w[lag + 1]
+      psi[lag + 1] <- gamma(lag+gamma_val) / (gamma(lag+1)*gamma(gamma_val))
     }
 
-    for(b in 1:n_regions){
-      out_list[[paste0("beta", b)]] = beta[b]
+    w <- psi / sum(psi)
+
+    out_list <- list()
+    for(lag in 0:lag_k){
+      out_list[[paste0("w",lag)]] <- w[lag + 1]
     }
+
+    out_list[["beta1"]] <- beta1
 
     return(out_list)
 
@@ -468,7 +341,9 @@ rgeneric.Hyperbolic.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initi
   mu = function() {
     par = interpret.theta()
 
-    lag_k = ncol(x)-3
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    lag_k <- length(lag_cols) - 1L
+
     compile_lag_label <- c()
     for(lag in 0:lag_k){
       compile_lag_label <- c(compile_lag_label, paste0("lag",lag))
@@ -483,26 +358,18 @@ rgeneric.Hyperbolic.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initi
       agg <- agg + par[[compile_w_label[[lag+1]]]] * x[,which(names(x) == compile_lag_label[[lag+1]])]
     }
 
-    beta_vec <- numeric(length(x$region))
-
-    for(i in seq_along(x$region)){
-      beta_vec[i] <- par[[paste0("beta",x$region[i])]]
-    }
-
-    return(beta_vec * agg)
+    return(par$beta1 * agg)
   }
   log.norm.const = function() {
     return(numeric(0))
   }
   log.prior = function() {
-    lp_gamma = stats::dnorm(theta[1L], mean = 0, sd = 1, log = TRUE)
-    lp_beta = sum(
-      stats::dnorm(theta[2:(n_regions + 1)], mean = 0, sd = 1, log = TRUE)
-    )
-    return(lp_gamma + lp_beta)
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE))
+    return(val)
   }
   initial = function() {
-    return(rep(0, n_regions+1))
+    return(rep(1, 2))
   }
   quit = function() {
     return(invisible())
@@ -515,142 +382,13 @@ rgeneric.Hyperbolic.varybeta.midas = function(cmd = c("graph", "Q", "mu", "initi
 
 
 
-
-
-#' Rgeneric MIDAS spatial model with Hyperbolic scheme constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a Hyperbolic scheme structure,
-#' and where \code{beta[i]} and the lag structure varies for each location
-#'
-
-#' @param cmd Character string indicating the INLA command.
-#'   One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
-#'   \code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.
-#' @param theta Numeric vector of hyperparameters controlling the MIDAS weights.
-#'
-#' @return Depends on \code{cmd}:
-#' \itemize{
-#'   \item \code{graph}: Sparse precision structure
-#'   \item \code{Q}: Precision matrix
-#'   \item \code{mu}: Mean vector
-#'   \item \code{initial}: Initial values for \code{theta}
-#'   \item \code{log.norm.const}: Normalizing constant (numeric(0))
-#'   \item \code{log.prior}: Log prior density
-#' }
-#'
-#' @details
-#' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
-#' polynomial transformation of lag indices. The parameters \code{theta[i]}
-#' control the shape of the lag weighting function.
-#'
-#' @importFrom Matrix Diagonal
-#'
-#' @export
-rgeneric.Hyperbolic.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
-                                                        "log.prior", "quit"),
-                                                theta = NULL){
-
-  envir = parent.env(environment())
-  x <- envir$x
-  lag_k_region = envir$args$lag_k_region
-
-  regions = sort(unique(x$region))
-  n_regions = length(regions)
-
-  ## artificial high precision to be added to the mean-model
-  prec.high = exp(15)
-
-  interpret.theta = function() {
-
-    gamma_raw <- theta[1:n_regions]
-    beta <- theta[(n_regions + 1):(2*n_regions)]
-    gamma_val <- exp(gamma_raw)/(1+exp(gamma_raw))
-
-    w_region <- list()
-
-    for(r in 1:n_regions){
-
-      K_r <- lag_k_region[r]
-      psi <- numeric(K_r + 1)
-
-      for(lag in 0:K_r){
-        psi[lag + 1] <- gamma(lag+gamma_val[r]) / (gamma(lag+1)*gamma(gamma_val[r]))
-      }
-
-      w_region[[r]] <- psi / sum(psi)
-
-    }
-    return(list(beta = beta,
-                gamma = gamma_val,
-                w = w_region))
-  }
-  graph = function() {
-    G = Matrix::Diagonal(n = length(x$lag0), x=1)
-    return(G)
-  }
-  Q = function() {
-    Q = prec.high * graph()
-    return(Q)
-  }
-  mu = function() {
-
-    par <- interpret.theta()
-
-    eta <- numeric(nrow(x))
-
-    for(i in 1:nrow(x)){
-
-      r <- as.integer(x$region[i])
-
-      K_r <- lag_k_region[r]
-
-      agg <- 0
-
-      for(lag in 0:K_r){
-        agg <- agg +
-          par$w[[r]][lag + 1] *
-          x[i, paste0("lag", lag)]
-      }
-
-      eta[i] <- par$beta[r] * agg
-    }
-
-    return(eta)
-  }
-  log.norm.const = function() {
-    return(numeric(0))
-  }
-  log.prior = function() {
-    lp_gamma <- sum(
-      stats::dnorm(theta[1:n_regions],
-                   mean = 0,
-                   sd = 1,
-                   log = TRUE))
-    lp_beta <- sum(stats::dnorm(theta[(n_regions + 1):(2*n_regions)],
-                                mean = 0,
-                                sd = 1,
-                                log = TRUE))
-    return(lp_gamma + lp_beta)
-  }
-  initial = function() {
-    return(rep(0, 2*n_regions))
-  }
-  quit = function() {
-    return(invisible())
-  }
-
-  val = do.call(match.arg(cmd), args = list())
-  return(val)
-}
-
-
-
-#' Rgeneric MIDAS spatial model with Gaussian constraint
+#' Rgeneric MIDAS spatially-varying coefficient model with hyperbolic
+#' scheme constraint
 #'
 #' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
 #' implementing MIDAS-type lag weights using a Gaussian structure,
-#' and where \code{beta[i]} and the lag structure varies for each location
+#' and where \code{beta[i]} varies for each location
+#' following an iid model
 #'
 
 #' @param cmd Character string indicating the INLA command.
@@ -670,106 +408,154 @@ rgeneric.Hyperbolic.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "ini
 #'
 #' @details
 #' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
-#' polynomial transformation of lag indices. The parameters \code{theta[i]}
+#' polynomial transformation of lag indices. The parameter \code{theta[1]}
 #' control the shape of the lag weighting function.
 #'
 #' @importFrom Matrix Diagonal
 #'
 #' @export
-rgeneric.Gaussian.varylagstr.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
-                                                      "log.prior", "quit"),
-                                              theta = NULL){
+rgeneric.svc.Hyperbolic.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
+                                                     "log.prior", "quit"),
+                                             theta = NULL){
 
-  envir = parent.env(environment())
+  envir <- parent.env(environment())
+
   x <- envir$x
-  lag_k_region <- envir$args$lag_k_region
 
-  regions = sort(unique(x$region))
-  n_regions = length(regions)
+  regions <- sort(unique(x$region))
+  n_regions <- length(regions)
 
-  ## artificial high precision to be added to the mean-model
-  prec.high = exp(15)
+  region_id <- match(x$region, regions)
 
-  interpret.theta = function() {
+  if (any(is.na(region_id))) {
+    stop("Some observations have region labels not matched to 'regions'.")
+  }
+  if (!all(region_id %in% seq_len(n_regions))) {
+    stop("region_id values are outside 1:n_regions.")
+  }
 
-    mu_raw <- theta[1:n_regions]
-    sigma_raw <- theta[(n_regions + 1):(2*n_regions)]
-    beta <- theta[(2*n_regions + 1):(3*n_regions)]
+  interpret.theta <- function() {
 
-    sigma_val = exp(sigma_raw)
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    lag_k <- length(lag_cols) - 1L
 
-    w_region <- list()
+    gamma_val <- stats::plogis(theta[1L])
+    tau_beta  <- exp(theta[2L])
 
-    for(r in 1:n_regions){
-
-      K_r <- lag_k_region[r]
-
-      mu_val <- K_r * (1 / (1 + exp(-mu_raw[r])))
-
-      psi <- numeric(K_r + 1)
-      for(lag in 0:K_r){
-        psi[lag + 1] <- exp( -(lag-mu_val)^2 / (2 * (sigma_val[r] ^ 2)) )
-      }
-
-      w_region[[r]] <- psi / sum(psi)
-
+    psi <- numeric(lag_k + 1L)
+    for (lag in 0:lag_k) {
+      psi[lag + 1L] <- exp(lgamma(lag + gamma_val) -
+                             lgamma(lag + 1L) -
+                             lgamma(gamma_val))
     }
 
-    return(list(beta = beta,
-                w = w_region))
+    w <- psi / sum(psi)
 
+    out_list <- list()
+    out_list[["w"]] <- w
+    out_list[["gamma"]] <- gamma_val
+    out_list[["tau_beta"]] <- tau_beta
+
+    return(out_list)
   }
-  graph = function() {
-    G = Matrix::Diagonal(n = length(x$lag0), x=1)
+
+  graph <- function() {
+
+    n_obs <- nrow(x)
+    N <- n_regions
+
+    # region-specific beta_i block (iid => diagonal graph)
+    Sbb <- Matrix::Diagonal(n = N, x = 1)
+
+    # beta_i to observation links
+    Sbe <- Matrix::sparseMatrix(
+      i = region_id,
+      j = seq_len(n_obs),
+      x = 1,
+      dims = c(N, n_obs)
+    )
+
+    # observation block
+    See <- Matrix::Diagonal(n = n_obs, x = 1)
+
+    G <- rbind(
+      cbind(Sbb, Sbe),
+      cbind(Matrix::t(Sbe), See)
+    )
+
+    G@x[] <- 1
     return(G)
   }
-  Q = function() {
-    Q = prec.high * graph()
-    return(Q)
-  }
-  mu = function() {
-    par = interpret.theta()
 
-    eta <- numeric(nrow(x))
+  Q <- function() {
 
-    for(i in 1:nrow(x)){
+    par <- interpret.theta()
 
-      r <- as.integer(x$region[i])
-      K_r <- lag_k_region[r]
-      agg <- 0
+    n_obs <- nrow(x)
+    N <- n_regions
+    prec.high <- exp(15)
 
-      for(lag in 0:K_r){
-        agg <- agg + par$w[[r]][lag+1] * x[i, paste0("lag",lag)]
-      }
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    Zmat <- as.matrix(x[, lag_cols, drop = FALSE])
+    z <- as.vector(Zmat %*% par$w)
 
-      eta[i] <- par$beta[r] * agg
+    # Q_{beta beta} = tau_beta I + tau_eta A' D_z^2 A
+    beta_diag <- rowsum(z^2, group = region_id, reorder = FALSE)
+    beta_diag <- as.numeric(beta_diag)
 
+    if (length(beta_diag) < N) {
+      tmp <- numeric(N)
+      tmp[sort(unique(region_id))] <- beta_diag
+      beta_diag <- tmp
     }
-    return(eta)
+
+    Qbb <- Matrix::Diagonal(n = N, x = par$tau_beta + prec.high * beta_diag)
+
+    # Q_{beta eta} = -tau_eta A' D_z
+    Qbe <- Matrix::sparseMatrix(
+      i = region_id,
+      j = seq_len(n_obs),
+      x = -prec.high * z,
+      dims = c(N, n_obs)
+    )
+
+    # Q_{eta eta} = tau_eta I
+    Qee <- Matrix::Diagonal(n = n_obs, x = prec.high)
+
+    Qfull <- rbind(
+      cbind(Qbb, Qbe),
+      cbind(Matrix::t(Qbe), Qee)
+    )
+
+    return(Qfull)
   }
-  log.norm.const = function() {
+
+  mu <- function() {
+    n_obs <- nrow(x)
+    N <- n_regions
+    return(numeric(N + n_obs))
+  }
+
+  log.norm.const <- function() {
     return(numeric(0))
   }
-  log.prior = function() {
 
-    lp_mu <- sum(
-      stats::dnorm(theta[1:n_regions], 0, 1, log = TRUE)
-    )
-    lp_sigma <- sum(
-      stats::dnorm(theta[(n_regions + 1):(2*n_regions)], 0, 1, log = TRUE)
-    )
-    lp_beta <- sum(
-      stats::dnorm(theta[(2*n_regions + 1):(3*n_regions)], 0, 1, log = TRUE)
-    )
-    return(lp_mu + lp_sigma + lp_beta)
+  log.prior <- function() {
+    val <- (stats::dnorm(theta[1L], mean = 0, sd = 1, log = TRUE) +
+              stats::dnorm(theta[2L], mean = 0, sd = 1, log = TRUE))
+    return(val)
   }
-  initial = function() {
-    return(rep(0, n_regions*3))
+
+  initial <- function() {
+    return(c(0, 0))
   }
-  quit = function() {
+
+  quit <- function() {
     return(invisible())
   }
 
-  val = do.call(match.arg(cmd), args = list())
+  val <- do.call(match.arg(cmd), args = list())
+
   return(val)
 }
+
