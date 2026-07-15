@@ -4,7 +4,13 @@
 \alias{predict_midas}
 \title{Make predictions form a MIDAS model output}
 \usage{
-predict_midas(model, data, family = "gaussian", Ntrials, nsamples)
+predict_midas(
+  model,
+  data = NULL,
+  family = "gaussian",
+  Ntrials = NULL,
+  nsamples = 1000
+)
 }
 \arguments{
 \item{model}{MIDAS model output}

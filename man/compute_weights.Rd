@@ -4,14 +4,12 @@
 \alias{compute_weights}
 \title{Compute weights estimates}
 \usage{
-compute_weights(model, constraint, lag_k)
+compute_weights(model, n.samples = 200)
 }
 \arguments{
 \item{model}{midas model result}
 
-\item{constraint}{constraint function}
-
-\item{lag_k}{maximum lag considered}
+\item{n.samples}{number of posterior samples}
 }
 \value{
 estimates of the weights

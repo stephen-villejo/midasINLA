@@ -5,35 +5,29 @@
 \title{Prepare MIDAS objects for INLA estimation}
 \usage{
 fit_Minla(
-  xdata,
-  ydata,
-  constraint,
-  K,
-  m,
-  lagY = 0,
-  family = "gaussian",
-  Ntrials
+  formula,
+  data,
+  family,
+  hf_input = NULL,
+  Ntrials = data$Ntrials,
+  inla_options = list()
 )
 }
 \arguments{
-\item{xdata}{High-frequency covariate data}
+\item{formula}{model formula}
 
-\item{ydata}{Low-frequency response data}
-
-\item{constraint}{constraint function for lag-response association}
-
-\item{K}{Lags to be considered}
-
-\item{m}{Number of covariates values associated with each response}
-
-\item{lagY}{Number of lagged response values to be considered}
+\item{data}{dataframe}
 
 \item{family}{Likelihood family for response data}
 
+\item{hf_input}{list of output objects from prepare_Minla}
+
 \item{Ntrials}{Number of trials for a binomial family response}
+
+\item{inla_options}{arguments in inla function}
 }
 \value{
-A list of objects that will be used to run inla
+MIDAS output
 }
 \description{
 Prepare MIDAS objects for INLA estimation

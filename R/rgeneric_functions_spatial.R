@@ -95,7 +95,7 @@ rgeneric.svc.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", 
     lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
     lag_k <- length(lag_cols) - 1L
 
-    gamma_val <- plogis(theta[1L])
+    gamma_val <- stats::plogis(theta[1L])
     tau_icar  <- exp(theta[2L])
 
     psi <- numeric(lag_k + 1L)
