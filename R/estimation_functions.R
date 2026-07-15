@@ -192,14 +192,12 @@ fit_Minla <- function(formula,
 
 #' Make predictions form a MIDAS model output
 #' @param model MIDAS model output
-#' @param data Data object to fit MIDAS
 #' @param family  Likelihood family for response data
 #' @param Ntrials Number of trials for a binomial family response
 #' @param nsamples Number of posterior samples
 #' @return A list containing the predictions and the samples
 #' @export
 predict_midas <- function(model,
-                          data = NULL,
                           family = "gaussian",
                           Ntrials = NULL,
                           nsamples = 1000) {
@@ -214,6 +212,7 @@ predict_midas <- function(model,
     }
   }
 
+  data <- model$data_final
   n_obs <- nrow(data)
 
   temp <- INLA::inla.posterior.sample(n = nsamples, fit)
