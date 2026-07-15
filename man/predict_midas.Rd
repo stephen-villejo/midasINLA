@@ -4,18 +4,10 @@
 \alias{predict_midas}
 \title{Make predictions form a MIDAS model output}
 \usage{
-predict_midas(
-  model,
-  data = NULL,
-  family = "gaussian",
-  Ntrials = NULL,
-  nsamples = 1000
-)
+predict_midas(model, family = "gaussian", Ntrials = NULL, nsamples = 1000)
 }
 \arguments{
 \item{model}{MIDAS model output}
-
-\item{data}{Data object to fit MIDAS}
 
 \item{family}{Likelihood family for response data}
 
