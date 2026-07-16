@@ -619,6 +619,8 @@ fit_Minla_spatial <- function(formula,
         return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Hyperbolic.midas,
                                           x = temp_data))
       } else if (hf_info$constraint == "gaussian") {
+        return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Gaussian.midas,
+                                          x = temp_data))
       } else {
         stop("Unknown constraint.")
       }
@@ -644,6 +646,9 @@ fit_Minla_spatial <- function(formula,
                                             x = temp_data,
                                             g = hf_info$g))
         } else if (hf_info$constraint == "gaussian") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Gaussian.midas.icar,
+                                            x = temp_data,
+                                            g = hf_info$g))
         } else {
           stop("Unknown constraint.")
         }
@@ -658,6 +663,8 @@ fit_Minla_spatial <- function(formula,
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.iid,
                                             x = temp_data))
         } else if (hf_info$constraint == "gaussian") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Gaussian.midas.iid,
+                                            x = temp_data))
         } else {
           stop("Unknown constraint.")
         }
