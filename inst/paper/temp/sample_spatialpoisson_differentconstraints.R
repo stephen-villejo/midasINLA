@@ -45,7 +45,7 @@ m <- 30
 lag_k1 <- 29
 lag_k2 <- 45
 beta0 = 1
-beta1 = 1.1
+beta1 = -1.1
 beta2 = 2
 
 # simulate my spatially varying betas from an iCAR model
@@ -178,7 +178,7 @@ g <- inla.read.graph(filename = "inst/map.adj")
 Midas_x1 <- prepare_Minla_spatial(x = data_spatialpoisson_example$data_x1$x1,
                                   loc_x = data_spatialpoisson_example$data_x1$loc,
                                   constraint = "hyperbolic",
-                                  K = 0:45,
+                                  K = 0:29,
                                   m = 30,
                                   svc = TRUE,
                                   svc_prior = "icar",
