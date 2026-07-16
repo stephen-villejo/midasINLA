@@ -582,8 +582,8 @@ rgeneric.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log
 #' }
 #'
 #' @details
-#' The MIDAS lag weights are constructed using a normalized Hyperbolic scheme
-#' polynomial transformation of lag indices. The parametesr \code{theta[1]} and
+#' The MIDAS lag weights are constructed using a normalized Gaussian
+#' polynomial transformation of lag indices. The parameters \code{theta[1]} and
 #' \code{theta[2]} control the shape of the lag weighting function.
 #'
 #' @importFrom Matrix Diagonal
