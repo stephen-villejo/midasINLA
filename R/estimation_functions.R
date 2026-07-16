@@ -827,3 +827,103 @@ fit_Minla_spatial <- function(formula,
               hf_input = hf_input))
 
 }
+
+
+
+
+
+#' Compute beta summaries for the spatial model
+#' @param model output from fit_Minla_spatial
+#' @param n_loc number of locations
+#' @export
+compute_beta_spatial <- function(model,
+                                 n_loc){
+
+  length_hf <- length(model$hf_input)
+
+  hf_summary_output <- vector(mode = "list", length = length_hf)
+
+  for(i in seq_len(length_hf)){
+
+    temp <- model$hf_input[[i]]
+
+    idx_name <- paste0("hf_idx_", i)
+
+    if(temp$svc){
+
+      if(temp$svc_prior == "icar"){
+
+        global_beta <- vector(mode = "list", length = 2)
+        names(global_beta) <- c("summary","marginal")
+
+        icar_beta <- vector(mode = "list", length = 2)
+        names(icar_beta) <- c("summary","marginal")
+
+        for(j in seq_len(length(icar_beta))){
+          icar_beta[[j]] <- vector(mode = "list", length = n_loc)
+        }
+
+
+        global_beta[["summary"]] <- INLA::inla.zmarginal(model$res$marginals.random[[idx_name]][[1]])
+        global_beta[["marginal"]] <- model$res$marginals.random[[idx_name]][[1]]
+
+        for(loc_id in seq_len(n_loc)){
+
+          icar_beta[["summary"]][[loc_id]] <- INLA::inla.zmarginal(model$res$marginals.random[[idx_name]][[1+loc_id]])
+          icar_beta[["marginal"]][[loc_id]] <- model$res$marginals.random[[idx_name]][[1+loc_id]]
+
+        }
+
+        hf_summary_output[[i]] <- list(global_beta = global_beta,
+                                       icar_beta = icar_beta)
+
+
+      }else if(temp$svc_prior == "iid"){
+
+
+        betas <- vector(mode = "list", length = 2)
+        names(betas) <- c("summary","marginal")
+
+        for(j in seq_len(length(betas))){
+          betas[[j]] <- vector(mode = "list", length = n_loc)
+        }
+
+        for(loc_id in seq_len(n_loc)){
+
+          betas[["summary"]][[loc_id]] <- INLA::inla.zmarginal(model$res$marginals.random[[idx_name]][[loc_id]])
+          betas[["marginal"]][[loc_id]] <- model$res$marginals.random[[idx_name]][[loc_id]]
+
+        }
+
+        hf_summary_output[[i]] <- list(betas = betas)
+
+      }
+
+    }else{
+
+
+      if(temp$constraint == "gaussian"){
+
+        beta_summary <- INLA::inla.zmarginal(model$res$marginals.hyperpar[[paste0("Theta1 for ", idx_name)]])
+        beta_marginal <- model$res$marginals.hyperpar[[paste0("Theta1 for ", idx_name)]]
+
+      }else if(temp$constraint == "hyperbolic"){
+
+        beta_summary <- INLA::inla.zmarginal(model$res$marginals.hyperpar[[paste0("Theta2 for ", idx_name)]])
+        beta_marginal <- model$res$marginals.hyperpar[[paste0("Theta2 for ", idx_name)]]
+
+      }
+
+      hf_summary_output[[i]] <- list(beta_summary = beta_summary,
+                                     beta_marginal = beta_marginal)
+
+    }
+
+  }
+
+  names(hf_summary_output) <- paste0("hf_index_", seq_len(length_hf))
+
+  return(hf_summary_output)
+
+}
+
