@@ -57,7 +57,7 @@ prepare_Minla <- function(x,
 }
 
 
-#' Prepare MIDAS objects for INLA estimation
+#' Fit MIDAS model using INLA
 #' @param formula model formula
 #' @param data dataframe
 #' @param family Likelihood family for response data
@@ -496,3 +496,327 @@ compute_weights <- function(model, n.samples = 200) {
 
 
 
+#' Prepare MIDAS objects (spatial case) for INLA estimation
+#' @param x High-frequency covariate data
+#' @param loc_x index for locations
+#' @param constraint constraint function for lag-response association
+#' @param K Lags to be considered
+#' @param m Number of covariates values associated with each response
+#' @param svc TRUE/FALSE, whether a spatially varying coefficent model or not
+#' @param svc_prior Prior for the svc component, either "icar" or "iid"
+#' @param g graph for the icar prior
+#' @return A list of objects that will be used for model fitting
+#' @export
+prepare_Minla_spatial <- function(x,
+                                  loc_x,
+                                  constraint,
+                                  K,
+                                  m,
+                                  svc = FALSE,
+                                  svc_prior = "iid",
+                                  g = NULL) {
+
+  if (length(x) != length(loc_x)) {
+    stop("`x` and `loc_x` must have the same length.")
+  }
+
+  if (svc_prior == "icar" && is.null(g)) {
+    stop("`g` must be supplied when `svc_prior = 'icar'`.")
+  }
+
+  compile_X_matrix <- NULL
+  unique_loc_x <- unique(loc_x)
+  rm.row.loc <- c()
+
+  for(i in unique_loc_x){
+
+    temp_xdata <- x[which(loc_x == i)]
+
+    X_matrix <- create_lag_Xmatrix(tsdata = temp_xdata,
+                                   lags = K,
+                                   frequency = m)
+
+    bad_rows_i <- which(!stats::complete.cases(X_matrix))
+    rm_i <- if (length(bad_rows_i) == 0) 0 else max(bad_rows_i)
+    rm.row.loc <- c(rm.row.loc, rm_i)
+
+    X_matrix <- cbind(X_matrix,loc = rep(i, nrow(X_matrix)))
+
+    compile_X_matrix <- rbind(compile_X_matrix,
+                              X_matrix)
+
+  }
+
+  if (length(unique(rm.row.loc)) != 1) {
+    stop("`rm.row` is not the same across locations for this covariate.")
+  }
+  rm.row <- unique(rm.row.loc)
+
+  out <- list(
+    X_matrix = compile_X_matrix,
+    constraint = constraint,
+    lag_k = max(K),
+    K = K,
+    m = m,
+    rm.row = rm.row,
+    svc = svc,
+    svc_prior = svc_prior
+  )
+
+  if (svc_prior == "icar") {
+    if (is.null(g)) {
+      stop("`g` must be supplied when `svc_prior = 'icar'`.")
+    }
+    out$g <- g
+  }
+
+  return(out)
+
+}
+
+
+
+#' Fit MIDAS model (spatial case) using INLA
+#' @param formula model formula
+#' @param data response data frame
+#' @param loc_var variable name for location in response data frame
+#' @param time_var variable name for time in response data frame
+#' @param family Likelihood family for response data
+#' @param hf_input list of output objects from prepare_Minla_spatial
+#' @param Ntrials Number of trials for a binomial family response
+#' @param inla_options arguments in inla function
+#' @return MIDAS output
+#' @export
+fit_Minla_spatial <- function(formula,
+                              data,
+                              loc_var,
+                              time_var,
+                              family,
+                              hf_input = NULL,
+                              Ntrials = data$Ntrials,
+                              inla_options = list()) {
+
+
+  build_rgen <- function(temp_data, hf_info) {
+
+    if (is.null(temp_data)) {
+      stop("`hf_info$temp_data` is missing.")
+    }
+    if (is.null(hf_info$constraint)) {
+      stop("`hf_info$constraint` is missing.")
+    }
+    if (is.null(hf_info$svc)) {
+      stop("`hf_info$svc` is missing.")
+    }
+
+    if(!hf_info$svc)
+    {
+      if (hf_info$constraint == "beta") {
+      } else if (hf_info$constraint == "beta2") {
+      } else if (hf_info$constraint == "almon2") {
+      } else if (hf_info$constraint == "almon3") {
+      } else if (hf_info$constraint == "hyperbolic") {
+        return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Hyperbolic.midas,
+                                          x = temp_data))
+      } else if (hf_info$constraint == "gaussian") {
+      } else {
+        stop("Unknown constraint.")
+      }
+
+    } else {
+
+      if (is.null(hf_info$svc_prior)) {
+        stop("`hf_info$svc_prior` is missing.")
+      }
+
+      if(hf_info$svc_prior == "icar"){
+
+        if (is.null(hf_info$g)) {
+          stop("`hf_info$g` is required when `svc_prior = 'icar'`.")
+        }
+
+        if (hf_info$constraint == "beta") {
+        } else if (hf_info$constraint == "beta2") {
+        } else if (hf_info$constraint == "almon2") {
+        } else if (hf_info$constraint == "almon3") {
+        } else if (hf_info$constraint == "hyperbolic") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.icar,
+                                            x = temp_data,
+                                            g = hf_info$g))
+        } else if (hf_info$constraint == "gaussian") {
+        } else {
+          stop("Unknown constraint.")
+        }
+
+      } else if(hf_info$svc_prior == "iid") {
+
+        if (hf_info$constraint == "beta") {
+        } else if (hf_info$constraint == "beta2") {
+        } else if (hf_info$constraint == "almon2") {
+        } else if (hf_info$constraint == "almon3") {
+        } else if (hf_info$constraint == "hyperbolic") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.iid,
+                                            x = temp_data))
+        } else if (hf_info$constraint == "gaussian") {
+        } else {
+          stop("Unknown constraint.")
+        }
+      }else {
+        stop("Unknown `svc_prior`.")
+      }
+    }
+  }
+
+  response_name <- all.vars(formula[[2]])[1]
+
+  if (family == "binomial") {
+    data$Ntrials <- Ntrials
+  }
+
+
+  rm_max <- max(vapply(hf_input, function(obj) obj$rm.row, numeric(1)))
+
+
+  if (!loc_var %in% names(data)) {
+    stop(sprintf("`loc_var` = '%s' not found in `data`.", loc_var))
+  }
+
+  if (!time_var %in% names(data)) {
+    stop(sprintf("`time_var` = '%s' not found in `data`.", time_var))
+  }
+
+  data <- data[order(data[[loc_var]], data[[time_var]]), , drop = FALSE]
+
+  data_final <- if (rm_max > 0) {
+    do.call(
+      rbind,
+      lapply(split(data, data[[loc_var]]), function(d) {
+        d[-seq_len(rm_max), , drop = FALSE]
+      })
+    )
+  } else {
+    data
+  }
+
+  rownames(data_final) <- NULL
+
+
+  formula_final <- formula
+  final_n <- nrow(data_final)
+
+  formula_env <- environment(formula_final)
+  if (is.null(formula_env)) {
+    formula_env <- parent.frame()
+  }
+
+  if (!is.null(hf_input) && length(hf_input) > 0) {
+    stopifnot(is.list(hf_input))
+
+    for (i in seq_along(hf_input)) {
+      obj <- hf_input[[i]]
+
+      idx_name <- paste0("hf_idx_", i)
+      model_name <- paste0("hf_model_", i)
+
+
+      X_df <- as.data.frame(obj$X_matrix)
+
+      X_trimmed <- if (rm_max > 0) {
+        do.call(
+          rbind,
+          lapply(split(X_df, X_df$loc), function(d) {
+            d[-seq_len(rm_max), , drop = FALSE]
+          })
+        )
+      } else {
+        X_df
+      }
+
+      rownames(X_trimmed) <- NULL
+
+      temp_data <- data.frame(
+        X_trimmed,
+        data_final[, response_name, drop = FALSE]
+      )
+
+      names(temp_data)[names(temp_data) == "loc"] <- "region"
+      rgen <- build_rgen(temp_data = temp_data, hf_info = obj)
+
+      n_region <- max(temp_data$region)
+      if(!obj$svc){
+        data_final[[idx_name]] <- seq_len(final_n)
+      }else{
+        if(obj$svc_prior == "iid"){
+          data_final[[idx_name]] <- n_region + seq_len(final_n)
+        }else if(obj$svc_prior == "icar"){
+          data_final[[idx_name]] <- (1 + n_region) + seq_len(final_n)
+        }
+      }
+
+      assign(model_name, rgen, envir = formula_env)
+
+      if(!obj$svc){
+        term_txt <- sprintf(
+          "f(%s, model = %s, n = %d)",
+          idx_name, model_name, final_n
+        )
+      }else{
+        if(obj$svc_prior == "iid"){
+          term_txt <- sprintf(
+            "f(%s, model = %s, n = %d)",
+            idx_name, model_name, n_region + final_n
+          )
+        }else if(obj$svc_prior == "icar"){
+          A <- Matrix::Matrix(
+            0,
+            nrow = 1,
+            ncol = 1 + n_region + final_n,
+            sparse = TRUE
+          )
+          A[1, 2:(n_region + 1)] <- 1
+          extraconstr <- list(
+            A = A,
+            e = 0
+          )
+          constr_name <- paste0("hf_extraconstr_", i)
+          assign(constr_name, extraconstr, envir = formula_env)
+          term_txt <- sprintf(
+            "f(%s, model = %s, n = %d, extraconstr = %s)",
+            idx_name, model_name, 1 + n_region + final_n, constr_name
+          )
+        }
+      }
+
+      formula_final <- stats::update(formula_final, paste(". ~ . +", term_txt))
+    }
+  }
+
+  environment(formula_final) <- formula_env
+
+  if (is.null(inla_options$control.compute)) {
+    inla_options$control.compute <- list(config = TRUE)
+  } else if (is.null(inla_options$control.compute$config)) {
+    inla_options$control.compute$config <- TRUE
+  }
+  args_inla <- list(
+    formula = formula_final,
+    data = data_final,
+    family = family
+  )
+
+  if (family == "binomial") {
+    args_inla$Ntrials <- data_final$Ntrials
+  }
+
+  args_inla <- c(args_inla, inla_options)
+
+  res <- do.call(INLA::inla, args_inla)
+
+
+  return(list(formula_final = formula_final,
+              data_final = data_final,
+              rm_max = rm_max,
+              res = res,
+              hf_input = hf_input))
+
+}
