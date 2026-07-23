@@ -299,37 +299,6 @@ predict_midas <- function(model,
 }
 
 
-
-#' Compute scores for model assessment
-#' @param y Response vector
-#' @param Midas_object Midas object
-#' @param pred_res Predictions from the MIDAS model
-#' @param family  Likelihood family for response data
-#' @return Computed scores
-#' @export
-compute_forecast_scores <- function(y,
-                                    Midas_object,
-                                    pred_res,
-                                    family = "binomial"){
-
-
-  if(family == "gaussian"){
-
-  }else if(family == "poisson"){
-
-
-
-  }else if(family == "binomial"){
-
-
-  }
-
-  return(list(scores = scores))
-
-}
-
-
-
 #' Compute weights estimates
 #' @param model midas model result
 #' @param n.samples number of posterior samples
