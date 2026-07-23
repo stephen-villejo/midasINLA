@@ -770,7 +770,7 @@ compute_beta_spatial <- function(model,
 
         marg <- INLA::inla.rmarginal(1000,marginal = model$res$marginals.random[[idx_name]][[1]])
         summary.global.beta <- data.frame(
-          Mean = stats::mean(marg),
+          Mean = mean(marg),
           SD = stats::sd(marg),
           `2.5%` = stats::quantile(marg, probs = 0.025),
           `50%` = stats::quantile(marg, probs = 0.5),
@@ -793,7 +793,7 @@ compute_beta_spatial <- function(model,
         temp <- lapply(seq_len(n_loc), function(x){
           marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.icar.beta"]][[x]])
           data.frame(
-            Mean = stats::mean(marg),
+            Mean = mean(marg),
             SD = stats::sd(marg),
             `2.5%` = stats::quantile(marg, probs = 0.025),
             `50%` = stats::quantile(marg, probs = 0.5),
@@ -826,7 +826,7 @@ compute_beta_spatial <- function(model,
         temp <- lapply(seq_len(n_loc), function(x){
           marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]][[x]])
           data.frame(
-            Mean = stats::mean(marg),
+            Mean = mean(marg),
             SD = stats::sd(marg),
             `2.5%` = stats::quantile(marg, probs = 0.025),
             `50%` = stats::quantile(marg, probs = 0.5),
@@ -855,7 +855,7 @@ compute_beta_spatial <- function(model,
 
         marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
         summary.beta <- data.frame(
-          Mean = stats::mean(marg),
+          Mean = mean(marg),
           SD = stats::sd(marg),
           `2.5%` = stats::quantile(marg, probs = 0.025),
           `50%` = stats::quantile(marg, probs = 0.5),
@@ -876,7 +876,7 @@ compute_beta_spatial <- function(model,
 
         marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
         summary.beta <- data.frame(
-          Mean = stats::mean(marg),
+          Mean = mean(marg),
           SD = stats::sd(marg),
           `2.5%` = stats::quantile(marg, probs = 0.025),
           `50%` = stats::quantile(marg, probs = 0.5),
