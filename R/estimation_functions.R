@@ -760,69 +760,136 @@ compute_beta_spatial <- function(model,
 
       if(temp$svc_prior == "icar"){
 
-        global_beta <- vector(mode = "list", length = 2)
-        names(global_beta) <- c("summary","marginal")
-
-        icar_beta <- vector(mode = "list", length = 2)
-        names(icar_beta) <- c("summary","marginal")
-
-        for(j in seq_len(length(icar_beta))){
-          icar_beta[[j]] <- vector(mode = "list", length = n_loc)
-        }
+        res <- vector(mode = "list", length = 4)
+        names(res) <- c("summary.global.beta",
+                        "marginal.global.beta",
+                        "summary.icar.beta",
+                        "marginal.icar.beta")
+        res[["marginal.icar.beta"]] <- vector(mode = "list", length = n_loc)
 
 
-        global_beta[["summary"]] <- INLA::inla.zmarginal(model$res$marginals.random[[idx_name]][[1]])
-        global_beta[["marginal"]] <- model$res$marginals.random[[idx_name]][[1]]
+        marg <- INLA::inla.rmarginal(1000,marginal = model$res$marginals.random[[idx_name]][[1]])
+        summary.global.beta <- data.frame(
+          Mean = stats::mean(marg),
+          SD = stats::sd(marg),
+          `2.5%` = stats::quantile(marg, probs = 0.025),
+          `50%` = stats::quantile(marg, probs = 0.5),
+          `97.5%` = stats::quantile(marg, probs = 0.975),
+          row.names = "beta",
+          check.names = FALSE
+        )
+
+        res[["summary.global.beta"]] <- summary.global.beta
+        res[["marginal.global.beta"]] <- model$res$marginals.random[[idx_name]][[1]]
+
 
         for(loc_id in seq_len(n_loc)){
 
-          icar_beta[["summary"]][[loc_id]] <- INLA::inla.zmarginal(model$res$marginals.random[[idx_name]][[1+loc_id]])
-          icar_beta[["marginal"]][[loc_id]] <- model$res$marginals.random[[idx_name]][[1+loc_id]]
+          res[["marginal.icar.beta"]][[loc_id]] <- model$res$marginals.random[[idx_name]][[1+loc_id]]
 
         }
 
-        hf_summary_output[[i]] <- list(global_beta = global_beta,
-                                       icar_beta = icar_beta)
+
+        temp <- lapply(seq_len(n_loc), function(x){
+          marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.icar.beta"]][[x]])
+          data.frame(
+            Mean = stats::mean(marg),
+            SD = stats::sd(marg),
+            `2.5%` = stats::quantile(marg, probs = 0.025),
+            `50%` = stats::quantile(marg, probs = 0.5),
+            `97.5%` = stats::quantile(marg, probs = 0.975),
+            row.names = paste0("b",x),
+            check.names = FALSE
+          )
+        })
+
+        res[["summary.icar.beta"]]<- do.call(rbind,temp)
+
+
+        hf_summary_output[[i]] <- res
 
 
       }else if(temp$svc_prior == "iid"){
 
 
-        betas <- vector(mode = "list", length = 2)
-        names(betas) <- c("summary","marginal")
-
-        for(j in seq_len(length(betas))){
-          betas[[j]] <- vector(mode = "list", length = n_loc)
-        }
+        res <- vector(mode = "list", length = 2)
+        names(res) <- c("summary.beta",
+                        "marginal.beta")
+        res[["marginal.beta"]] <- vector(mode = "list", length = n_loc)
 
         for(loc_id in seq_len(n_loc)){
 
-          betas[["summary"]][[loc_id]] <- INLA::inla.zmarginal(model$res$marginals.random[[idx_name]][[loc_id]])
-          betas[["marginal"]][[loc_id]] <- model$res$marginals.random[[idx_name]][[loc_id]]
+          res[["marginal.beta"]][[loc_id]] <- model$res$marginals.random[[idx_name]][[loc_id]]
 
         }
 
-        hf_summary_output[[i]] <- list(betas = betas)
+        temp <- lapply(seq_len(n_loc), function(x){
+          marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]][[x]])
+          data.frame(
+            Mean = stats::mean(marg),
+            SD = stats::sd(marg),
+            `2.5%` = stats::quantile(marg, probs = 0.025),
+            `50%` = stats::quantile(marg, probs = 0.5),
+            `97.5%` = stats::quantile(marg, probs = 0.975),
+            row.names = paste0("b",x),
+            check.names = FALSE
+          )
+        })
+
+        res[["summary.beta"]]<- do.call(rbind,temp)
+
+
+        hf_summary_output[[i]] <- res
 
       }
 
     }else{
 
-
       if(temp$constraint == "gaussian"){
 
-        beta_summary <- INLA::inla.zmarginal(model$res$marginals.hyperpar[[paste0("Theta1 for ", idx_name)]])
-        beta_marginal <- model$res$marginals.hyperpar[[paste0("Theta1 for ", idx_name)]]
+        res <- vector(mode = "list", length = 2)
+        names(res) <- c("summary.beta",
+                        "marginal.beta")
+
+        res[["marginal.beta"]] <- model$res$marginals.hyperpar[[paste0("Theta1 for ", idx_name)]]
+
+        marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
+        summary.beta <- data.frame(
+          Mean = stats::mean(marg),
+          SD = stats::sd(marg),
+          `2.5%` = stats::quantile(marg, probs = 0.025),
+          `50%` = stats::quantile(marg, probs = 0.5),
+          `97.5%` = stats::quantile(marg, probs = 0.975),
+          row.names = "beta",
+          check.names = FALSE
+        )
+
+        res[["summary.beta"]] <- summary.beta
 
       }else if(temp$constraint == "hyperbolic"){
 
-        beta_summary <- INLA::inla.zmarginal(model$res$marginals.hyperpar[[paste0("Theta2 for ", idx_name)]])
-        beta_marginal <- model$res$marginals.hyperpar[[paste0("Theta2 for ", idx_name)]]
+        res <- vector(mode = "list", length = 2)
+        names(res) <- c("summary.beta",
+                        "marginal.beta")
+
+        res[["marginal.beta"]] <- model$res$marginals.hyperpar[[paste0("Theta2 for ", idx_name)]]
+
+        marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
+        summary.beta <- data.frame(
+          Mean = stats::mean(marg),
+          SD = stats::sd(marg),
+          `2.5%` = stats::quantile(marg, probs = 0.025),
+          `50%` = stats::quantile(marg, probs = 0.5),
+          `97.5%` = stats::quantile(marg, probs = 0.975),
+          row.names = "beta",
+          check.names = FALSE
+        )
+
+        res[["summary.beta"]] <- summary.beta
 
       }
 
-      hf_summary_output[[i]] <- list(beta_summary = beta_summary,
-                                     beta_marginal = beta_marginal)
+      hf_summary_output[[i]] <- res
 
     }
 

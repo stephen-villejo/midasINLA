@@ -65,39 +65,34 @@ fit_res <- fit_Minla_spatial(formula = y ~ 1,
 
 
 
+beta_results <- compute_beta_spatial(model = fit_res,
+                                     n_loc = 16)
+
 
 #png("inst/paper/figures/Example_binomial_hyperbolic_paramestimates.png", width=30, height=10, units = 'cm', res = 300)
-par(mfrow=c(1,4))
+par(mfrow=c(1,3))
 
 plot(inla.smarginal(fit_res$res$marginals.fixed[["(Intercept)"]]),
      type="l", lwd=3, col="red", xlab=expression(beta[0]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_binomial_example$beta0, col = 'blue', lty=1, lwd = 2)
+abline(v = data_spatialpoisson_example$beta0, col = 'blue', lty=1, lwd = 2)
 abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed$`(Intercept)`), prob = 0.025), lty = 2)
 abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed$`(Intercept)`), prob = 0.975), lty = 2)
 
-plot(inla.smarginal(fit_res$res$marginals.fixed[['trend']]),
-     type="l", lwd=3, col="red", xlab=expression(beta[1]), ylab="",
-     cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_binomial_example$beta1, col = 'blue', lty = 1, lwd = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed[['trend']]), prob = 0.025), lty = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed[['trend']]), prob = 0.975), lty = 2)
-
-plot(inla.smarginal(fit_res$res$marginals.hyperpar[['Theta2 for hf_idx_1']]),
+plot(inla.smarginal(beta_results$hf_index_1$marginal.global.beta),
      type="l", lwd=3, col="red", xlab=expression(beta[2]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_binomial_example$beta2, col = 'blue', lty = 1, lwd = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.hyperpar$`Theta2 for hf_idx_1`), prob = 0.025), lty = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.hyperpar$`Theta2 for hf_idx_1`), prob = 0.975), lty = 2)
+abline(v = data_spatialpoisson_example$beta1, col = 'blue', lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_1$summary.global.beta$`2.5%`, lty = 2)
+abline(v = beta_results$hf_index_1$summary.global.beta$`97.5%`, lty = 2)
 
-plot(inla.smarginal(fit_res$res$marginals.hyperpar[['Theta3 for hf_idx_2']]),
+plot(inla.smarginal(beta_results$hf_index_2$marginal.beta),
      type="l", lwd=3, col="red", xlab=expression(beta[3]), ylab="",
      cex.lab = 2.2, cex.axis=1.5)
-abline(v =data_binomial_example$beta3, col = 'blue', lty = 1, lwd = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.hyperpar$`Theta3 for hf_idx_2`), prob = 0.025), lty = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.hyperpar$`Theta3 for hf_idx_2`), prob = 0.975), lty = 2)
+abline(v = data_spatialpoisson_example$beta2, col = 'blue', lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_2$summary.beta$`2.5%`, lty = 2)
+abline(v = beta_results$hf_index_2$summary.beta$`97.5%`, lty = 2)
 #dev.off()
-
 
 
 #### Compute weights ####
