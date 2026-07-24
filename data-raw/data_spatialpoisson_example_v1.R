@@ -120,9 +120,6 @@ for(i in 1:locs){
     lambda = mu[!is.na(mu)]
   )
 
-  #y <- y[-which(is.na(y))]
-  #x <- x[-c(1:30)]
-
   x1_list[[i]] <- data.frame(
     x1 = x1,
     loc = i,
@@ -148,21 +145,22 @@ data_x2 <- do.call(rbind, x2_list)
 data_y <- do.call(rbind, y_list)
 
 
-data_spatialpoisson_example <- list(data_x1 = data_x1,
-                                    data_x2 = data_x2,
-                                    data_y = data_y,
-                                    weights1 = weights1,
-                                    weights2 = weights2,
-                                    eta = eta,
-                                    beta0 = beta0,
-                                    beta1 = beta1,
-                                    beta2 = beta2,
-                                    icar = icar,
-                                    tau = tau)
+data_spatialpoisson_example_v1 <- list(data_x1 = data_x1,
+                                       data_x2 = data_x2,
+                                       data_y = data_y,
+                                       weights1 = weights1,
+                                       weights2 = weights2,
+                                       eta = eta,
+                                       beta0 = beta0,
+                                       beta1 = beta1,
+                                       beta2 = beta2,
+                                       icar = icar,
+                                       tau = tau,
+                                       grid_sf = grid_sf)
 
 
-usethis::use_data(data_spatialpoisson_example, overwrite = TRUE)
+usethis::use_data(data_spatialpoisson_example_v1, overwrite = TRUE)
 
 
-#source("data-raw/data_spatialpoisson_example.R")
+#source("data-raw/data_spatialpoisson_example_v1.R")
 

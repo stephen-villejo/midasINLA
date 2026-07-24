@@ -65,7 +65,7 @@
 #' lag length of 45.
 #'
 #' @source Simulated data
-"data_spatialpoisson_example"
+"data_spatialpoisson_example_v1"
 
 #devtools::document()
 

@@ -74,6 +74,16 @@ icar <- icar - mean(icar)
 grid_sf$icar <- as.numeric(icar)
 plot(grid_sf["icar"])
 
+
+library(ggplot2)
+
+grid_sf$icar <- as.numeric(icar)
+
+ggplot(grid_sf) +
+  geom_sf(aes(fill = icar)) +
+  geom_sf_text(aes(label = id)) +
+  theme_minimal()
+
 beta_i <- icar
 
 
