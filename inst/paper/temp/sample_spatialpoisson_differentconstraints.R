@@ -133,8 +133,6 @@ for(i in 1:locs){
     lambda = mu[!is.na(mu)]
   )
 
-  #y <- y[-which(is.na(y))]
-  #x <- x[-c(1:30)]
 
   x1_list[[i]] <- data.frame(
     x1 = x1,
