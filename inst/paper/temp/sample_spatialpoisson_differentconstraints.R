@@ -45,8 +45,8 @@ m <- 30
 lag_k1 <- 29
 lag_k2 <- 45
 beta0 = 1
-beta1 = -1.1
-beta2 = 2
+beta1 = 1.1
+beta2 = -2
 
 # simulate my spatially varying betas from an iCAR model
 # Construct queen adjacency
@@ -83,6 +83,8 @@ gamma_param <- 0.9
 mu_val <- 10
 sigma_val <- 12
 
+par(mfrow=c(1,1))
+
 xi <- c()
 for(lag in 0:lag_k1){
   temp <- gamma(lag+gamma_param)/(gamma(lag+1)*gamma(gamma_param))
@@ -107,15 +109,15 @@ y_list <- vector("list", locs)
 
 for(i in 1:locs){
 
-  set.seed(9912 + i)
-  x1 <- rnorm(m*n,3,2)
-  x2 <- rnorm(m*n,1,1)
+  set.seed(423 + i)
+  x1 <- rnorm(m*n,2,2)
+  x2 <- rnorm(m*n,0,1)
   eta <- beta0 + (beta1 + beta_i[i])*mls(x1,0:lag_k1,m)%*%weights1 +
     beta2*mls(x2,0:lag_k2,m)%*%weights2
   mu <- exp(eta)
 
   y <- matrix(NA, nrow = length(mu), ncol = 1)
-  set.seed(9912 + i)
+  set.seed(753 + i)
   y[!is.na(mu)] <- rpois(
     sum(!is.na(mu)),
     lambda = mu[!is.na(mu)]
@@ -201,6 +203,44 @@ fit_res <- fit_Minla_spatial(formula = y ~ 1,
                              inla_options = list(verbose = T))
 
 summary(fit_res$res)
+
+
+
+beta_results <- compute_beta_spatial(model = fit_res,
+                                     n_loc = 16)
+
+
+#png("inst/paper/figures/Example_binomial_hyperbolic_paramestimates.png", width=30, height=10, units = 'cm', res = 300)
+par(mfrow=c(1,3))
+
+plot(inla.smarginal(fit_res$res$marginals.fixed[["(Intercept)"]]),
+     type="l", lwd=3, col="red", xlab=expression(beta[0]), ylab="",
+     cex.lab = 2.2, cex.axis=1.5)
+abline(v = data_spatialpoisson_example$beta0, col = 'blue', lty=1, lwd = 2)
+abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed$`(Intercept)`), prob = 0.025), lty = 2)
+abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed$`(Intercept)`), prob = 0.975), lty = 2)
+
+plot(inla.smarginal(beta_results$hf_index_1$marginal.global.beta),
+     type="l", lwd=3, col="red", xlab=expression(beta[1]), ylab="",
+     cex.lab = 2.2, cex.axis=1.5)
+abline(v = data_spatialpoisson_example$beta1, col = 'blue', lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_1$summary.global.beta$`2.5%`, lty = 2)
+abline(v = beta_results$hf_index_1$summary.global.beta$`97.5%`, lty = 2)
+
+plot(inla.smarginal(beta_results$hf_index_2$marginal.beta),
+     type="l", lwd=3, col="red", xlab=expression(beta[2]), ylab="",
+     cex.lab = 2.2, cex.axis=1.5)
+abline(v = data_spatialpoisson_example$beta2, col = 'blue', lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_2$summary.beta$`2.5%`, lty = 2)
+abline(v = beta_results$hf_index_2$summary.beta$`97.5%`, lty = 2)
+#dev.off()
+
+
+
+
+
+
+
 
 
 #### Compute weights ####

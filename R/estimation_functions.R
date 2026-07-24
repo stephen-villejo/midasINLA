@@ -851,7 +851,7 @@ compute_beta_spatial <- function(model,
         names(res) <- c("summary.beta",
                         "marginal.beta")
 
-        res[["marginal.beta"]] <- model$res$marginals.hyperpar[[paste0("Theta1 for ", idx_name)]]
+        res[["marginal.beta"]] <- model$res$marginals.hyperpar[[paste0("Theta3 for ", idx_name)]]
 
         marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
         summary.beta <- data.frame(
