@@ -160,22 +160,22 @@ data_x2 <- do.call(rbind, x2_list)
 data_y <- do.call(rbind, y_list)
 
 
-data_spatialpoisson_example_v2 <- list(data_x1 = data_x1,
-                                       data_x2 = data_x2,
-                                       data_y = data_y,
-                                       weights1 = weights1,
-                                       weights2 = weights2,
-                                       eta = eta,
-                                       beta0 = beta0,
-                                       beta1 = beta1,
-                                       beta2 = beta2,
-                                       icar = icar,
-                                       tau = tau,
-                                       grid_sf = grid_sf)
+data_spatialpoisson_example <- list(data_x1 = data_x1,
+                                    data_x2 = data_x2,
+                                    data_y = data_y,
+                                    weights1 = weights1,
+                                    weights2 = weights2,
+                                    eta = eta,
+                                    beta0 = beta0,
+                                    beta1 = beta1,
+                                    beta2 = beta2,
+                                    icar = icar,
+                                    tau = tau,
+                                    grid_sf = grid_sf)
 
 
-usethis::use_data(data_spatialpoisson_example_v2, overwrite = TRUE)
+usethis::use_data(data_spatialpoisson_example, overwrite = TRUE)
 
 
-#source("data-raw/data_spatialpoisson_example_v2.R")
+#source("data-raw/data_spatialpoisson_example.R")
 
