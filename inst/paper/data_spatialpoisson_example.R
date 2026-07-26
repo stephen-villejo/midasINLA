@@ -5,9 +5,74 @@ library(midasINLA)
 library(ggplot2)
 library(midasr)
 library(INLA)
+library(ltc)
 
-data("data_spatialpoisson_example_v1", package = "midasINLA")
+
+data("data_spatialpoisson_example", package = "midasINLA")
 str(data_spatialpoisson_example)
+
+pal=ltc("paloma",5,"continuous")
+a <- ggplot(data_spatialpoisson_example$grid_sf) +
+  geom_sf(aes(fill = icar)) +
+  scale_fill_gradientn(colours = pal,
+                       name = expression(b[i])) +
+  geom_sf_text(
+    aes(label = id),
+    size = 2.5
+  ) +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 11, face = "bold"),
+        #legend.key.height = unit(1, "cm"),
+        #legend.key.width = unit(1.5, "cm"),
+        legend.position = "left")
+a
+
+df_weights <- data.frame(
+  lag = seq_along(data_spatialpoisson_example$weights1),
+  weight = data_spatialpoisson_example$weights1
+)
+b <- ggplot(df_weights, aes(x = lag, y = weight)) +
+  geom_line(linewidth = 0.3) +
+  geom_point(size = .3) +
+  labs(
+    x = "Lag",
+    y = "Weight",
+    title = expression(w[1*k])
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+df_weights <- data.frame(
+  lag = seq_along(data_spatialpoisson_example$weights2),
+  weight = data_spatialpoisson_example$weights2
+)
+c <- ggplot(df_weights, aes(x = lag, y = weight)) +
+  geom_line(linewidth = 0.3) +
+  geom_point(size = .3) +
+  labs(
+    x = "Lag",
+    y = "Weight",
+    title = expression(w[2*k])
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+
+library(patchwork)
+final_plot <- a + (b / c) +
+  plot_layout(widths = c(.6, 1))
+png("inst/paper/figures/data_spatialpoisson_example.png", width=17, height=10, units = 'cm', res = 300)
+final_plot
+dev.off()
+
+
+
+
 
 for_plot <- data_spatialpoisson_example$data_y
 for_plot <- for_plot[which(for_plot$loc %in% c(1:6)),]
@@ -25,9 +90,9 @@ ggplot(for_plot, aes(y = x1, x= Time, group = loc, color = loc)) +
   theme_minimal()
 
 
-data_y <- data_spatialpoisson_example[["data_y"]]
-data_y$y_all <- data_y$y
-data_y[which(data_y[["Time"]] %in% 182:192),"y"] <- NA
+response_data <- data_spatialpoisson_example[["data_y"]]
+response_data$y_all <- response_data$y
+response_data[which(response_data[["Time"]] %in% 183:192),"y"] <- NA
 
 
 
@@ -36,7 +101,6 @@ data_y[which(data_y[["Time"]] %in% 182:192),"y"] <- NA
 
 #### Model fitting ####
 
-response_data <- data_y
 
 g <- inla.read.graph(filename = "inst/map.adj")
 Midas_x1 <- prepare_Minla_spatial(x = data_spatialpoisson_example$data_x1$x1,
@@ -49,7 +113,7 @@ Midas_x1 <- prepare_Minla_spatial(x = data_spatialpoisson_example$data_x1$x1,
                                   g = g)
 Midas_x2 <- prepare_Minla_spatial(x = data_spatialpoisson_example$data_x2$x2,
                                   loc_x = data_spatialpoisson_example$data_x2$loc,
-                                  constraint = "hyperbolic",
+                                  constraint = "gaussian",
                                   K = 0:45,
                                   m = 30,
                                   svc = FALSE)
@@ -62,37 +126,86 @@ fit_res <- fit_Minla_spatial(formula = y ~ 1,
                              family = "poisson",
                              hf_input = list(Midas_x1,Midas_x2),
                              inla_options = list(verbose = T))
-
+summary(fit_res$res)
 
 
 beta_results <- compute_beta_spatial(model = fit_res,
                                      n_loc = 16)
 
+beta_results$hf_index_1$summary.global.beta
+beta_results$hf_index_1$summary.icar.beta
+beta_results$hf_index_2$summary.beta
 
-#png("inst/paper/figures/Example_binomial_hyperbolic_paramestimates.png", width=30, height=10, units = 'cm', res = 300)
-par(mfrow=c(1,3))
+png("inst/paper/figures/Example_spatialpoisson_betaestimates.png", width=20, height=9, units = 'cm', res = 300)
 
+par(mgp = c(4, 1, 0))
+par(mar = c(5, 4, 2, 1),
+    mgp = c(4, 1, 0))
+layout(matrix(c(1, 2, 3, 4, 4, 4),
+              nrow = 2,
+              byrow = TRUE),
+       heights = c(1, 0.2))
+
+# Panel 1
 plot(inla.smarginal(fit_res$res$marginals.fixed[["(Intercept)"]]),
-     type="l", lwd=3, col="red", xlab=expression(beta[0]), ylab="",
-     cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_spatialpoisson_example$beta0, col = 'blue', lty=1, lwd = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed$`(Intercept)`), prob = 0.025), lty = 2)
-abline(v = quantile(inla.rmarginal(200, fit_res$res$marginals.fixed$`(Intercept)`), prob = 0.975), lty = 2)
+     type = "l", lwd = 3, col = "red",
+     xlab = expression(beta[0]), ylab = "",
+     cex.lab = 2.2, cex.axis = 1.5)
 
+abline(v = data_spatialpoisson_example$beta0,
+       col = "blue", lty = 1, lwd = 2)
+abline(v = fit_res$res$summary.fixed["(Intercept)", "mean"],
+       col = "black", lty = 1, lwd = 2)
+abline(v = fit_res$res$summary.fixed["(Intercept)", "0.025quant"],
+       lty = 2)
+abline(v = fit_res$res$summary.fixed["(Intercept)", "0.975quant"],
+       lty = 2)
+
+# Panel 2
 plot(inla.smarginal(beta_results$hf_index_1$marginal.global.beta),
-     type="l", lwd=3, col="red", xlab=expression(beta[2]), ylab="",
-     cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_spatialpoisson_example$beta1, col = 'blue', lty = 1, lwd = 2)
-abline(v = beta_results$hf_index_1$summary.global.beta$`2.5%`, lty = 2)
-abline(v = beta_results$hf_index_1$summary.global.beta$`97.5%`, lty = 2)
+     type = "l", lwd = 3, col = "red",
+     xlab = expression(beta[1]^"*"), ylab = "",
+     cex.lab = 2.2, cex.axis = 1.5)
+abline(v = data_spatialpoisson_example$beta1,
+       col = "blue", lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_1$summary.global.beta$Mean,
+       col = "black", lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_1$summary.global.beta$`2.5%`,
+       lty = 2)
+abline(v = beta_results$hf_index_1$summary.global.beta$`97.5%`,
+       lty = 2)
 
+# Panel 3
 plot(inla.smarginal(beta_results$hf_index_2$marginal.beta),
-     type="l", lwd=3, col="red", xlab=expression(beta[3]), ylab="",
-     cex.lab = 2.2, cex.axis=1.5)
-abline(v = data_spatialpoisson_example$beta2, col = 'blue', lty = 1, lwd = 2)
-abline(v = beta_results$hf_index_2$summary.beta$`2.5%`, lty = 2)
-abline(v = beta_results$hf_index_2$summary.beta$`97.5%`, lty = 2)
-#dev.off()
+     type = "l", lwd = 3, col = "red",
+     xlab = expression(beta[2]), ylab = "",
+     cex.lab = 2.2, cex.axis = 1.5)
+
+abline(v = data_spatialpoisson_example$beta2,
+       col = "blue", lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_2$summary.beta$Mean,
+       col = "black", lty = 1, lwd = 2)
+abline(v = beta_results$hf_index_2$summary.beta$`2.5%`,
+       lty = 2)
+abline(v = beta_results$hf_index_2$summary.beta$`97.5%`,
+       lty = 2)
+
+# Legend panel
+par(mar = c(0, 0, 0, 0))
+plot.new()
+
+legend("center",
+       legend = c("True value",
+                  "Posterior mean",
+                  "95% credible interval"),
+       col = c("blue", "black", "black"),
+       lty = c(1, 1, 2),
+       lwd = c(2, 2, 1),
+       bty = "n",
+       horiz = TRUE,
+       cex = 1.7)
+
+dev.off()
 
 
 #### Compute weights ####
