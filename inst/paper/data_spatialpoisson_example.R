@@ -213,43 +213,118 @@ dev.off()
 res_weights <- compute_weights(fit_res)
 str(res_weights)
 
-#png("inst/paper/figures/data_binomial_example_weights_covariate1.png", width=27, height=12, units = 'cm', res = 300)
-res_weights$hf_1$lag <- factor(res_weights$hf_1$lag, levels=unique(res_weights$hf_1$lag))
-ggplot(res_weights$hf_1, aes(x=lag, y=mean)) +
-  geom_point(aes(col="Posterior mean")) +
-  geom_errorbar(aes(ymin=q2.5, ymax=q97.5), width=.2,
-                position=position_dodge(0.05), col = "black") +
-  geom_point(aes(x=lag, y=data_spatialpoisson_example$weights1, color = "True value")) +
-  scale_color_manual(name='',
-                     breaks=c('Posterior mean', 'True value'),
-                     values=c('Posterior mean'='red', 'True value'='blue')) +
-  theme_bw() +
-  theme(axis.text=element_text(size=20),
-        axis.title=element_text(size=20,face="bold"),
-        legend.position = "bottom",
-        legend.text=element_text(size=24, face = "plain"),
-        legend.title=element_blank()) +
-  ylab("")
-#dev.off()
 
-#png("inst/paper/figures/data_binomial_example_weights_covariate2.png", width=27, height=12, units = 'cm', res = 300)
-res_weights$hf_2$lag <- factor(res_weights$hf_2$lag, levels=unique(res_weights$hf_2$lag))
-ggplot(res_weights$hf_2, aes(x=lag, y=mean)) +
-  geom_point(aes(col="Posterior mean")) +
-  geom_errorbar(aes(ymin=q2.5, ymax=q97.5), width=.2,
-                position=position_dodge(0.05), col = "black") +
-  geom_point(aes(x=lag, y=data_spatialpoisson_example$weights2, color = "True value")) +
-  scale_color_manual(name='',
-                     breaks=c('Posterior mean', 'True value'),
-                     values=c('Posterior mean'='red', 'True value'='blue')) +
+png("inst/paper/figures/Example_spatialpoisson_weights_covariate1.png", width=30, height=15, units = 'cm', res = 300)
+res_weights$hf_1$lag <- factor(res_weights$hf_1$lag, levels=unique(res_weights$hf_1$lag))
+ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
+  geom_errorbar(
+    aes(
+      ymin = q2.5,
+      ymax = q97.5,
+      color = "95% credible interval"
+    ),
+    width = .7,
+    position = position_dodge(0.05)
+  ) +
+  geom_point(
+    aes(color = "Posterior mean"),
+    size = 1
+  ) +
+  geom_point(
+    aes(
+      x = lag,
+      y = data_spatialpoisson_example$weights1,
+      color = "True value"
+    ),
+    size = 1
+  ) +
+  scale_color_manual(
+    name = "",
+    breaks = c(
+      "Posterior mean",
+      "95% credible interval",
+      "True value"
+    ),
+    values = c(
+      "Posterior mean" = "red",
+      "95% credible interval" = "black",
+      "True value" = "blue"
+    )
+  ) +
+  guides(
+    color = guide_legend(
+      override.aes = list(
+        size = c(3, 1, 3)
+      )
+    )
+  ) +
   theme_bw() +
-  theme(axis.text=element_text(size=20),
-        axis.title=element_text(size=20,face="bold"),
-        legend.position = "bottom",
-        legend.text=element_text(size=24, face = "plain"),
-        legend.title=element_blank()) +
+  theme(
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 16, face = "bold"),
+    legend.position = "bottom",
+    legend.text = element_text(size = 16, face = "plain"),
+    legend.title = element_blank()
+  ) +
   ylab("")
-#dev.off()
+dev.off()
+
+
+png("inst/paper/figures/Example_spatialpoisson_weights_covariate2.png", width=30, height=15, units = 'cm', res = 300)
+res_weights$hf_2$lag <- factor(res_weights$hf_2$lag, levels=unique(res_weights$hf_2$lag))
+ggplot(res_weights$hf_2, aes(x = lag, y = mean)) +
+  geom_errorbar(
+    aes(
+      ymin = q2.5,
+      ymax = q97.5,
+      color = "95% credible interval"
+    ),
+    width = .7,
+    position = position_dodge(0.05)
+  ) +
+  geom_point(
+    aes(color = "Posterior mean"),
+    size = 1
+  ) +
+  geom_point(
+    aes(
+      x = lag,
+      y = data_spatialpoisson_example$weights2,
+      color = "True value"
+    ),
+    size = 1
+  ) +
+  scale_color_manual(
+    name = "",
+    breaks = c(
+      "Posterior mean",
+      "95% credible interval",
+      "True value"
+    ),
+    values = c(
+      "Posterior mean" = "red",
+      "95% credible interval" = "black",
+      "True value" = "blue"
+    )
+  ) +
+  guides(
+    color = guide_legend(
+      override.aes = list(
+        size = c(3, 1, 3)
+      )
+    )
+  ) +
+  theme_bw() +
+  theme(
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 16, face = "bold"),
+    legend.position = "bottom",
+    legend.text = element_text(size = 16, face = "plain"),
+    legend.title = element_blank()
+  ) +
+  ylab("")
+dev.off()
+
 
 
 #### Compare observed versus predicted values ####
@@ -258,6 +333,7 @@ pred_res <- predict_midas(model = fit_res,
                           family = "poisson",
                           Ntrials = NULL,
                           nsamples = 1000)
+str(pred_res)
 both_ts <- data.frame(observed = fit_res$data_final$y_all,
                       predicted = pred_res$computed_y$mean,
                       loc = fit_res$data_final$loc,
@@ -291,19 +367,32 @@ PI_sub <- PI[which(PI$loc %in% 1:4),]
 
 
 
-#png("inst/paper/figures/Example_spatialpoisson_gauss_predsVSobs.png", width=35, height=20, units = 'cm', res = 300)
+png("inst/paper/figures/Example_spatialpoisson_forecast.png", width=35, height=20, units = 'cm', res = 300)
 ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
   geom_line() +
-  geom_ribbon(data = PI_sub,
-              aes(x = Time, ymin = lower, ymax = upper),
-              inherit.aes = FALSE,
-              alpha = 0.2,
-              fill  = "red") +
+  geom_ribbon(
+    data = PI_sub,
+    aes(
+      x = Time,
+      ymin = lower,
+      ymax = upper,
+      fill = "95% credible interval"
+    ),
+    inherit.aes = FALSE,
+    alpha = 0.2
+  ) +
   theme_minimal() +
-  facet_wrap(~loc, ncol = 2,
-             labeller = labeller(loc = function(x) paste("Loc =", x))) +
+  facet_wrap(
+    ~loc,
+    ncol = 2,
+    labeller = labeller(loc = function(x) paste("Loc =", x))
+  ) +
   scale_colour_manual(
-    values = c("blue","red")
+    values = c("blue", "red")
+  ) +
+  scale_fill_manual(
+    name = "",
+    values = c("95% credible interval" = "red")
   ) +
   ylab("y") +
   geom_vline(
@@ -312,13 +401,20 @@ ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
     colour = "black",
     size = 1
   ) +
-  theme(axis.text=element_text(size=16),
-        axis.title=element_text(size=16,face="bold"),
-        legend.position = "bottom",
-        legend.text=element_text(size=20, face = "plain"),
-        legend.title=element_blank(),
-        strip.text = element_text(size=20))
-#dev.off()
+  theme(
+    axis.text = element_text(size = 16),
+    axis.title = element_text(size = 16, face = "bold"),
+    legend.position = "bottom",
+    legend.text = element_text(size = 20, face = "plain"),
+    legend.title = element_blank(),
+    strip.text = element_text(size = 20)
+  )
+dev.off()
+
+
+
+
+#### Model comparator ####
 
 
 
