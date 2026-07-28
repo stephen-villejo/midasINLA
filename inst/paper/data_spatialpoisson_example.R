@@ -337,7 +337,8 @@ str(pred_res)
 both_ts <- data.frame(observed = fit_res$data_final$y_all,
                       predicted = pred_res$computed_y$mean,
                       loc = fit_res$data_final$loc,
-                      Time = fit_res$data_final$Time)
+                      Time = fit_res$data_final$Time,
+                      sd = pred_res$computed_y$sd)
 PI <- data.frame(lower = pred_res$computed_y$q2.5,
                  upper = pred_res$computed_y$q97.5,
                  loc = fit_res$data_final$loc,
@@ -412,9 +413,186 @@ ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
 dev.off()
 
 
+test_idx <- is.na(fit_res$data_final$y)
+scores <- score_midas(model = fit_res,
+                      prediction = pred_res,
+                      family = "poisson",
+                      y_varname = "y_all")
+
+
+comparison <- data.frame(
+  y_true = both_ts$observed[test_idx],
+  y_pred = both_ts$predicted[test_idx],
+  pred.sd = both_ts$sd[test_idx],
+  DS = scores$dawid_sebastiani[test_idx],
+  NLS = scores$log_score[test_idx]
+)
+sqrt(mean((comparison$y_true-comparison$y_pred)^2))
+mean(comparison$pred.sd)
+mean(comparison$DS)
+mean(comparison$NLS)
+
 
 
 #### Model comparator ####
 
+data_comp <- fit_res$data_final
+
+rm <- max(Midas_x1$rm.row,Midas_x2$rm.row)
+
+X1 <- rowMeans(
+  Midas_x1$X_matrix[
+    ave(seq_len(nrow(Midas_x1$X_matrix)),
+        Midas_x1$X_matrix[, ncol(Midas_x1$X_matrix)],
+        FUN = seq_along) > rm,
+    1:30
+  ]
+)
+
+X2 <- rowMeans(
+  Midas_x2$X_matrix[
+    ave(seq_len(nrow(Midas_x2$X_matrix)),
+        Midas_x2$X_matrix[, ncol(Midas_x2$X_matrix)],
+        FUN = seq_along) > rm,
+    1:30
+  ]
+)
+
+data_comp$x1 <- X1
+data_comp$x2 <- X2
+
+res_baseline = inla(y ~ 1 + f(x1, model = "linear") + f(x2, model = "linear"),
+                    data = data_comp,
+                    family = "poisson",
+                    verbose = TRUE,
+                    control.compute=list(config = TRUE))
+
+summary(res_baseline)
+
+# Posterior samples
+
+temp <- INLA::inla.posterior.sample(
+  n = 1000,
+  res_baseline
+)
+
+latent_names <- rownames(temp[[1]]$latent)
+
+predictor_idx <- grep(
+  "^Predictor",
+  latent_names
+)
+
+predictor_idx <- predictor_idx[
+  seq_len(nrow(data_comp))
+]
+
+latent_predictor <- sapply(
+  seq_len(1000),
+  function(i) {
+    temp[[i]]$latent[predictor_idx]
+  }
+)
+
+# Posterior predictive samples
+
+samples <- list(
+  latent_predictor = latent_predictor
+)
+
+sample_y <- sapply(
+  seq_len(1000),
+  function(i) {
+    stats::rpois(
+      n = nrow(data_comp),
+      lambda = exp(latent_predictor[, i])
+    )
+  }
+)
+
+# Posterior predictive summaries
+
+computed_y <- list(
+  mean = rowMeans(sample_y),
+  sd = apply(sample_y, 1, stats::sd),
+  q2.5 = matrixStats::rowQuantiles(
+    sample_y,
+    probs = 0.025
+  ),
+  q97.5 = matrixStats::rowQuantiles(
+    sample_y,
+    probs = 0.975
+  )
+)
+
+
+# Predictive mean and variance
+
+lambda <- exp(latent_predictor)
+
+# E(Y) = E(lambda)
+pred_mean <- rowMeans(lambda)
+
+# Var(Y) = E(lambda) + Var(lambda)
+pred_var <- pred_mean +
+  apply(lambda, 1, stats::var)
+
+
+# Dawid-Sebastiani score
+
+y_obs <- data_comp$y_all
+
+ds_score <- (
+  (y_obs - pred_mean)^2 / pred_var
+) + log(pred_var)
+
+
+# Log score
+
+# Posterior predictive probability:
+# p(y) = E[p(y | lambda)]
+# approximated by averaging over posterior samples
+
+predictive_probability <- sapply(
+  seq_len(nrow(data_comp)),
+  function(j) {
+
+    probability_values <- stats::dpois(
+      y_obs[j],
+      lambda = lambda[j, ]
+    )
+
+    mean(probability_values)
+  }
+)
+
+log_score <- -log(predictive_probability)
+
+
+# Store results
+
+scores_comp <- list(
+  dawid_sebastiani = ds_score,
+  log_score = log_score,
+  predicted = computed_y$mean,
+  sd = computed_y$sd
+)
+
+
+
+data_comp$pred.y <- scores_comp$predicted
+data_comp$pred.sd <- scores_comp$sd
+test_idx <- is.na(data_comp$y)
+comparison <- data.frame(
+  y_true = data_comp$y_all[test_idx],
+  y_pred = data_comp$pred.y[test_idx],
+  pred.sd = data_comp$pred.sd[test_idx],
+  DS = scores_comp$dawid_sebastiani[test_idx],
+  NLS = scores_comp$log_score[test_idx]
+)
+sqrt(mean((comparison$y_true-comparison$y_pred)^2))
+mean(comparison$pred.sd)
+mean(comparison$DS)
+mean(comparison$NLS)
 
 
