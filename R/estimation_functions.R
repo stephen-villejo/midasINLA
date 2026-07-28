@@ -831,7 +831,7 @@ compute_beta_spatial <- function(model,
             `2.5%` = stats::quantile(marg, probs = 0.025),
             `50%` = stats::quantile(marg, probs = 0.5),
             `97.5%` = stats::quantile(marg, probs = 0.975),
-            row.names = paste0("b",x),
+            row.names = paste0("beta",x),
             check.names = FALSE
           )
         })
