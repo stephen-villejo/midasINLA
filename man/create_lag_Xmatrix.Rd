@@ -11,7 +11,8 @@ create_lag_Xmatrix(tsdata, lags, frequency)
 
 \item{lags}{Lags to be considered}
 
-\item{frequency}{Number of covariates values associated with each response}
+\item{frequency}{Number of high-frequency covariate values associated
+with each response. Can be a single value or a vector.}
 }
 \value{
 Matrix of lagged values
