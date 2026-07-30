@@ -1,26 +1,72 @@
 
 
 
-
-
-
 #' Create lag matrix
+#'
 #' @param tsdata High-frequency covariate data
 #' @param lags Lags to be considered
-#' @param frequency Number of covariates values associated with each response
+#' @param frequency Number of high-frequency covariate values associated
+#'   with each response. Can be a single value or a vector.
 #' @return Matrix of lagged values
 #' @export
 create_lag_Xmatrix <- function(tsdata,
                                lags,
-                               frequency){
-  X_matrix <- midasr::mls(tsdata, lags, frequency)
-  compile_names <- c()
-  for(i in 0:(ncol(X_matrix)-1)){
-    compile_names <- c(compile_names,paste0("lag",i))
-  }
-  colnames(X_matrix) <- compile_names
+                               frequency) {
 
-  return(X_matrix)
+  tsdata <- as.numeric(tsdata)
+
+  if (any(frequency <= 0) || any(frequency != as.integer(frequency))) {
+    stop("'frequency' must contain positive integers.")
+  }
+
+  # Scalar frequency
+  if (length(frequency) == 1) {
+
+    if (length(tsdata) %% frequency != 0) {
+      stop(
+        "When 'frequency' is a scalar, its value must divide ",
+        "the length of 'tsdata'."
+      )
+    }
+
+    frequency <- rep(
+      frequency,
+      length(tsdata) / frequency
+    )
+
+    # Vector frequency
+  } else {
+
+    if (sum(frequency) != length(tsdata)) {
+      stop(
+        "When 'frequency' is a vector, its sum must equal ",
+        "the length of 'tsdata'."
+      )
+    }
+  }
+
+  end_idx <- cumsum(frequency)
+
+  X_matrix <- matrix(
+    NA_real_,
+    nrow = length(frequency),
+    ncol = length(lags)
+  )
+
+  for (i in seq_along(end_idx)) {
+    for (j in seq_along(lags)) {
+
+      idx <- end_idx[i] - lags[j]
+
+      if (idx >= 1 && idx <= length(tsdata)) {
+        X_matrix[i, j] <- tsdata[idx]
+      }
+    }
+  }
+
+  colnames(X_matrix) <- paste0("lag", lags)
+
+  X_matrix
 }
 
 
