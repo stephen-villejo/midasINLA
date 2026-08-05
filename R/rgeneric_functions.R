@@ -265,7 +265,7 @@ rgeneric.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.nor
     lag_k <- ncol(x)-2
     gamma1 <- 0.01*sin(theta[1L])
     gamma2 <- 0.01*sin(theta[2L])
-    beta1 <- theta[1L]
+    beta1 <- theta[3L]
 
     psi <- numeric(lag_k + 1)
     for(lag in 0:lag_k){

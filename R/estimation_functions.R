@@ -627,6 +627,8 @@ fit_Minla_spatial <- function(formula,
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Beta2.midas.iid,
                                             x = temp_data))
         } else if (hf_info$constraint == "almon2") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon2.midas.iid,
+                                            x = temp_data))
         } else if (hf_info$constraint == "almon3") {
         } else if (hf_info$constraint == "hyperbolic") {
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.iid,

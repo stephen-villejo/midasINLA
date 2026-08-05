@@ -2240,3 +2240,181 @@ rgeneric.globalbeta.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial"
   return(val)
 }
 
+
+
+#' Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical
+#' constraint, d = 2
+#'
+#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+#' implementing MIDAS-type lag weights using Almon lag structure,
+#' and where \code{beta[i]} varies for each location following an iid model.
+#'
+
+#' @param cmd Character string indicating the INLA command.
+#'   One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
+#'   \code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.
+#' @param theta Numeric vector of hyperparameters controlling the MIDAS weights.
+#'
+#' @return Depends on \code{cmd}:
+#' \itemize{
+#'   \item \code{graph}: Sparse precision structure
+#'   \item \code{Q}: Precision matrix
+#'   \item \code{mu}: Mean vector
+#'   \item \code{initial}: Initial values for \code{theta}
+#'   \item \code{log.norm.const}: Normalizing constant (numeric(0))
+#'   \item \code{log.prior}: Log prior density
+#' }
+#'
+#' @details
+#' The MIDAS lag weights are constructed using a normalized Almon constraint.
+#' The parameters \code{theta[1]} and and \code{theta[2]}
+#' control the shape of the lag weighting function.
+#'
+#' @importFrom Matrix Diagonal
+#'
+#' @export
+rgeneric.svc.Almon2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
+                                                 "log.prior", "quit"),
+                                         theta = NULL){
+
+  envir <- parent.env(environment())
+
+  x <- envir$x
+
+  regions <- sort(unique(x$region))
+  n_regions <- length(regions)
+
+  region_id <- match(x$region, regions)
+
+  if (any(is.na(region_id))) {
+    stop("Some observations have region labels not matched to 'regions'.")
+  }
+  if (!all(region_id %in% seq_len(n_regions))) {
+    stop("region_id values are outside 1:n_regions.")
+  }
+
+  interpret.theta <- function() {
+
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    lag_k <- length(lag_cols) - 1L
+
+    gamma1 <- 0.01*sin(theta[1L])
+    gamma2 <- 0.01*sin(theta[2L])
+    tau_beta  <- exp(theta[3L])
+
+    psi <- numeric(lag_k + 1L)
+    for(lag in 0:lag_k){
+      psi[lag + 1] <- exp(gamma1*(lag^1) + gamma2*(lag^2))
+    }
+
+    w <- psi / sum(psi)
+
+    out_list <- list()
+    out_list[["w"]] <- w
+    out_list[["gamma1"]] <- gamma1
+    out_list[["gamma2"]] <- gamma2
+    out_list[["tau_beta"]] <- tau_beta
+
+    return(out_list)
+  }
+
+  graph <- function() {
+
+    n_obs <- nrow(x)
+    N <- n_regions
+
+    # region-specific beta_i block (iid => diagonal graph)
+    Sbb <- Matrix::Diagonal(n = N, x = 1)
+
+    # beta_i to observation links
+    Sbe <- Matrix::sparseMatrix(
+      i = region_id,
+      j = seq_len(n_obs),
+      x = 1,
+      dims = c(N, n_obs)
+    )
+
+    # observation block
+    See <- Matrix::Diagonal(n = n_obs, x = 1)
+
+    G <- rbind(
+      cbind(Sbb, Sbe),
+      cbind(Matrix::t(Sbe), See)
+    )
+
+    G@x[] <- 1
+    return(G)
+  }
+
+  Q <- function() {
+
+    par <- interpret.theta()
+
+    n_obs <- nrow(x)
+    N <- n_regions
+    prec.high <- exp(15)
+
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    Zmat <- as.matrix(x[, lag_cols, drop = FALSE])
+    z <- as.vector(Zmat %*% par$w)
+
+    # Q_{beta beta} = tau_beta I + tau_eta A' D_z^2 A
+    beta_diag <- rowsum(z^2, group = region_id, reorder = FALSE)
+    beta_diag <- as.numeric(beta_diag)
+
+    if (length(beta_diag) < N) {
+      tmp <- numeric(N)
+      tmp[sort(unique(region_id))] <- beta_diag
+      beta_diag <- tmp
+    }
+
+    Qbb <- Matrix::Diagonal(n = N, x = par$tau_beta + prec.high * beta_diag)
+
+    # Q_{beta eta} = -tau_eta A' D_z
+    Qbe <- Matrix::sparseMatrix(
+      i = region_id,
+      j = seq_len(n_obs),
+      x = -prec.high * z,
+      dims = c(N, n_obs)
+    )
+
+    # Q_{eta eta} = tau_eta I
+    Qee <- Matrix::Diagonal(n = n_obs, x = prec.high)
+
+    Qfull <- rbind(
+      cbind(Qbb, Qbe),
+      cbind(Matrix::t(Qbe), Qee)
+    )
+
+    return(Qfull)
+  }
+
+  mu <- function() {
+    n_obs <- nrow(x)
+    N <- n_regions
+    return(numeric(N + n_obs))
+  }
+
+  log.norm.const <- function() {
+    return(numeric(0))
+  }
+
+  log.prior <- function() {
+    val <- (stats::dnorm(theta[1L], mean = 0, sd = 1, log = TRUE) +
+              stats::dnorm(theta[2L], mean = 0, sd = 1, log = TRUE) +
+              stats::dnorm(theta[3L], mean = 0, sd = 1, log = TRUE))
+    return(val)
+  }
+
+  initial <- function() {
+    return(c(0, 0, 0))
+  }
+
+  quit <- function() {
+    return(invisible())
+  }
+
+  val <- do.call(match.arg(cmd), args = list())
+
+  return(val)
+}
