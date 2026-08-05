@@ -537,6 +537,7 @@ prepare_Minla_spatial <- function(x,
 #' @param family Likelihood family for response data
 #' @param hf_input list of output objects from prepare_Minla_spatial
 #' @param Ntrials Number of trials for a binomial family response
+#' @param E expected cases for Poisson model
 #' @param inla_options arguments in inla function
 #' @return MIDAS output
 #' @export
@@ -546,7 +547,8 @@ fit_Minla_spatial <- function(formula,
                               time_var,
                               family,
                               hf_input = NULL,
-                              Ntrials = data$Ntrials,
+                              Ntrials = NULL,
+                              E = NULL,
                               inla_options = list()) {
 
 
@@ -564,7 +566,7 @@ fit_Minla_spatial <- function(formula,
 
     if(!hf_info$svc)
     {
-      if (hf_info$constraint == "beta") {
+      if (hf_info$constraint == "beta1") {
       } else if (hf_info$constraint == "beta2") {
       } else if (hf_info$constraint == "almon2") {
       } else if (hf_info$constraint == "almon3") {
@@ -590,7 +592,7 @@ fit_Minla_spatial <- function(formula,
           stop("`hf_info$g` is required when `svc_prior = 'icar'`.")
         }
 
-        if (hf_info$constraint == "beta") {
+        if (hf_info$constraint == "beta1") {
         } else if (hf_info$constraint == "beta2") {
         } else if (hf_info$constraint == "almon2") {
         } else if (hf_info$constraint == "almon3") {
@@ -608,7 +610,9 @@ fit_Minla_spatial <- function(formula,
 
       } else if(hf_info$svc_prior == "iid") {
 
-        if (hf_info$constraint == "beta") {
+        if (hf_info$constraint == "beta1") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Beta1.midas.iid,
+                                            x = temp_data))
         } else if (hf_info$constraint == "beta2") {
         } else if (hf_info$constraint == "almon2") {
         } else if (hf_info$constraint == "almon3") {
@@ -631,6 +635,11 @@ fit_Minla_spatial <- function(formula,
 
   if (family == "binomial") {
     data$Ntrials <- Ntrials
+  }else if (family == "poisson" & !is.null(E)){
+    if (length(E) != nrow(data)) {
+      stop("Length of `E` must match the number of rows in `data`.")
+    }
+    data$E <- E
   }
 
 
@@ -766,6 +775,10 @@ fit_Minla_spatial <- function(formula,
 
   if (family == "binomial") {
     args_inla$Ntrials <- data_final$Ntrials
+  }
+
+  if (family == "poisson" && !is.null(E)) {
+    args_inla$E <- data_final$E
   }
 
   args_inla <- c(args_inla, inla_options)

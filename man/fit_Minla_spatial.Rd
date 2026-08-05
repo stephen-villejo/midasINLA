@@ -11,7 +11,8 @@ fit_Minla_spatial(
   time_var,
   family,
   hf_input = NULL,
-  Ntrials = data$Ntrials,
+  Ntrials = NULL,
+  E = NULL,
   inla_options = list()
 )
 }
@@ -29,6 +30,8 @@ fit_Minla_spatial(
 \item{hf_input}{list of output objects from prepare_Minla_spatial}
 
 \item{Ntrials}{Number of trials for a binomial family response}
+
+\item{E}{expected cases for Poisson model}
 
 \item{inla_options}{arguments in inla function}
 }
