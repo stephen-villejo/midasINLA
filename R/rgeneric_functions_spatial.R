@@ -2172,18 +2172,15 @@ rgeneric.globalbeta.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial"
     beta1 <- theta[3L]
 
     psi <- numeric(lag_k + 1L)
-    for (lag in 0:lag_k) {
+    for(lag in 0:lag_k){
       x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
-      psi[lag + 1L] <- 1 + (1-x_temp)^(gamma2-1)
+      psi[lag + 1L] <- (x_temp^(gamma1-1))*((1-x_temp)^(gamma2-1))
     }
 
     w <- psi / sum(psi)
 
     out_list <- list()
-    for(lag in 0:lag_k){
-      x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
-      psi[lag + 1L] <- (x_temp^(gamma1-1))*((1-x_temp)^(gamma2-1))
-    }
+
 
     out_list[["beta1"]] <- beta1
 
@@ -2304,7 +2301,7 @@ rgeneric.svc.Almon2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", 
 
     psi <- numeric(lag_k + 1L)
     for(lag in 0:lag_k){
-      psi[lag + 1] <- exp(gamma1*(lag^1) + gamma2*(lag^2))
+      psi[lag + 1L] <- exp(gamma1*(lag^1) + gamma2*(lag^2))
     }
 
     w <- psi / sum(psi)
@@ -2523,7 +2520,7 @@ rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial",
 
     psi <- numeric(lag_k + 1L)
     for(lag in 0:lag_k){
-      psi[lag + 1] <- exp(gamma1*(lag^1) + gamma2*(lag^2))
+      psi[lag + 1L] <- exp(gamma1*(lag^1) + gamma2*(lag^2))
     }
 
     w <- psi / sum(psi)
@@ -2683,3 +2680,118 @@ rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial",
 
 }
 
+
+#' Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical
+#' constraint, d = 2
+#'
+#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+#' implementing MIDAS-type lag weights using Almon lag structure,
+#' and where \code{beta} is constant for all locations.
+#'
+
+#' @param cmd Character string indicating the INLA command.
+#'   One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
+#'   \code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.
+#' @param theta Numeric vector of hyperparameters controlling the MIDAS weights.
+#'
+#' @return Depends on \code{cmd}:
+#' \itemize{
+#'   \item \code{graph}: Sparse precision structure
+#'   \item \code{Q}: Precision matrix
+#'   \item \code{mu}: Mean vector
+#'   \item \code{initial}: Initial values for \code{theta}
+#'   \item \code{log.norm.const}: Normalizing constant (numeric(0))
+#'   \item \code{log.prior}: Log prior density
+#' }
+#'
+#' @details
+#' The MIDAS lag weights are constructed using a normalized Almon constraint.
+#' The parameters \code{theta[1]} and and \code{theta[2]}
+#' control the shape of the lag weighting function.
+#'
+#' @importFrom Matrix Diagonal
+#'
+#' @export
+rgeneric.globalbeta.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
+                                                    "log.prior", "quit"),
+                                            theta = NULL){
+
+  envir = parent.env(environment())
+  x <- envir$x
+
+  ## artificial high precision to be added to the mean-model
+  prec.high = exp(15)
+
+  interpret.theta = function() {
+
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    lag_k <- length(lag_cols) - 1L
+
+    gamma1 <- 0.01*sin(theta[1L])
+    gamma2 <- 0.01*sin(theta[2L])
+    beta1 <- theta[3L]
+
+    psi <- numeric(lag_k + 1L)
+    for(lag in 0:lag_k){
+      psi[lag + 1L] <- exp(gamma1*(lag^1) + gamma2*(lag^2))
+    }
+
+    w <- psi / sum(psi)
+
+    out_list <- list()
+
+
+    out_list[["beta1"]] <- beta1
+
+    return(out_list)
+
+  }
+  graph = function() {
+    G = Matrix::Diagonal(n = length(x$lag0), x=1)
+    return(G)
+  }
+  Q = function() {
+    Q = prec.high * graph()
+    return(Q)
+  }
+  mu = function() {
+    par = interpret.theta()
+
+    lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
+    lag_k <- length(lag_cols) - 1L
+
+    compile_lag_label <- c()
+    for(lag in 0:lag_k){
+      compile_lag_label <- c(compile_lag_label, paste0("lag",lag))
+    }
+    compile_w_label <- c()
+    for(lag in 0:lag_k){
+      compile_w_label <- c(compile_w_label, paste0("w",lag))
+    }
+
+    agg <- 0
+    for(lag in 0:lag_k){
+      agg <- agg + par[[compile_w_label[[lag+1]]]] * x[,which(names(x) == compile_lag_label[[lag+1]])]
+    }
+
+    return(par$beta1 * agg)
+  }
+  log.norm.const = function() {
+    return(numeric(0))
+  }
+  log.prior = function() {
+    val = (stats::dnorm(theta[1L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[2L], mean=0, sd=1, log=TRUE) +
+             stats::dnorm(theta[3L], mean=0, sd=1, log=TRUE))
+    return(val)
+  }
+  initial = function() {
+    return(rep(1, 3))
+  }
+  quit = function() {
+    return(invisible())
+  }
+
+  val = do.call(match.arg(cmd), args = list())
+  return(val)
+}
