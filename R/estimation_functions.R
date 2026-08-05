@@ -576,6 +576,8 @@ fit_Minla_spatial <- function(formula,
         return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Almon2.midas,
                                           x = temp_data))
       } else if (hf_info$constraint == "almon3") {
+        return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Almon3.midas,
+                                          x = temp_data))
       } else if (hf_info$constraint == "hyperbolic") {
         return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Hyperbolic.midas,
                                           x = temp_data))
@@ -611,6 +613,9 @@ fit_Minla_spatial <- function(formula,
                                             x = temp_data,
                                             g = hf_info$g))
         } else if (hf_info$constraint == "almon3") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon3.midas.icar,
+                                            x = temp_data,
+                                            g = hf_info$g))
         } else if (hf_info$constraint == "hyperbolic") {
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.icar,
                                             x = temp_data,
@@ -635,6 +640,8 @@ fit_Minla_spatial <- function(formula,
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon2.midas.iid,
                                             x = temp_data))
         } else if (hf_info$constraint == "almon3") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon3.midas.iid,
+                                            x = temp_data))
         } else if (hf_info$constraint == "hyperbolic") {
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.iid,
                                             x = temp_data))
