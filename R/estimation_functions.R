@@ -567,7 +567,11 @@ fit_Minla_spatial <- function(formula,
     if(!hf_info$svc)
     {
       if (hf_info$constraint == "beta1") {
+        return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Beta1.midas,
+                                          x = temp_data))
       } else if (hf_info$constraint == "beta2") {
+        return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Beta2.midas,
+                                          x = temp_data))
       } else if (hf_info$constraint == "almon2") {
       } else if (hf_info$constraint == "almon3") {
       } else if (hf_info$constraint == "hyperbolic") {
@@ -593,7 +597,13 @@ fit_Minla_spatial <- function(formula,
         }
 
         if (hf_info$constraint == "beta1") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Beta1.midas.icar,
+                                            x = temp_data,
+                                            g = hf_info$g))
         } else if (hf_info$constraint == "beta2") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Beta2.midas.icar,
+                                            x = temp_data,
+                                            g = hf_info$g))
         } else if (hf_info$constraint == "almon2") {
         } else if (hf_info$constraint == "almon3") {
         } else if (hf_info$constraint == "hyperbolic") {
@@ -614,6 +624,8 @@ fit_Minla_spatial <- function(formula,
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Beta1.midas.iid,
                                             x = temp_data))
         } else if (hf_info$constraint == "beta2") {
+          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Beta2.midas.iid,
+                                            x = temp_data))
         } else if (hf_info$constraint == "almon2") {
         } else if (hf_info$constraint == "almon3") {
         } else if (hf_info$constraint == "hyperbolic") {
