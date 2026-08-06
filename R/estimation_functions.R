@@ -382,6 +382,7 @@ compute_weights <- function(model, n.samples = 200) {
 
     theta1_name <- sprintf("Theta1 for hf_idx_%d", i)
     theta2_name <- sprintf("Theta2 for hf_idx_%d", i)
+    theta3_name <- sprintf("Theta3 for hf_idx_%d", i)
 
     if (!(theta1_name %in% names(fit$marginals.hyperpar))) {
       stop(sprintf("Hyperparameter `%s` not found.", theta1_name))
@@ -424,6 +425,21 @@ compute_weights <- function(model, n.samples = 200) {
 
       psi_mat <- sapply(0:lag_k, function(lag) {
         exp(-(lag - mu_val_samples)^2 / (2 * sigma_val_samples^2))
+      })
+
+      w_mat <- psi_mat / rowSums(psi_mat)
+
+    } else if (constraint == "beta1"){
+
+      theta1_samples <- INLA::inla.rmarginal(
+        n.samples,
+        fit$marginals.hyperpar[[theta1_name]]
+      )
+
+      gamma2_val_samples <- exp(theta1_samples) + 1
+      xi <- 1e-4
+      psi_mat <- sapply(0:lag_k, function(lag) {
+        1 + (1-(xi + (1 - 2 * xi) * (lag / lag_k)))^(gamma2_val_samples-1)
       })
 
       w_mat <- psi_mat / rowSums(psi_mat)

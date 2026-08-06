@@ -1187,8 +1187,10 @@ rgeneric.svc.Beta1.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "
     tau_beta  <- exp(theta[2L])
 
     psi <- numeric(lag_k + 1L)
+    xi <- 1e-4
     for (lag in 0:lag_k) {
-      x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
+      #x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
+      x_temp <- xi + (1 - 2 * xi) * (lag / lag_k)
       psi[lag + 1L] <- 1 + (1-x_temp)^(gamma2-1)
     }
 
@@ -1404,8 +1406,10 @@ rgeneric.svc.Beta1.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
     tau_icar  <- exp(theta[2L])
 
     psi <- numeric(lag_k + 1L)
+    xi <- 1e-4
     for (lag in 0:lag_k) {
-      x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
+      #x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
+      x_temp <- xi + (1 - 2 * xi) * (lag / lag_k)
       psi[lag + 1L] <- 1 + (1-x_temp)^(gamma2-1)
     }
 
@@ -1613,8 +1617,10 @@ rgeneric.globalbeta.Beta1.midas = function(cmd = c("graph", "Q", "mu", "initial"
     beta1 <- theta[2L]
 
     psi <- numeric(lag_k + 1L)
+    xi <- 1e-4
     for (lag in 0:lag_k) {
-      x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
+      #x_temp <- 0.0001 + (1-0.0001)*((lag-1)/(lag_k-1))
+      x_temp <- xi + (1 - 2 * xi) * (lag / lag_k)
       psi[lag + 1L] <- 1 + (1-x_temp)^(gamma2-1)
     }
 
@@ -2167,8 +2173,8 @@ rgeneric.globalbeta.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial"
     lag_cols <- grep("^lag[0-9]+$", names(x), value = TRUE)
     lag_k <- length(lag_cols) - 1L
 
-    gamma1 <- exp(theta[1L]) + 1
-    gamma2 <- exp(theta[2L]) + 1
+    gamma1 <- exp(theta[1L])
+    gamma2 <- exp(theta[2L])
     beta1 <- theta[3L]
 
     psi <- numeric(lag_k + 1L)
