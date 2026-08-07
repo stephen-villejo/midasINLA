@@ -121,7 +121,7 @@ fit_Minla <- function(formula,
 
 
   build_rgen <- function(x, constraint) {
-    if (constraint == "beta") {
+    if (constraint == "beta1") {
       INLA::inla.rgeneric.define(model = rgeneric.Beta.midas, x = x)
     } else if (constraint == "beta2") {
       INLA::inla.rgeneric.define(model = rgeneric.Beta2.midas, x = x)
