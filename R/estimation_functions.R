@@ -937,7 +937,7 @@ compute_beta_spatial <- function(model,
           )
         })
 
-        res[["summary.beta"]]<- do.call(rbind,temp)
+        res[["summary.beta"]] <- do.call(rbind,temp)
 
 
         hf_summary_output[[i]] <- res
@@ -968,6 +968,27 @@ compute_beta_spatial <- function(model,
         res[["summary.beta"]] <- summary.beta
 
       }else if(temp$constraint == "hyperbolic"){
+
+        res <- vector(mode = "list", length = 2)
+        names(res) <- c("summary.beta",
+                        "marginal.beta")
+
+        res[["marginal.beta"]] <- model$res$marginals.hyperpar[[paste0("Theta2 for ", idx_name)]]
+
+        marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
+        summary.beta <- data.frame(
+          Mean = mean(marg),
+          SD = stats::sd(marg),
+          `2.5%` = stats::quantile(marg, probs = 0.025),
+          `50%` = stats::quantile(marg, probs = 0.5),
+          `97.5%` = stats::quantile(marg, probs = 0.975),
+          row.names = "beta",
+          check.names = FALSE
+        )
+
+        res[["summary.beta"]] <- summary.beta
+
+      }else if(temp$consrtaint == "beta1"){
 
         res <- vector(mode = "list", length = 2)
         names(res) <- c("summary.beta",
