@@ -127,8 +127,6 @@ fit_Minla <- function(formula,
       INLA::inla.rgeneric.define(model = rgeneric.Beta2.midas, x = x)
     } else if (constraint == "almon2") {
       INLA::inla.rgeneric.define(model = rgeneric.Almon2.midas, x = x)
-    } else if (constraint == "almon3") {
-      INLA::inla.rgeneric.define(model = rgeneric.Almon3.midas, x = x)
     } else if (constraint == "hyperbolic") {
       INLA::inla.rgeneric.define(model = rgeneric.Hyperbolic.midas, x = x)
     } else if (constraint == "gaussian") {
@@ -444,7 +442,50 @@ compute_weights <- function(model, n.samples = 200) {
 
       w_mat <- psi_mat / rowSums(psi_mat)
 
-    } else {
+    } else if (constraint == "beta2"){
+
+      theta1_samples <- INLA::inla.rmarginal(
+        n.samples,
+        fit$marginals.hyperpar[[theta1_name]]
+      )
+
+      theta2_samples <- INLA::inla.rmarginal(
+        n.samples,
+        fit$marginals.hyperpar[[theta2_name]]
+      )
+
+      gamma1_val_samples <- exp(theta1_samples) + 1
+      gamma2_val_samples <- exp(theta2_samples) + 1
+      xi <- 1e-4
+      psi_mat <- sapply(0:lag_k, function(lag) {
+        ((xi + (1 - 2 * xi) * (lag / lag_k))^(gamma1_val_samples-1))*((1-(xi + (1 - 2 * xi) * (lag / lag_k)))^(gamma2_val_samples-1))
+      })
+
+      w_mat <- psi_mat / rowSums(psi_mat)
+
+
+      } else if(constraint == "almon2"){
+
+        theta1_samples <- INLA::inla.rmarginal(
+          n.samples,
+          fit$marginals.hyperpar[[theta1_name]]
+        )
+
+        theta2_samples <- INLA::inla.rmarginal(
+          n.samples,
+          fit$marginals.hyperpar[[theta2_name]]
+        )
+
+        gamma1_val_samples <- 0.01 * tanh(theta1_samples)
+        gamma2_val_samples <- 0.01 * tanh(theta2_samples)
+        psi_mat <- sapply(0:lag_k, function(lag) {
+          exp(gamma1_val_samples*(lag^1) + gamma2_val_samples*(lag^2))
+        })
+
+        w_mat <- psi_mat / rowSums(psi_mat)
+
+
+      } else {
       stop(sprintf("Constraint `%s` not yet implemented.", constraint))
     }
 
@@ -591,9 +632,6 @@ fit_Minla_spatial <- function(formula,
       } else if (hf_info$constraint == "almon2") {
         return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Almon2.midas,
                                           x = temp_data))
-      } else if (hf_info$constraint == "almon3") {
-        return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Almon3.midas,
-                                          x = temp_data))
       } else if (hf_info$constraint == "hyperbolic") {
         return(INLA::inla.rgeneric.define(model = rgeneric.globalbeta.Hyperbolic.midas,
                                           x = temp_data))
@@ -628,10 +666,6 @@ fit_Minla_spatial <- function(formula,
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon2.midas.icar,
                                             x = temp_data,
                                             g = hf_info$g))
-        } else if (hf_info$constraint == "almon3") {
-          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon3.midas.icar,
-                                            x = temp_data,
-                                            g = hf_info$g))
         } else if (hf_info$constraint == "hyperbolic") {
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.icar,
                                             x = temp_data,
@@ -654,9 +688,6 @@ fit_Minla_spatial <- function(formula,
                                             x = temp_data))
         } else if (hf_info$constraint == "almon2") {
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon2.midas.iid,
-                                            x = temp_data))
-        } else if (hf_info$constraint == "almon3") {
-          return(INLA::inla.rgeneric.define(model = rgeneric.svc.Almon3.midas.iid,
                                             x = temp_data))
         } else if (hf_info$constraint == "hyperbolic") {
           return(INLA::inla.rgeneric.define(model = rgeneric.svc.Hyperbolic.midas.iid,
@@ -988,13 +1019,34 @@ compute_beta_spatial <- function(model,
 
         res[["summary.beta"]] <- summary.beta
 
-      }else if(temp$consrtaint == "beta1"){
+      }else if(temp$constraint == "beta1"){
 
         res <- vector(mode = "list", length = 2)
         names(res) <- c("summary.beta",
                         "marginal.beta")
 
         res[["marginal.beta"]] <- model$res$marginals.hyperpar[[paste0("Theta2 for ", idx_name)]]
+
+        marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
+        summary.beta <- data.frame(
+          Mean = mean(marg),
+          SD = stats::sd(marg),
+          `2.5%` = stats::quantile(marg, probs = 0.025),
+          `50%` = stats::quantile(marg, probs = 0.5),
+          `97.5%` = stats::quantile(marg, probs = 0.975),
+          row.names = "beta",
+          check.names = FALSE
+        )
+
+        res[["summary.beta"]] <- summary.beta
+
+      }else if(temp$constraint == "beta2"){
+
+        res <- vector(mode = "list", length = 2)
+        names(res) <- c("summary.beta",
+                        "marginal.beta")
+
+        res[["marginal.beta"]] <- model$res$marginals.hyperpar[[paste0("Theta3 for ", idx_name)]]
 
         marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.beta"]])
         summary.beta <- data.frame(
