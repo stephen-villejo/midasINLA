@@ -89,7 +89,7 @@ rgeneric.svc.Hyperbolic.midas.icar = function(cmd = c("graph", "Q", "mu", "initi
   stopifnot(all(region_id %in% seq_len(n_regions)))
 
   prec.high <- exp(15)
-  prec_beta <- 0.1 # this is the precision for the global beta parameter
+  prec_beta <- 1 # this is the precision for the global beta parameter
 
   interpret.theta <- function() {
 
@@ -171,7 +171,7 @@ rgeneric.svc.Hyperbolic.midas.icar = function(cmd = c("graph", "Q", "mu", "initi
     Zmat <- as.matrix(x[, lag_cols, drop = FALSE])
     z <- as.vector(Zmat %*% par$w)
 
-    prec_beta <- 0.1
+    prec_beta <- 1
 
     # global beta prior
     Qgg <- Matrix::Matrix(prec_beta + prec.high * sum(z^2),
@@ -954,7 +954,7 @@ rgeneric.svc.Gaussian.midas.icar = function(cmd = c("graph", "Q", "mu", "initial
   stopifnot(all(region_id %in% seq_len(n_regions)))
 
   prec.high <- exp(15)
-  prec_beta <- 0.1 # this is the precision for the global beta parameter
+  prec_beta <- 1 # this is the precision for the global beta parameter
 
   interpret.theta <- function() {
 
@@ -1037,7 +1037,7 @@ rgeneric.svc.Gaussian.midas.icar = function(cmd = c("graph", "Q", "mu", "initial
     Zmat <- as.matrix(x[, lag_cols, drop = FALSE])
     z <- as.vector(Zmat %*% par$w)
 
-    prec_beta <- 0.1
+    prec_beta <- 1
 
     # global beta prior
     Qgg <- Matrix::Matrix(prec_beta + prec.high * sum(z^2),
@@ -1395,7 +1395,7 @@ rgeneric.svc.Beta1.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
   stopifnot(all(region_id %in% seq_len(n_regions)))
 
   prec.high <- exp(15)
-  prec_beta <- 0.1 # this is the precision for the global beta parameter
+  prec_beta <- 1 # this is the precision for the global beta parameter
 
   interpret.theta <- function() {
 
@@ -1478,7 +1478,7 @@ rgeneric.svc.Beta1.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
     Zmat <- as.matrix(x[, lag_cols, drop = FALSE])
     z <- as.vector(Zmat %*% par$w)
 
-    prec_beta <- 0.1
+    prec_beta <- 1
 
     # global beta prior
     Qgg <- Matrix::Matrix(prec_beta + prec.high * sum(z^2),
@@ -1955,7 +1955,7 @@ rgeneric.svc.Beta2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
   stopifnot(all(region_id %in% seq_len(n_regions)))
 
   prec.high <- exp(15)
-  prec_beta <- 0.1 # this is the precision for the global beta parameter
+  prec_beta <- 1 # this is the precision for the global beta parameter
 
   interpret.theta <- function() {
 
@@ -2041,7 +2041,7 @@ rgeneric.svc.Beta2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
     Zmat <- as.matrix(x[, lag_cols, drop = FALSE])
     z <- as.vector(Zmat %*% par$w)
 
-    prec_beta <- 0.1
+    prec_beta <- 1
 
     # global beta prior
     Qgg <- Matrix::Matrix(prec_beta + prec.high * sum(z^2),
@@ -2524,7 +2524,7 @@ rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial",
   stopifnot(all(region_id %in% seq_len(n_regions)))
 
   prec.high <- exp(15)
-  prec_beta <- 0.1 # this is the precision for the global beta parameter
+  prec_beta <- 1 # this is the precision for the global beta parameter
 
   interpret.theta <- function() {
 
@@ -2606,7 +2606,7 @@ rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial",
     Zmat <- as.matrix(x[, lag_cols, drop = FALSE])
     z <- as.vector(Zmat %*% par$w)
 
-    prec_beta <- 0.1
+    prec_beta <- 1
 
     # global beta prior
     Qgg <- Matrix::Matrix(prec_beta + prec.high * sum(z^2),
