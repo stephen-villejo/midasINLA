@@ -892,53 +892,93 @@ compute_beta_spatial <- function(model,
 
       if(temp$svc_prior == "icar"){
 
-        res <- vector(mode = "list", length = 4)
+        res <- vector(mode = "list", length = 6)
         names(res) <- c("summary.global.beta",
                         "marginal.global.beta",
                         "summary.icar.beta",
-                        "marginal.icar.beta")
+                        "marginal.icar.beta",
+                        "summary.total.beta",
+                        "sample.total.beta")
+
         res[["marginal.icar.beta"]] <- vector(mode = "list", length = n_loc)
+        res[["sample.total.beta"]]  <- vector(mode = "list", length = n_loc)
 
+        # Global beta summary
+        global_marg <- model$res$marginals.random[[idx_name]][[1]]
+        global_draws <- INLA::inla.rmarginal(1000, marginal = global_marg)
 
-        marg <- INLA::inla.rmarginal(1000,marginal = model$res$marginals.random[[idx_name]][[1]])
-        summary.global.beta <- data.frame(
-          Mean = mean(marg),
-          SD = stats::sd(marg),
-          `2.5%` = stats::quantile(marg, probs = 0.025),
-          `50%` = stats::quantile(marg, probs = 0.5),
-          `97.5%` = stats::quantile(marg, probs = 0.975),
+        res[["marginal.global.beta"]] <- global_marg
+        res[["summary.global.beta"]] <- data.frame(
+          Mean = mean(global_draws),
+          SD = stats::sd(global_draws),
+          `2.5%` = stats::quantile(global_draws, probs = 0.025),
+          `50%` = stats::quantile(global_draws, probs = 0.5),
+          `97.5%` = stats::quantile(global_draws, probs = 0.975),
           row.names = "beta",
           check.names = FALSE
         )
 
-        res[["summary.global.beta"]] <- summary.global.beta
-        res[["marginal.global.beta"]] <- model$res$marginals.random[[idx_name]][[1]]
+        # Local iCAR marginals and summaries
+        local_summaries <- lapply(seq_len(n_loc), function(loc_id){
 
+          local_marg <- model$res$marginals.random[[idx_name]][[1 + loc_id]]
+          res[["marginal.icar.beta"]][[loc_id]] <<- local_marg
 
-        for(loc_id in seq_len(n_loc)){
+          local_draws <- INLA::inla.rmarginal(1000, marginal = local_marg)
 
-          res[["marginal.icar.beta"]][[loc_id]] <- model$res$marginals.random[[idx_name]][[1+loc_id]]
-
-        }
-
-
-        temp <- lapply(seq_len(n_loc), function(x){
-          marg <- INLA::inla.rmarginal(1000,marginal = res[["marginal.icar.beta"]][[x]])
           data.frame(
-            Mean = mean(marg),
-            SD = stats::sd(marg),
-            `2.5%` = stats::quantile(marg, probs = 0.025),
-            `50%` = stats::quantile(marg, probs = 0.5),
-            `97.5%` = stats::quantile(marg, probs = 0.975),
-            row.names = paste0("b",x),
+            Mean = mean(local_draws),
+            SD = stats::sd(local_draws),
+            `2.5%` = stats::quantile(local_draws, probs = 0.025),
+            `50%` = stats::quantile(local_draws, probs = 0.5),
+            `97.5%` = stats::quantile(local_draws, probs = 0.975),
+            row.names = paste0("b", loc_id),
             check.names = FALSE
           )
         })
 
-        res[["summary.icar.beta"]]<- do.call(rbind,temp)
+        res[["summary.icar.beta"]] <- do.call(rbind, local_summaries)
 
+        # Joint posterior samples for beta_i = beta* + b_i
+        post_samp <- INLA::inla.posterior.sample(
+          n = 1000,
+          result = model$res
+        )
+
+        latent_names <- rownames(post_samp[[1]]$latent)
+
+        # Identify latent entries corresponding to this MIDAS covariate
+        relevant_idx <- grep(paste0("^", idx_name), latent_names)
+
+        # Assumption: first is global beta, remaining are location-specific deviations
+        global_idx <- relevant_idx[1]
+        local_idx  <- relevant_idx[-1]
+
+        total_beta_draws <- lapply(seq_len(n_loc), function(loc_id){
+          sapply(post_samp, function(s){
+            s$latent[global_idx, 1] + s$latent[local_idx[loc_id], 1]
+          })
+        })
+
+        res[["sample.total.beta"]] <- total_beta_draws
+
+        total_summaries <- lapply(seq_len(n_loc), function(loc_id){
+          draws <- total_beta_draws[[loc_id]]
+          data.frame(
+            Mean = mean(draws),
+            SD = stats::sd(draws),
+            `2.5%` = stats::quantile(draws, probs = 0.025),
+            `50%` = stats::quantile(draws, probs = 0.5),
+            `97.5%` = stats::quantile(draws, probs = 0.975),
+            row.names = paste0("beta", loc_id),
+            check.names = FALSE
+          )
+        })
+
+        res[["summary.total.beta"]] <- do.call(rbind, total_summaries)
 
         hf_summary_output[[i]] <- res
+
 
 
       }else if(temp$svc_prior == "iid"){
@@ -1074,4 +1114,5 @@ compute_beta_spatial <- function(model,
   return(hf_summary_output)
 
 }
+
 
