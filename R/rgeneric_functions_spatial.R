@@ -1,12 +1,11 @@
 
-#' Rgeneric MIDAS spatially-varying coefficient model with hyperbolic
-#' scheme constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a hyperbolic scheme structure,
-#' and where \code{beta[i]} varies for each location
-#' following an iCAR model
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with hyperbolic scheme constraint
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a hyperbolic scheme structure,
+# and where \code{beta[i]} varies for each location
+# following an iCAR model
+#
 rgeneric.svc.Hyperbolic.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                       "log.prior", "quit"),
                                               theta = NULL){
@@ -240,13 +239,12 @@ rgeneric.svc.Hyperbolic.midas.icar = function(cmd = c("graph", "Q", "mu", "initi
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with hyperbolic
-#' scheme constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a hyperbolic scheme structure,
-#' and where \code{beta} is constant for all locations
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with hyperbolic scheme constraint
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a hyperbolic scheme structure,
+# and where \code{beta} is constant for all locations
+#
 rgeneric.globalbeta.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                         "log.prior", "quit"),
                                                 theta = NULL){
@@ -335,14 +333,13 @@ rgeneric.globalbeta.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "ini
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with hyperbolic
-#' scheme constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a Gaussian structure,
-#' and where \code{beta[i]} varies for each location
-#' following an iid model
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with hyperbolic scheme constraint
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a Gaussian structure,
+# and where \code{beta[i]} varies for each location
+# following an iid model
+#
 rgeneric.svc.Hyperbolic.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                      "log.prior", "quit"),
                                              theta = NULL){
@@ -491,12 +488,12 @@ rgeneric.svc.Hyperbolic.midas.iid = function(cmd = c("graph", "Q", "mu", "initia
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with gaussian constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a hyperbolic scheme structure,
-#' and where \code{beta} is constant for all locations
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with gaussian constraint
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a hyperbolic scheme structure,
+# and where \code{beta} is constant for all locations
+#
 rgeneric.globalbeta.Gaussian.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                         "log.prior", "quit"),
                                                 theta = NULL){
@@ -588,13 +585,13 @@ rgeneric.globalbeta.Gaussian.midas = function(cmd = c("graph", "Q", "mu", "initi
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with Gaussian constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a Gaussian structure,
-#' and where \code{beta[i]} varies for each location
-#' following an iid model
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with Gaussian constraint
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a Gaussian structure,
+# and where \code{beta[i]} varies for each location
+# following an iid model
+#
 rgeneric.svc.Gaussian.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                      "log.prior", "quit"),
                                              theta = NULL){
@@ -746,12 +743,12 @@ rgeneric.svc.Gaussian.midas.iid = function(cmd = c("graph", "Q", "mu", "initial"
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with Gaussian constraint
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a Gaussian structure,
-#' and where \code{beta[i]} varies for each location following an iCAR model
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with Gaussian constraint
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a Gaussian structure,
+# and where \code{beta[i]} varies for each location following an iCAR model
+#
 rgeneric.svc.Gaussian.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                       "log.prior", "quit"),
                                               theta = NULL){
@@ -985,11 +982,11 @@ rgeneric.svc.Gaussian.midas.icar = function(cmd = c("graph", "Q", "mu", "initial
 }
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a beta structure of dimension 1,
-#' and where \code{beta[i]} varies for each location following an iid model.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a beta structure of dimension 1,
+# and where \code{beta[i]} varies for each location following an iid model.
+#
 rgeneric.svc.Beta1.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                 "log.prior", "quit"),
                                         theta = NULL){
@@ -1140,11 +1137,11 @@ rgeneric.svc.Beta1.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a beta structure of dimension 1,
-#' and where \code{beta[i]} varies for each location following an iCAR model.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a beta structure of dimension 1,
+# and where \code{beta[i]} varies for each location following an iCAR model.
+#
 rgeneric.svc.Beta1.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                  "log.prior", "quit"),
                                          theta = NULL){
@@ -1377,11 +1374,11 @@ rgeneric.svc.Beta1.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
 }
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a beta structure of dimension 1,
-#' and where \code{beta} is constant for all locations.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a beta structure of dimension 1,
+# and where \code{beta} is constant for all locations.
+#
 rgeneric.globalbeta.Beta1.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                    "log.prior", "quit"),
                                            theta = NULL){
@@ -1472,11 +1469,11 @@ rgeneric.globalbeta.Beta1.midas = function(cmd = c("graph", "Q", "mu", "initial"
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a beta structure of dimension 2,
-#' and where \code{beta[i]} varies for each location following an iid model.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a beta structure of dimension 2,
+# and where \code{beta[i]} varies for each location following an iid model.
+#
 rgeneric.svc.Beta2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                 "log.prior", "quit"),
                                         theta = NULL){
@@ -1628,11 +1625,11 @@ rgeneric.svc.Beta2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a beta structure of dimension 2,
-#' and where \code{beta[i]} varies for each location following an iCAR model.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a beta structure of dimension 2,
+# and where \code{beta[i]} varies for each location following an iCAR model.
+#
 rgeneric.svc.Beta2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                  "log.prior", "quit"),
                                          theta = NULL){
@@ -1870,11 +1867,11 @@ rgeneric.svc.Beta2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using a beta structure of dimension 2,
-#' and where \code{beta} is constant for all locations.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using a beta structure of dimension 2,
+# and where \code{beta} is constant for all locations.
+#
 rgeneric.globalbeta.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                    "log.prior", "quit"),
                                            theta = NULL){
@@ -1965,13 +1962,12 @@ rgeneric.globalbeta.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial"
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical
-#' constraint, d = 2
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using Almon lag structure,
-#' and where \code{beta[i]} varies for each location following an iid model.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical constraint, d = 2
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using Almon lag structure,
+# and where \code{beta[i]} varies for each location following an iid model.
+#
 rgeneric.svc.Almon2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                  "log.prior", "quit"),
                                          theta = NULL){
@@ -2123,13 +2119,12 @@ rgeneric.svc.Almon2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", 
 
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical
-#' constraint, d = 2
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using Almon lag structure,
-#' and where \code{beta[i]} varies for each location following an iCAR model.
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical  constraint, d = 2
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using Almon lag structure,
+# and where \code{beta[i]} varies for each location following an iCAR model.
+#
 rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                   "log.prior", "quit"),
                                           theta = NULL){
@@ -2362,36 +2357,12 @@ rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial",
 }
 
 
-#' Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical
-#' constraint, d = 2
-#'
-#' Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
-#' implementing MIDAS-type lag weights using Almon lag structure,
-#' and where \code{beta} is constant for all locations.
-#'
-
-#' @param cmd Character string indicating the INLA command.
-#'   One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
-#'   \code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.
-#' @param theta Numeric vector of hyperparameters controlling the MIDAS weights.
-#'
-#' @return Depends on \code{cmd}:
-#' \itemize{
-#'   \item \code{graph}: Sparse precision structure
-#'   \item \code{Q}: Precision matrix
-#'   \item \code{mu}: Mean vector
-#'   \item \code{initial}: Initial values for \code{theta}
-#'   \item \code{log.norm.const}: Normalizing constant (numeric(0))
-#'   \item \code{log.prior}: Log prior density
-#' }
-#'
-#' @details
-#' The MIDAS lag weights are constructed using a normalized Almon constraint.
-#' The parameters \code{theta[1]} and and \code{theta[2]}
-#' control the shape of the lag weighting function.
-#'
-#' @importFrom Matrix Diagonal
-#'
+# Rgeneric MIDAS spatially-varying coefficient model with Almon polynomical constraint, d = 2
+#
+# Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
+# implementing MIDAS-type lag weights using Almon lag structure,
+# and where \code{beta} is constant for all locations.
+#
 rgeneric.globalbeta.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                     "log.prior", "quit"),
                                             theta = NULL){
