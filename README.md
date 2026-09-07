@@ -112,27 +112,24 @@ vignette("midasINLA", package = "midasINLA")
 
 ## Model specification
 
-A MIDAS model incorporates high-frequency covariates through weighted lagged terms. For example, for a response (y_{it}), a high-frequency covariate (x) can enter the model through
+A MIDAS model incorporates high-frequency covariates through weighted lagged terms. For example, for a response $y_{it}$, a high-frequency covariate $x$ can enter the model through
 ```math
 \sum_{k=0}^{K} w_k x_{i,s(t)-k}
 ```
+where $w_k$ denotes the MIDAS weight associated with lag $k$, and $s(t)$ denotes the high-frequency time index corresponding to $y_{it}$.
 
-where (w_k) denotes the MIDAS weight associated with lag (k), and (s(t)) maps the lower-frequency response time point to the corresponding high-frequency time index.
+The weights are parameterised using constraint functions, allowing the lag-response pattern to be estimated with substantially fewer parameters than an unconstrained distributed-lag model.
 
-The weights are parameterised using constrained functions, allowing the lag-response pattern to be estimated with substantially fewer parameters than an unconstrained distributed-lag model.
-
-For spatially varying coefficients, the MIDAS effect can additionally vary across spatial locations, with spatial dependence introduced through an iCAR prior.
+The MIDAS effect can additionally vary across spatial locations, with spatial variation modelled using either an iid or an intrinsic conditional autoregressive (iCAR) prior.
 
 ## Documentation
 
 The package vignette provides a detailed introduction to the modelling workflow:
-
 ``` r
 vignette("midasINLA", package = "midasINLA")
 ```
 
 Individual functions can also be explored using R’s help system:
-
 `?prepare_Minla_spatial`
 `?fit_Minla_spatial`
 `?compute_beta_spatial`
@@ -141,9 +138,9 @@ Individual functions can also be explored using R’s help system:
 
 ## Applications
 
-`midasINLA` was developed to facilitate Bayesian modelling of relationships between variables observed at different temporal resolutions, with particular emphasis on applications involving spatially distributed data.
+midasINLA was developed to facilitate Bayesian modelling of relationships between variables observed at different temporal resolutions, with particular emphasis on applications involving spatial data.
 
-The package can be useful for applications such as environmental epidemiology, climate–health modelling, and other settings where high-frequency exposures need to be linked to lower-frequency outcomes.
+The package is particularly useful in environmental epidemiology, climate–health modelling, and other settings where high-frequency exposures need to be linked to lower-frequency outcomes.
 
 ## Status
 
