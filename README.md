@@ -1,4 +1,4 @@
-
+<img width="468" height="67" alt="image" src="https://github.com/user-attachments/assets/2fda6668-6b65-4f1e-b670-e23e2784a5ff" />
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # midasINLA
@@ -16,43 +16,93 @@ MIDAS models allow high-frequency covariates to be incorporated into models for 
 
 ## Installation
 
-You can install the development version of midasINLA from
-[GitHub](https://github.com/) with:
+The development version can be installed from GitHub using `remotes`:
 
 ``` r
-# install.packages("pak")
-pak::pak("stephen-villejo/midasINLA")
+install.packages("remotes")
+remotes::install_github("stephen-villejo/midasINLA")
 ```
 
-## Example
+## Getting started
 
-This is a basic example which shows you how to solve a common problem:
+The following example uses the spatial Poisson dataset included with the package.
 
 ``` r
 library(midasINLA)
-## basic example code
+library(INLA)
+
+data("data_spatialpoisson_example")
+
+# Read the spatial adjacency graph
+g <- INLA::inla.read.graph(
+  filename = system.file("map.adj", package = "midasINLA")
+)
+
+# Prepare the first high-frequency covariate
+Midas_x1 <- prepare_Minla_spatial(
+  x = data_spatialpoisson_example$data_x1$x1,
+  loc_x = data_spatialpoisson_example$data_x1$loc,
+  constraint = "hyperbolic",
+  K = 0:29,
+  m = 30,
+  svc = TRUE,
+  svc_prior = "icar",
+  g = g
+)
+
+# Prepare the second high-frequency covariate
+Midas_x2 <- prepare_Minla_spatial(
+  x = data_spatialpoisson_example$data_x2$x2,
+  loc_x = data_spatialpoisson_example$data_x2$loc,
+  constraint = "gaussian",
+  K = 0:45,
+  m = 30,
+  svc = FALSE
+)
+
+# Create a response with the final observations held out
+response_data <- data_spatialpoisson_example$data_y
+response_data$y_all <- response_data$y
+response_data[response_data$Time %in% 183:192,"y"] <- NA
+
+# Fit the model
+fit_res <- fit_Minla_spatial(
+  formula = y ~ 1,
+  data = response_data,
+  loc_var = "loc",
+  time_var = "Time",
+  family = "poisson",
+  hf_input = list(Midas_x1, Midas_x2),
+  inla_options = list(
+    verbose = FALSE,
+    num.threads = 1
+  )
+)
+
+# Posterior summaries
+summary(fit_res$res)
+
+# MIDAS coefficient summaries
+beta_results <- compute_beta_spatial(
+  model = fit_res,
+  n_loc = 16
+)
+
+# MIDAS lag weights
+weights <- compute_weights(fit_res)
+
+# Predictions
+pred_res <- predict_midas(
+  model = fit_res,
+  family = "poisson",
+  Ntrials = NULL,
+  nsamples = 1000
+)
+
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+For a complete walkthrough, including model specification, interpretation of MIDAS weights, spatially varying coefficients, and prediction, see the package vignette:
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+vignette("midasINLA", package = "midasINLA")
 ```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" alt="" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
