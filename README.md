@@ -1,6 +1,3 @@
-<img width="468" height="60" alt="image" src="https://github.com/user-attachments/assets/1fea0d19-8cdf-4b85-910e-a2afd079667c" /><img width="468" height="67" alt="image" src="https://github.com/user-attachments/assets/2fda6668-6b65-4f1e-b670-e23e2784a5ff" />
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # midasINLA
 
 <!-- badges: start -->
