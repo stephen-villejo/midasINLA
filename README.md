@@ -107,12 +107,9 @@ vignette("midasINLA", package = "midasINLA")
 ## Model specification
 
 A MIDAS model incorporates high-frequency covariates through weighted lagged terms. For example, for a response (y_{it}), a high-frequency covariate (x) can enter the model through
-
-<div align="center">
-$$
+```math
 \sum_{k=0}^{K} w_k x_{i,s(t)-k}
-$$
-</div>
+```
 
 where (w_k) denotes the MIDAS weight associated with lag (k), and (s(t)) maps the lower-frequency response time point to the corresponding high-frequency time index.
 
