@@ -30,7 +30,6 @@
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Hyperbolic.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                       "log.prior", "quit"),
                                               theta = NULL){
@@ -294,7 +293,6 @@ rgeneric.svc.Hyperbolic.midas.icar = function(cmd = c("graph", "Q", "mu", "initi
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.globalbeta.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                         "log.prior", "quit"),
                                                 theta = NULL){
@@ -414,7 +412,6 @@ rgeneric.globalbeta.Hyperbolic.midas = function(cmd = c("graph", "Q", "mu", "ini
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Hyperbolic.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                      "log.prior", "quit"),
                                              theta = NULL){
@@ -592,7 +589,6 @@ rgeneric.svc.Hyperbolic.midas.iid = function(cmd = c("graph", "Q", "mu", "initia
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.globalbeta.Gaussian.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                         "log.prior", "quit"),
                                                 theta = NULL){
@@ -714,7 +710,6 @@ rgeneric.globalbeta.Gaussian.midas = function(cmd = c("graph", "Q", "mu", "initi
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Gaussian.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                      "log.prior", "quit"),
                                              theta = NULL){
@@ -895,7 +890,6 @@ rgeneric.svc.Gaussian.midas.iid = function(cmd = c("graph", "Q", "mu", "initial"
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Gaussian.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                       "log.prior", "quit"),
                                               theta = NULL){
@@ -1157,7 +1151,6 @@ rgeneric.svc.Gaussian.midas.icar = function(cmd = c("graph", "Q", "mu", "initial
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Beta1.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                 "log.prior", "quit"),
                                         theta = NULL){
@@ -1336,7 +1329,6 @@ rgeneric.svc.Beta1.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Beta1.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                  "log.prior", "quit"),
                                          theta = NULL){
@@ -1597,7 +1589,6 @@ rgeneric.svc.Beta1.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.globalbeta.Beta1.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                    "log.prior", "quit"),
                                            theta = NULL){
@@ -1716,7 +1707,6 @@ rgeneric.globalbeta.Beta1.midas = function(cmd = c("graph", "Q", "mu", "initial"
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Beta2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                 "log.prior", "quit"),
                                         theta = NULL){
@@ -1896,7 +1886,6 @@ rgeneric.svc.Beta2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Beta2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                  "log.prior", "quit"),
                                          theta = NULL){
@@ -2162,7 +2151,6 @@ rgeneric.svc.Beta2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", 
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.globalbeta.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                    "log.prior", "quit"),
                                            theta = NULL){
@@ -2283,7 +2271,6 @@ rgeneric.globalbeta.Beta2.midas = function(cmd = c("graph", "Q", "mu", "initial"
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Almon2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                  "log.prior", "quit"),
                                          theta = NULL){
@@ -2465,7 +2452,6 @@ rgeneric.svc.Almon2.midas.iid = function(cmd = c("graph", "Q", "mu", "initial", 
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                   "log.prior", "quit"),
                                           theta = NULL){
@@ -2728,7 +2714,6 @@ rgeneric.svc.Almon2.midas.icar = function(cmd = c("graph", "Q", "mu", "initial",
 #'
 #' @importFrom Matrix Diagonal
 #'
-#' @export
 rgeneric.globalbeta.Almon2.midas = function(cmd = c("graph", "Q", "mu", "initial", "log.norm.const",
                                                     "log.prior", "quit"),
                                             theta = NULL){
