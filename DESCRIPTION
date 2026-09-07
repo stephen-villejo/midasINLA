@@ -1,9 +1,13 @@
 Package: midasINLA
 Title: MIDAS Models Using INLA
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: Provides tools for fitting MIDAS (Mixed Data Sampling) models using the INLA framework. Includes methods for estimation, simulation, and analysis of mixed-frequency data.
+Authors@R:
+    person(
+        "Stephen Jun", "Villejo",
+        email = "s.villejo@imperial.ac.uk",
+        role = c("aut", "cre")
+    )
+Description: Provides tools for fitting Mixed Data Sampling (MIDAS) regression models using Integrated Nested Laplace Approximation (INLA). The package is designed for settings where responses and explanatory variables are observed at different temporal frequencies and supports both constant and spatially varying regression coefficients.
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -18,8 +22,10 @@ BugReports: https://github.com/stephen-villejo/midasINLA/issues
 Suggests: 
     knitr,
     rmarkdown
+    testthat (>= 3.0.0),
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Depends: 
     R (>= 4.2)
-Maintainer: Stephen Jun Villejo <s.villejo@imperial.ac.uk>
 LazyData: true
+Config/testthat/edition: 3
