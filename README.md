@@ -116,4 +116,34 @@ The weights are parameterised using constrained functions, allowing the lag-resp
 
 For spatially varying coefficients, the MIDAS effect can additionally vary across spatial locations, with spatial dependence introduced through an iCAR prior.
 
+## Documentation
+
+The package vignette provides a detailed introduction to the modelling workflow:
+vignette("midasINLA", package = "midasINLA")
+
+Individual functions can also be explored using R’s help system:
+
+`?prepare_Minla_spatial`
+`?fit_Minla_spatial`
+`?compute_beta_spatial`
+`?compute_weights`
+`?predict_midas`
+
+## Applications
+
+`midasINLA` was developed to facilitate Bayesian modelling of relationships between variables observed at different temporal resolutions, with particular emphasis on applications involving spatially distributed data.
+
+The package can be useful for applications such as environmental epidemiology, climate–health modelling, and other settings where high-frequency exposures need to be linked to lower-frequency outcomes.
+
+## Status
+
+`midasINLA` is currently under development.
+
+## Citation
+
+If you use `midasINLA` in your research, please cite the package and the associated methodological work once the relevant publication is available.
+
+
+
+
 
