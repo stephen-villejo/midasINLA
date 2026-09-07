@@ -7,7 +7,7 @@
 
 <!-- badges: end -->
 
-midasINLA provides tools for fitting Mixed Data Sampling (MIDAS) regression models with the Integrated Nested Laplace Approximation (INLA). The package is designed for settings where a response is observed at a lower frequency than one or more explanatory variables, and supports both global and spatially varying MIDAS coefficients.<img width="468" height="95" alt="image" src="https://github.com/user-attachments/assets/a53ebc07-7466-4446-b076-7b443a8bf213" />
+midasINLA provides tools for fitting Mixed Data Sampling (MIDAS) regression models with the Integrated Nested Laplace Approximation (INLA). The package is designed for settings where a response is observed at a lower frequency than one or more explanatory variables, and supports both global and spatially varying MIDAS coefficients.
 
 
 ## Installation
