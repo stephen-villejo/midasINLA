@@ -1,8 +1,8 @@
 ---
-title: "midasINLA"
+title: "Getting Started with midasINLA"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{midasINLA}
+  %\VignetteIndexEntry{Getting Started with midasINLA}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(midasINLA)
 library(INLA)
+
+INLA::inla.setOption(num.threads = 1)
 ```
 
 
