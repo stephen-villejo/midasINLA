@@ -263,6 +263,11 @@ ggplot(plot_data, aes(x = index)) +
     color = NULL
   ) +
   scale_color_manual(
+    breaks = c(
+      "True value",
+      "Posterior mean",
+      "95% credible interval"
+    ),
     values = c(
       "Posterior mean" = "red",
       "95% credible interval" = "black",
@@ -278,26 +283,28 @@ ggplot(plot_data, aes(x = index)) +
   # ) +
   scale_x_continuous(
     breaks = 1:16,
-    labels = parse(text = paste0("beta[", 1:16, "]"))
+    labels = parse(
+      text = paste0("beta[1*','*", 1:16, "]")
+    )
   ) +
   coord_cartesian(ylim = c(0.7, NA)) +
-  theme_minimal() +
+  theme_bw() +
   guides(
     color = guide_legend(
       override.aes = list(
-        size = c(3, 1, 3)
+        size = c(2, 2, 2)
       )
     )
   ) +
   theme(legend.position = 'bottom',
         axis.title = element_blank(),
         axis.text.x = element_text(size = 12),
-        legend.text = element_text(size = 13))
+        legend.text = element_text(size = 15))
 dev.off()
 
 
 
-#### Compute weights ####
+s#### Compute weights ####
 
 res_weights <- compute_weights(fit_res)
 str(res_weights)
