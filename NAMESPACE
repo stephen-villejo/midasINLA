@@ -2,7 +2,6 @@
 
 export(compute_beta_spatial)
 export(compute_weights)
-export(create_lag_Xmatrix)
 export(fit_Minla_spatial)
 export(predict_midas)
 export(prepare_Minla_spatial)
