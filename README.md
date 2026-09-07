@@ -104,7 +104,7 @@ pred_res <- predict_midas(
 
 ```
 
-For a complete walkthrough, including model specification, interpretation of MIDAS weights, spatially varying coefficients, and prediction, see the package vignette:
+For a complete walkthrough, see the package vignette:
 
 ``` r
 vignette("midasINLA", package = "midasINLA")
