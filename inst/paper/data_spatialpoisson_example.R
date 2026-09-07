@@ -208,6 +208,95 @@ legend("center",
 dev.off()
 
 
+beta_results$hf_index_1$summary.total.beta$Mean
+beta_results$hf_index_1$summary.total.beta$`2.5%`
+beta_results$hf_index_1$summary.total.beta$`97.5%`
+data_spatialpoisson_example$icar + data_spatialpoisson_example$beta1
+
+
+
+library(ggplot2)
+library(dplyr)
+
+# Extract posterior summaries
+posterior <- data.frame(
+  index = 1:16,
+  mean = beta_results$hf_index_1$summary.total.beta$Mean,
+  lower = beta_results$hf_index_1$summary.total.beta$`2.5%`,
+  upper = beta_results$hf_index_1$summary.total.beta$`97.5%`
+)
+
+# Extract true values
+true_values <- data.frame(
+  index = 1:16,
+  true = data_spatialpoisson_example$icar +
+    data_spatialpoisson_example$beta1
+)
+
+# Combine
+plot_data <- posterior %>%
+  left_join(true_values, by = "index")
+
+# Plot
+png("inst/paper/figures/Example_spatialpoisson_totalbetastimates.png", width=20, height=9, units = 'cm', res = 300)
+ggplot(plot_data, aes(x = index)) +
+  geom_errorbar(
+    aes(
+      ymin = lower,
+      ymax = upper,
+      color = "95% credible interval"
+    ),
+    width = 0.15
+  ) +
+  geom_point(
+    aes(y = mean, color = "Posterior mean"),
+    size = 1
+  ) +
+  geom_point(
+    aes(y = true, color = "True value"),
+    shape = 17,
+    size = 1
+  ) +
+  labs(
+    x = "Coefficient",
+    y = "Value",
+    color = NULL
+  ) +
+  scale_color_manual(
+    values = c(
+      "Posterior mean" = "red",
+      "95% credible interval" = "black",
+      "True value" = "blue"
+    )
+  ) +
+  # scale_color_manual(
+  #   values = c(
+  #     "Posterior mean" = "#0072B2",
+  #     "95% CI" = "black",
+  #     "True value" = "#D55E00"
+  #   )
+  # ) +
+  scale_x_continuous(
+    breaks = 1:16,
+    labels = parse(text = paste0("beta[", 1:16, "]"))
+  ) +
+  coord_cartesian(ylim = c(0.7, NA)) +
+  theme_minimal() +
+  guides(
+    color = guide_legend(
+      override.aes = list(
+        size = c(3, 1, 3)
+      )
+    )
+  ) +
+  theme(legend.position = 'bottom',
+        axis.title = element_blank(),
+        axis.text.x = element_text(size = 12),
+        legend.text = element_text(size = 13))
+dev.off()
+
+
+
 #### Compute weights ####
 
 res_weights <- compute_weights(fit_res)
