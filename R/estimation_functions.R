@@ -8,7 +8,6 @@
 #' @param frequency Number of high-frequency covariate values associated
 #'   with each response. Can be a single value or a vector.
 #' @return Matrix of lagged values
-#' @export
 create_lag_Xmatrix <- function(tsdata,
                                lags,
                                frequency) {
