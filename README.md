@@ -74,7 +74,11 @@ fit_res <- fit_Minla_spatial(
   hf_input = list(Midas_x1, Midas_x2),
   inla_options = list(
     verbose = FALSE,
-    num.threads = 1
+    num.threads = 1,
+    control.predictor = list(
+          compute = TRUE,
+          link = 1
+        )
   )
 )
 
