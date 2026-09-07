@@ -1,4 +1,4 @@
-<img width="468" height="67" alt="image" src="https://github.com/user-attachments/assets/2fda6668-6b65-4f1e-b670-e23e2784a5ff" />
+<img width="468" height="60" alt="image" src="https://github.com/user-attachments/assets/1fea0d19-8cdf-4b85-910e-a2afd079667c" /><img width="468" height="67" alt="image" src="https://github.com/user-attachments/assets/2fda6668-6b65-4f1e-b670-e23e2784a5ff" />
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # midasINLA
@@ -106,3 +106,17 @@ For a complete walkthrough, including model specification, interpretation of MID
 ``` r
 vignette("midasINLA", package = "midasINLA")
 ```
+
+## Model specification
+
+A MIDAS model incorporates high-frequency covariates through weighted lagged terms. For example, for a response (y_{it}), a high-frequency covariate (x) can enter the model through
+[
+\sum_{k=0}^{K} w_k x_{i,s(t)-k},
+]
+where (w_k) denotes the MIDAS weight associated with lag (k), and (s(t)) maps the lower-frequency response time point to the corresponding high-frequency time index.
+
+The weights are parameterised using constrained functions, allowing the lag-response pattern to be estimated with substantially fewer parameters than an unconstrained distributed-lag model.
+
+For spatially varying coefficients, the MIDAS effect can additionally vary across spatial locations, with spatial dependence introduced through an iCAR prior.
+
+
