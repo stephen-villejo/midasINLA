@@ -12,34 +12,9 @@ rgeneric.globalbeta.Beta1.midas(
   theta = NULL
 )
 }
-\arguments{
-\item{cmd}{Character string indicating the INLA command.
-One of \code{"graph"}, \code{"Q"}, \code{"mu"}, \code{"initial"},
-\code{"log.norm.const"}, \code{"log.prior"}, or \code{"quit"}.}
-
-\item{theta}{Numeric vector of hyperparameters controlling the MIDAS weights.}
-}
-\value{
-Depends on \code{cmd}:
-\itemize{
-\item \code{graph}: Sparse precision structure
-\item \code{Q}: Precision matrix
-\item \code{mu}: Mean vector
-\item \code{initial}: Initial values for \code{theta}
-\item \code{log.norm.const}: Normalizing constant (numeric(0))
-\item \code{log.prior}: Log prior density
-}
-}
 \description{
 Rgeneric MIDAS spatially-varying coefficient model with beta constraint.
 Defines a custom \code{rgeneric} model for use with the \code{INLA} framework,
 implementing MIDAS-type lag weights using a beta structure of dimension 1,
 and where \code{beta} is constant for all locations.
-}
-\details{
-The MIDAS lag weights are constructed using a beta constraint with dimension
-\enumerate{
-\item The parameter \code{theta[1]} control the shape of the lag weighting
-function.
-}
 }
