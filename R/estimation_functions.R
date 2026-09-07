@@ -1,13 +1,8 @@
 
 
 
-#' Create lag matrix
-#'
-#' @param tsdata High-frequency covariate data
-#' @param lags Lags to be considered
-#' @param frequency Number of high-frequency covariate values associated
-#'   with each response. Can be a single value or a vector.
-#' @return Matrix of lagged values
+# Create lag matrix
+#
 create_lag_Xmatrix <- function(tsdata,
                                lags,
                                frequency) {
