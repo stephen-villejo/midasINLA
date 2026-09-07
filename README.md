@@ -107,9 +107,9 @@ vignette("midasINLA", package = "midasINLA")
 ## Model specification
 
 A MIDAS model incorporates high-frequency covariates through weighted lagged terms. For example, for a response (y_{it}), a high-frequency covariate (x) can enter the model through
-[
-\sum_{k=0}^{K} w_k x_{i,s(t)-k},
-]
+$$
+\sum_{k=0}^{K} w_k x_{i,s(t)-k}.
+$$
 where (w_k) denotes the MIDAS weight associated with lag (k), and (s(t)) maps the lower-frequency response time point to the corresponding high-frequency time index.
 
 The weights are parameterised using constrained functions, allowing the lag-response pattern to be estimated with substantially fewer parameters than an unconstrained distributed-lag model.
@@ -119,7 +119,10 @@ For spatially varying coefficients, the MIDAS effect can additionally vary acros
 ## Documentation
 
 The package vignette provides a detailed introduction to the modelling workflow:
+
+``` r
 vignette("midasINLA", package = "midasINLA")
+```
 
 Individual functions can also be explored using R’s help system:
 
