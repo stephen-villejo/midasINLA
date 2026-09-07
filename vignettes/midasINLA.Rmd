@@ -1,0 +1,382 @@
+---
+title: "midasINLA"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{midasINLA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(midasINLA)
+library(INLA)
+```
+
+
+## Introduction
+
+`midasINLA` provides tools for fitting mixed-frequency time-series models using the Integrated Nested Laplace Approximation (INLA) framework, with support for both constant and spatially varying regression coefficients.
+
+The package allows high-frequency covariates to be incorporated into a
+lower-frequency response model through MIDAS lag-weight functions. Different
+constraint schemes can be used to model the lag weights, while coefficients
+can be either constant or spatially varying.
+
+This vignette demonstrates the main workflow using a simulated spatial
+Poisson example. The example contains two high-frequency covariates with
+different lag-weight constraints. The first covariate has a spatially
+varying coefficient, whereas the second has a constant coefficient.
+
+The example illustrates the main functions in midasINLA:
+
+* `prepare_Minla_spatial`() prepares high-frequency covariates for inclusion
+    in the model;
+* `fit_Minla_spatial`() fits the resulting model using INLA;
+* `compute_beta_spatial`() obtains posterior summaries of the regression
+    coefficients;
+* `compute_weights`() obtains posterior summaries of the MIDAS lag weights;
+* `predict_midas`() generates posterior predictions.
+
+
+## Simulated spatial Poisson example
+
+We consider an outcome $y_{it}$ observed at 16 spatial locations and
+192 time points. Two high-frequency covariates, $x_{1it}$ and $x_{2it}$,
+are available for each location. There are 30 high-frequency observations
+corresponding to each response time point.
+
+The first covariate uses a hyperbolic lag-weight constraint with
+$\gamma = 0.9$ and 29 lags. Its regression coefficient varies spatially
+according to an intrinsic conditional autoregressive (iCAR) model.
+
+The second covariate uses a Gaussian lag-weight constraint with
+$\gamma_1 = 10$ and $\sqrt{\gamma_2} = 12$ and 45 lags. Its regression
+coefficient is constant across locations.
+
+The simulated data are included with the package and can be loaded using:
+
+```{r load-data}
+data("data_spatialpoisson_example")
+```
+
+The dataset is a list containing the response, the two high-frequency
+covariates, and the spatial neighbourhood structure. For example:
+
+```{r inspect-data}
+names(data_spatialpoisson_example)
+```
+
+The response data contain the outcome, location index, and time index:
+
+```{r response-data}
+head(data_spatialpoisson_example[["data_y"]])
+```
+
+The high-frequency covariates contain the covariate values and their
+corresponding location indices:
+
+```{r covariate-data}
+head(data_spatialpoisson_example$data_x1)
+head(data_spatialpoisson_example$data_x2)
+```
+
+The neighbourhood structure used to generate the spatially varying
+coefficient is stored as an inla.graph object:
+
+```{r graph}
+g <- INLA::inla.read.graph(
+  filename = system.file("map.adj", package = "midasINLA")
+)
+```
+
+The data were generated using a Poisson model of the form
+
+$$
+y_{it} \sim \operatorname{Poisson}(\mu_{it}),
+$$
+
+with
+
+$$
+\log(\mu_{it}) =
+\beta_0 +
+(\beta_1^* + b_i)
+\sum_{k=0}^{29} w_{1k}x_{1i,s(t)-k}
++
+\beta_2
+\sum_{k=0}^{45} w_{2k}x_{2i,s(t)-k},
+$$
+
+where $\boldsymbol{b}$ follows an iCAR model. The true values of the
+parameters are $\beta_0 = 1$, $\beta_1^* = 1.1$, and $\beta_2 = -2$.
+
+
+## Preparing the MIDAS covariates
+
+Before fitting the model, each high-frequency covariate is prepared using
+`prepare_Minla_spatial`().
+
+For the first covariate, we use the hyperbolic constraint and allow the
+coefficient to vary spatially according to an iCAR model:
+
+
+```{r prepare-x1}
+Midas_x1 <- prepare_Minla_spatial(
+  x = data_spatialpoisson_example$data_x1$x1,
+  loc_x = data_spatialpoisson_example$data_x1$loc,
+  constraint = "hyperbolic",
+  K = 0:29,
+  m = 30,
+  svc = TRUE,
+  svc_prior = "icar",
+  g = g
+)
+```
+
+```{r prepare-x2}
+Midas_x2 <- prepare_Minla_spatial(
+  x = data_spatialpoisson_example$data_x2$x2,
+  loc_x = data_spatialpoisson_example$data_x2$loc,
+  constraint = "gaussian",
+  K = 0:45,
+  m = 30,
+  svc = FALSE
+)
+```
+
+The resulting objects contain the information required by
+`fit_Minla_spatial`() to construct the MIDAS components of the model.
+
+
+## Fitting the model
+
+The response data are stored in data_y. To illustrate prediction, we
+reserve the final 10 response time points at each location as a test set.
+
+```{r prepare-response}
+response_data <- data_spatialpoisson_example[["data_y"]]
+
+response_data$y_all <- response_data$y
+
+response_data[which(response_data[["Time"]] %in% 183:192),"y"] <- NA
+```
+
+The model can then be fitted using `fit_Minla_spatial`():
+
+```{r fit-model, eval = TRUE}
+fit_res <- fit_Minla_spatial(
+  formula = y ~ 1,
+  data = response_data,
+  loc_var = "loc",
+  time_var = "Time",
+  family = "poisson",
+  hf_input = list(Midas_x1, Midas_x2),
+  inla_options = list(verbose = FALSE)
+)
+```
+
+
+A summary of the fitted model can be obtained using the standard
+`summary`() method:
+
+```{r model-summary}
+summary(fit_res[["res"]])
+```
+
+The fitted model contains two MIDAS components, corresponding to the two
+high-frequency covariates. The model also estimates the spatially varying
+coefficient associated with the first covariate.
+
+
+## Posterior summaries of regression coefficients
+
+Posterior summaries of the MIDAS regression coefficients can be obtained
+using `compute_beta_spatial`().
+
+```{r beta-results}
+beta_results <- compute_beta_spatial(
+  model = fit_res,
+  n_loc = 16
+)
+```
+
+The returned object contains results for each high-frequency covariate.
+For the first covariate, the posterior summaries of the spatially varying
+component can be accessed using:
+
+```{r beta-summary}
+beta_results$hf_index_1$summary.icar.beta
+```
+
+The spatially varying coefficient at location $i$ is given by
+
+$$
+\beta_{1,i} = \beta_1^* + b_i.
+$$
+
+The posterior estimates can therefore be compared with the known
+coefficients used to generate the simulated data.
+
+
+## Estimating the MIDAS lag weights
+
+The posterior distributions of the lag weights can be obtained using
+`compute_weights`():
+
+```{r weights}
+res_weights <- compute_weights(fit_res)
+```
+
+The result is a list containing one data frame for each high-frequency
+covariate. Each data frame contains the lag, posterior mean, and lower and
+upper posterior quantiles.
+
+For example, the estimated weights for the first covariate are:
+
+```{r weights-x1}
+head(res_weights$hf_1)
+```
+
+The weights for the second covariate can be inspected similarly:
+
+```{r weights-x2}
+head(res_weights$hf_2)
+```
+
+These posterior summaries can be used to visualise the estimated
+lag-weight functions. For example:
+
+```{r plot-weights, fig.width = 7, fig.height = 4.5}
+plot(
+  res_weights$hf_1$lag,
+  res_weights$hf_1$mean,
+  type = "l",
+  xlab = "Lag",
+  ylab = "Posterior mean weight",
+  ylim = range(
+    c(res_weights$hf_1$q2.5, res_weights$hf_1$q97.5)
+  )
+)
+
+lines(
+  res_weights$hf_1$lag,
+  res_weights$hf_1$q2.5,
+  lty = 2
+)
+
+lines(
+  res_weights$hf_1$lag,
+  res_weights$hf_1$q97.5,
+  lty = 2
+)
+```
+
+## Prediction for held-out observations
+
+The final 10 time points were withheld from the model fit and can be used
+to illustrate prediction.
+
+Posterior predictions are generated using `predict_midas`():
+
+```{r prediction}
+pred_res <- predict_midas(
+  model = fit_res,
+  family = "poisson",
+  Ntrials = NULL,
+  nsamples = 1000
+)
+```
+
+The returned object contains posterior summaries of the predicted outcome
+as well as posterior samples of the latent predictor:
+
+```{r prediction-structure}
+str(pred_res, max.level = 2)
+```
+
+
+```{r prediction-summary}
+head(pred_res$computed_y$mean)
+head(pred_res$computed_y$q2.5)
+head(pred_res$computed_y$q97.5)
+```
+
+The predictions can then be compared with the observations in the held-out
+test set. For example, the following code displays the observed and
+predicted values for the first location:
+
+```{r plot-predictions, fig.width = 7, fig.height = 4.5}
+loc1 <- response_data$loc == 1
+
+time1 <- response_data$Time[loc1]
+observed1 <- response_data$y_all[loc1]
+
+pred_mean1 <- pred_res$computed_y$mean[loc1]
+pred_lower1 <- pred_res$computed_y$q2.5[loc1]
+pred_upper1 <- pred_res$computed_y$q97.5[loc1]
+
+plot(
+  time1,
+  observed1,
+  type = "p",
+  xlab = "Time",
+  ylab = "Outcome",
+  pch = 16
+)
+
+lines(
+  time1,
+  pred_mean1,
+  lty = 1
+)
+
+lines(
+  time1,
+  pred_lower1,
+  lty = 2
+)
+
+lines(
+  time1,
+  pred_upper1,
+  lty = 2
+)
+
+abline(
+  v = 182.5,
+  lty = 3
+)
+```
+
+The vertical line separates the training period from the forecast test
+period. The same approach can be used to obtain predictions for all
+locations and to evaluate predictive performance using appropriate
+pointwise or probabilistic scoring rules.
+
+
+## Summary 
+
+This vignette demonstrated the main workflow for fitting a spatial
+SDL-MIDAS model using midasINLA.
+
+The analysis consisted of the following steps:
+
+1. Load the simulated spatial Poisson data.
+2. Prepare each high-frequency covariate using `prepare_Minla_spatial`().
+3. Fit the model using `fit_Minla_spatial`().
+4. Obtain posterior summaries of the regression coefficients using
+    `compute_beta_spatial`().
+5. Obtain posterior summaries of the MIDAS lag weights using
+    `compute_weights`().
+6. Generate posterior predictions using `predict_midas`().
+
+The simulated example is designed to illustrate the functionality of the
+package. A real-data application demonstrating the use of midasINLA in a
+substantive setting is presented in the accompanying R Journal article.
