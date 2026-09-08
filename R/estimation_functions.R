@@ -338,86 +338,6 @@ compute_weights <- function(model, n.samples = 200) {
 
 
 
-#' Prepare MIDAS objects (spatial case) for INLA estimation
-#' @param x High-frequency covariate data
-#' @param loc_x index for locations
-#' @param constraint constraint function for lag-response association
-#' @param K Lags to be considered
-#' @param m Number of covariates values associated with each response
-#' @param svc TRUE/FALSE, whether a spatially varying coefficent model or not
-#' @param svc_prior Prior for the svc component, either "icar" or "iid"
-#' @param g graph for the icar prior
-#' @return A list of objects that will be used for model fitting
-#' @export
-prepare_Minla_spatial <- function(x,
-                                  loc_x,
-                                  constraint,
-                                  K,
-                                  m,
-                                  svc = FALSE,
-                                  svc_prior = "iid",
-                                  g = NULL) {
-
-  if (length(x) != length(loc_x)) {
-    stop("`x` and `loc_x` must have the same length.")
-  }
-
-  if (svc_prior == "icar" && is.null(g)) {
-    stop("`g` must be supplied when `svc_prior = 'icar'`.")
-  }
-
-  compile_X_matrix <- NULL
-  unique_loc_x <- unique(loc_x)
-  rm.row.loc <- c()
-
-  for(i in unique_loc_x){
-
-    temp_xdata <- x[which(loc_x == i)]
-
-    X_matrix <- create_lag_Xmatrix(tsdata = temp_xdata,
-                                   lags = K,
-                                   frequency = m)
-
-    bad_rows_i <- which(!stats::complete.cases(X_matrix))
-    rm_i <- if (length(bad_rows_i) == 0) 0 else max(bad_rows_i)
-    rm.row.loc <- c(rm.row.loc, rm_i)
-
-    X_matrix <- cbind(X_matrix,loc = rep(i, nrow(X_matrix)))
-
-    compile_X_matrix <- rbind(compile_X_matrix,
-                              X_matrix)
-
-  }
-
-  if (length(unique(rm.row.loc)) != 1) {
-    stop("`rm.row` is not the same across locations for this covariate.")
-  }
-  rm.row <- unique(rm.row.loc)
-
-  out <- list(
-    X_matrix = compile_X_matrix,
-    constraint = constraint,
-    lag_k = max(K),
-    K = K,
-    m = m,
-    rm.row = rm.row,
-    svc = svc,
-    svc_prior = svc_prior
-  )
-
-  if (svc_prior == "icar") {
-    if (is.null(g)) {
-      stop("`g` must be supplied when `svc_prior = 'icar'`.")
-    }
-    out$g <- g
-  }
-
-  return(out)
-
-}
-
-
-
 #' Prepare a spatial MIDAS object for INLA estimation
 #'
 #' Constructs the MIDAS design matrix and associated model specifications
@@ -489,6 +409,87 @@ prepare_Minla_spatial <- function(x,
 #' # Inspect the resulting MIDAS design matrix
 #' head(Midas_x1$X_matrix)
 #'
+#' @export
+prepare_Minla_spatial <- function(x,
+                                  loc_x,
+                                  constraint,
+                                  K,
+                                  m,
+                                  svc = FALSE,
+                                  svc_prior = "iid",
+                                  g = NULL) {
+
+  if (length(x) != length(loc_x)) {
+    stop("`x` and `loc_x` must have the same length.")
+  }
+
+  if (svc_prior == "icar" && is.null(g)) {
+    stop("`g` must be supplied when `svc_prior = 'icar'`.")
+  }
+
+  compile_X_matrix <- NULL
+  unique_loc_x <- unique(loc_x)
+  rm.row.loc <- c()
+
+  for(i in unique_loc_x){
+
+    temp_xdata <- x[which(loc_x == i)]
+
+    X_matrix <- create_lag_Xmatrix(tsdata = temp_xdata,
+                                   lags = K,
+                                   frequency = m)
+
+    bad_rows_i <- which(!stats::complete.cases(X_matrix))
+    rm_i <- if (length(bad_rows_i) == 0) 0 else max(bad_rows_i)
+    rm.row.loc <- c(rm.row.loc, rm_i)
+
+    X_matrix <- cbind(X_matrix,loc = rep(i, nrow(X_matrix)))
+
+    compile_X_matrix <- rbind(compile_X_matrix,
+                              X_matrix)
+
+  }
+
+  if (length(unique(rm.row.loc)) != 1) {
+    stop("`rm.row` is not the same across locations for this covariate.")
+  }
+  rm.row <- unique(rm.row.loc)
+
+  out <- list(
+    X_matrix = compile_X_matrix,
+    constraint = constraint,
+    lag_k = max(K),
+    K = K,
+    m = m,
+    rm.row = rm.row,
+    svc = svc,
+    svc_prior = svc_prior
+  )
+
+  if (svc_prior == "icar") {
+    if (is.null(g)) {
+      stop("`g` must be supplied when `svc_prior = 'icar'`.")
+    }
+    out$g <- g
+  }
+
+  return(out)
+
+}
+
+
+
+#' Fit MIDAS model (spatial case) using INLA
+#' @param formula model formula
+#' @param data response data frame
+#' @param loc_var variable name for location in response data frame
+#' @param time_var variable name for time in response data frame
+#' @param family Likelihood family for response data
+#' @param hf_input list of output objects from prepare_Minla_spatial
+#' @param Ntrials Number of trials for a binomial family response
+#' @param E expected cases for Poisson model
+#' @param inla_options arguments in inla function
+#' @return MIDAS output
 #' @export
 fit_Minla_spatial <- function(formula,
                               data,
