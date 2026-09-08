@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimation_functions.R
 \name{fit_Minla_spatial}
 \alias{fit_Minla_spatial}
-\title{Fit MIDAS model (spatial case) using INLA}
+\title{Fit a spatial MIDAS model using INLA}
 \usage{
 fit_Minla_spatial(
   formula,
@@ -17,27 +17,103 @@ fit_Minla_spatial(
 )
 }
 \arguments{
-\item{formula}{model formula}
+\item{formula}{A model formula specifying the response and other
+covariates. The response variable must be a column in \code{data}.}
 
-\item{data}{response data frame}
+\item{data}{A data frame containing the response and any additional
+model covariates. It must contain the variables specified by
+\code{loc_var} and \code{time_var}.}
 
-\item{loc_var}{variable name for location in response data frame}
+\item{loc_var}{Character string specifying the name of the location
+variable in \code{data}.}
 
-\item{time_var}{variable name for time in response data frame}
+\item{time_var}{Character string specifying the name of the time
+variable in \code{data}.}
 
-\item{family}{Likelihood family for response data}
+\item{family}{Character string specifying the likelihood family for
+the response. For example, \code{"poisson"} or \code{"binomial"}.}
 
-\item{hf_input}{list of output objects from prepare_Minla_spatial}
+\item{hf_input}{A list of MIDAS objects returned by
+\code{\link[=prepare_Minla_spatial]{prepare_Minla_spatial()}}. Each object specifies a high-frequency
+covariate and its MIDAS lag structure. Multiple MIDAS objects can
+be supplied.}
 
-\item{Ntrials}{Number of trials for a binomial family response}
+\item{Ntrials}{Optional vector specifying the number of trials for a
+binomial response. Used only when \code{family = "binomial"}.}
 
-\item{E}{expected cases for Poisson model}
+\item{E}{Optional vector of expected counts or exposure values for a
+Poisson model. Its length must match the number of rows in \code{data}.
+Used only when \code{family = "poisson"}.}
 
-\item{inla_options}{arguments in inla function}
+\item{inla_options}{A named list of additional arguments passed to
+\code{\link[INLA:inla]{INLA::inla()}}. By default, \code{control.compute$config} is set to
+\code{TRUE} if it is not already specified.}
 }
 \value{
-MIDAS output
+A list containing:
+\describe{
+\item{formula_final}{The final INLA model formula, including the
+MIDAS components.}
+\item{data_final}{The response data used for model fitting after
+ordering by location and time and removing rows with incomplete
+lagged covariate information.}
+\item{rm_max}{The maximum number of initial observations removed
+across locations because of incomplete MIDAS lagged covariates.}
+\item{res}{The fitted INLA model returned by \code{\link[INLA:inla]{INLA::inla()}}.}
+\item{hf_input}{The list of MIDAS objects supplied through
+\code{hf_input}.}
+}
 }
 \description{
-Fit MIDAS model (spatial case) using INLA
+Fits a Mixed Data Sampling (MIDAS) regression model with optional
+spatially varying coefficients using Integrated Nested Laplace
+Approximation (INLA). High-frequency covariates are supplied as
+MIDAS objects created by \code{\link[=prepare_Minla_spatial]{prepare_Minla_spatial()}}.
+}
+\details{
+The function constructs the INLA model by incorporating the
+MIDAS components specified in \code{hf_input}. Multiple high-frequency
+covariates can be included by supplying multiple MIDAS objects in
+\code{hf_input}.
+}
+\examples{
+\dontrun{
+data(data_spatialpoisson_example)
+
+# Read the spatial adjacency graph
+g <- INLA::inla.read.graph(
+  filename = system.file("map.adj", package = "midasINLA")
+)
+
+# Prepare a spatial MIDAS predictor
+Midas_x1 <- prepare_Minla_spatial(
+  x = data_spatialpoisson_example$data_x1$x1,
+  loc_x = data_spatialpoisson_example$data_x1$loc,
+  constraint = "hyperbolic",
+  K = 0:29,
+  m = 30,
+  svc = TRUE,
+  svc_prior = "icar",
+  g = g
+)
+
+# Fit the spatial Poisson MIDAS model
+fit <- fit_Minla_spatial(
+  formula = y ~ 1,
+  data = data_spatialpoisson_example$data_y,
+  loc_var = "loc",
+  time_var = "Time",
+  family = "poisson",
+  hf_input = list(Midas_x1),
+  inla_options = list(
+    verbose = FALSE,
+    control.predictor = list(
+    compute = TRUE,link = 1)
+  )
+)
+
+# Inspect the fitted INLA model
+fit$res
+}
+
 }

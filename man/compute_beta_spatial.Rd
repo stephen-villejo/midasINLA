@@ -2,15 +2,106 @@
 % Please edit documentation in R/estimation_functions.R
 \name{compute_beta_spatial}
 \alias{compute_beta_spatial}
-\title{Compute beta summaries for the spatial model}
+\title{Compute posterior summaries of MIDAS coefficients}
 \usage{
 compute_beta_spatial(model, n_loc)
 }
 \arguments{
-\item{model}{output from fit_Minla_spatial}
+\item{model}{A fitted spatial MIDAS model returned by
+\code{\link[=fit_Minla_spatial]{fit_Minla_spatial()}}.}
 
-\item{n_loc}{number of locations}
+\item{n_loc}{Integer specifying the number of spatial locations for
+which coefficient summaries should be computed.}
+}
+\value{
+A list containing one element for each high-frequency MIDAS
+covariate in \code{model$hf_input}. The elements are named
+\code{"hf_index_1"}, \code{"hf_index_2"}, and so on. The contents of each
+element depend on the spatial structure of the corresponding MIDAS
+covariate:
+\describe{
+\item{Spatially varying coefficient with ICAR prior}{
+A list containing \code{summary.global.beta},
+\code{marginal.global.beta}, \code{summary.icar.beta},
+\code{marginal.icar.beta}, \code{summary.total.beta}, and
+\code{sample.total.beta}.
+}
+\item{Spatially varying coefficient with IID prior}{
+A list containing \code{summary.beta} and \code{marginal.beta}.
+}
+\item{Non-spatially varying coefficient}{
+A list containing \code{summary.beta} and \code{marginal.beta}.
+}
+}
+
+The summary data frames contain the posterior mean, standard
+deviation, and 2.5\%, 50\%, and 97.5\% posterior quantiles.
 }
 \description{
-Compute beta summaries for the spatial model
+Computes posterior summaries of the MIDAS regression coefficients from
+a fitted spatial MIDAS model returned by \code{\link[=fit_Minla_spatial]{fit_Minla_spatial()}}. The
+output depends on whether the MIDAS coefficient is spatially varying
+and on the specified spatial prior.
+}
+\details{
+For spatially varying coefficients with an ICAR prior, the function
+returns summaries and marginal distributions for the global coefficient,
+the location-specific spatial deviations, and the resulting
+location-specific total coefficients. Posterior samples of the total
+coefficients are also returned.
+
+For spatially varying coefficients with an IID prior, the function
+returns posterior summaries and marginal distributions for the
+location-specific coefficients.
+
+For non-spatially varying coefficients, the function returns the
+posterior marginal distribution and summary of the MIDAS coefficient
+associated with each high-frequency covariate.
+}
+\examples{
+\dontrun{
+data(data_spatialpoisson_example)
+
+# Read the spatial adjacency graph
+g <- INLA::inla.read.graph(
+  filename = system.file("map.adj", package = "midasINLA")
+)
+
+# Prepare a spatial MIDAS predictor
+Midas_x1 <- prepare_Minla_spatial(
+  x = data_spatialpoisson_example$data_x1$x1,
+  loc_x = data_spatialpoisson_example$data_x1$loc,
+  constraint = "hyperbolic",
+  K = 0:29,
+  m = 30,
+  svc = TRUE,
+  svc_prior = "icar",
+  g = g
+)
+
+# Fit the spatial Poisson MIDAS model
+fit <- fit_Minla_spatial(
+  formula = y ~ 1,
+  data = data_spatialpoisson_example$data_y,
+  loc_var = "loc",
+  time_var = "Time",
+  family = "poisson",
+  hf_input = list(Midas_x1),
+  inla_options = list(
+    verbose = FALSE,
+    control.predictor = list(
+    compute = TRUE,link = 1)
+  )
+)
+
+# Compute posterior summaries of the MIDAS coefficients
+beta_summary <- compute_beta_spatial(
+  model = fit,
+  n_loc = 16
+)
+
+# Inspect summaries of the location-specific total coefficients
+beta_summary$hf_index_1$summary.total.beta
+}
+
 }

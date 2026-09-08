@@ -66,29 +66,101 @@ create_lag_Xmatrix <- function(tsdata,
 
 
 
-#' Make predictions form a MIDAS model output
-#' @param model MIDAS model output
-#' @param family  Likelihood family for response data
-#' @param Ntrials Number of trials for a binomial family response
-#' @param nsamples Number of posterior samples
-#' @return A list containing the predictions and the samples
+#' Generate posterior predictive samples from a MIDAS model
+#'
+#' Generates posterior predictive samples from a fitted MIDAS model
+#' using posterior samples of the latent linear predictor. The function
+#' supports Gaussian, Poisson, and binomial response distributions.
+#'
+#' For a Gaussian response, posterior samples of the observation
+#' variance are obtained from the posterior samples of the Gaussian
+#' precision parameter and used to generate predictive observations.
+#' For Poisson and binomial responses, observations are generated using
+#' the appropriate inverse-link function.
+#'
+#' @param model A fitted MIDAS model returned by
+#'   [fit_Minla_spatial()].
+#' @param family Character string specifying the likelihood family.
+#'   Supported values are `"gaussian"`, `"poisson"`, and `"binomial"`.
+#'   Defaults to `"gaussian"`.
+#' @param Ntrials Optional vector specifying the number of trials for
+#'   each observation when `family = "binomial"`. If omitted, the
+#'   function attempts to use the `Ntrials` column in
+#'   `model$data_final`.
+#' @param nsamples Positive integer specifying the number of posterior
+#'   samples used to generate the predictive distribution. Defaults to
+#'   `1000`.
+#'
+#' @return A list with two components:
+#'   \describe{
+#'     \item{computed_y}{
+#'       A list containing posterior predictive summaries:
+#'       \describe{
+#'         \item{mean}{Posterior predictive mean for each observation.}
+#'         \item{sd}{Posterior predictive standard deviation for each
+#'           observation.}
+#'         \item{q2.5}{2.5% posterior predictive quantile for each
+#'           observation.}
+#'         \item{q97.5}{97.5% posterior predictive quantile for each
+#'           observation.}
+#'       }
+#'     }
+#'     \item{samples}{
+#'       A list containing posterior samples of the latent predictor and,
+#'       for Gaussian responses, the posterior samples of the observation
+#'       variance.
+#'     }
+#'   }
+#'
+#' @examples
+#' \dontrun{
+#' data(data_spatialpoisson_example)
+#'
+#' Midas_x1 <- prepare_Minla_spatial(
+#'   x = data_spatialpoisson_example$data_x1$x1,
+#'   loc_x = data_spatialpoisson_example$data_x1$loc,
+#'   constraint = "hyperbolic",
+#'   K = 0:29,
+#'   m = 30,
+#'   svc = FALSE
+#' )
+#'
+#' fit <- fit_Minla_spatial(
+#'   formula = y ~ 1,
+#'   data = data_spatialpoisson_example$data_y,
+#'   loc_var = "loc",
+#'   time_var = "Time",
+#'   family = "poisson",
+#'   hf_input = list(Midas_x1),
+#'   inla_options = list(verbose = FALSE)
+#' )
+#'
+#' predictions <- predict_midas(
+#'   model = fit,
+#'   family = "poisson",
+#'   nsamples = 1000
+#' )
+#'
+#' # Inspect posterior predictive summaries
+#' head(predictions$computed_y$mean)
+#' head(predictions$computed_y$q2.5)
+#' head(predictions$computed_y$q97.5)
+#' }
+#'
 #' @export
 predict_midas <- function(model,
                           family = "gaussian",
                           Ntrials = NULL,
                           nsamples = 1000) {
 
-  fit <- if (!is.null(model$res)) model$res else model
+  data <- model$data_final
 
   if (is.null(data)) {
-    if (!is.null(model$data_final)) {
-      data <- model$data_final
-    } else {
-      stop("`data` must be supplied if not available in `model$data_final`.")
-    }
+    stop("`model$data_final` is missing.")
   }
 
-  data <- model$data_final
+  fit <- if (!is.null(model$res)) model$res else model
+
   n_obs <- nrow(data)
 
   temp <- INLA::inla.posterior.sample(n = nsamples, fit)
@@ -175,10 +247,77 @@ predict_midas <- function(model,
 }
 
 
-#' Compute weights estimates
-#' @param model midas model result
-#' @param n.samples number of posterior samples
-#' @return estimates of the weights
+
+#' Compute posterior estimates of MIDAS lag weights
+#'
+#' Computes posterior estimates of the normalized MIDAS lag weights from
+#' a fitted MIDAS model returned by [fit_Minla_spatial()]. The function
+#' draws samples from the posterior marginal distributions of the
+#' MIDAS hyperparameters and uses these samples to obtain the
+#' corresponding lag-weight functions.
+#'
+#' The supported MIDAS lag constraints are `"hyperbolic"`, `"gaussian"`,
+#' `"beta1"`, `"beta2"`, and `"almon2"`. For each high-frequency
+#' covariate, the resulting weights are normalized to sum to one across
+#' all included lags.
+#'
+#' @param model A fitted MIDAS model returned by
+#'   [fit_Minla_spatial()].
+#' @param n.samples Positive integer specifying the number of posterior
+#'   samples drawn from the MIDAS hyperparameter marginal distributions
+#'   to estimate the lag-weight distribution. Defaults to `200`.
+#'
+#' @return A list containing one data frame for each high-frequency
+#'   covariate in `model$hf_input`. The elements are named `"hf_1"`,
+#'   `"hf_2"`, and so on. Each data frame contains:
+#'   \describe{
+#'     \item{lag}{The MIDAS lag index.}
+#'     \item{mean}{The posterior mean of the normalized lag weight.}
+#'     \item{q2.5}{The 2.5% posterior quantile of the lag weight.}
+#'     \item{q97.5}{The 97.5% posterior quantile of the lag weight.}
+#'   }
+#'
+#' @examples
+#' \dontrun{
+#' data(data_spatialpoisson_example)
+#'
+#' g <- INLA::inla.read.graph(
+#'   filename = system.file("map.adj", package = "midasINLA")
+#' )
+#'
+#' Midas_x1 <- prepare_Minla_spatial(
+#'   x = data_spatialpoisson_example$data_x1$x1,
+#'   loc_x = data_spatialpoisson_example$data_x1$loc,
+#'   constraint = "hyperbolic",
+#'   K = 0:29,
+#'   m = 30,
+#'   svc = TRUE,
+#'   svc_prior = "icar",
+#'   g = g
+#' )
+#'
+#' fit <- fit_Minla_spatial(
+#'   formula = y ~ 1,
+#'   data = data_spatialpoisson_example$data_y,
+#'   loc_var = "loc",
+#'   time_var = "Time",
+#'   family = "poisson",
+#'   hf_input = list(Midas_x1),
+#'   inla_options = list(
+#'     verbose = FALSE,
+#'     control.predictor = list(
+#'     compute = TRUE,link = 1)
+#'   )
+#' )
+#'
+#' weights <- compute_weights(
+#'   model = fit,
+#'   n.samples = 200
+#' )
+#'
+#' head(weights$hf_1)
+#' }
+#'
 #' @export
 compute_weights <- function(model, n.samples = 200) {
 
@@ -479,17 +618,96 @@ prepare_Minla_spatial <- function(x,
 
 
 
-#' Fit MIDAS model (spatial case) using INLA
-#' @param formula model formula
-#' @param data response data frame
-#' @param loc_var variable name for location in response data frame
-#' @param time_var variable name for time in response data frame
-#' @param family Likelihood family for response data
-#' @param hf_input list of output objects from prepare_Minla_spatial
-#' @param Ntrials Number of trials for a binomial family response
-#' @param E expected cases for Poisson model
-#' @param inla_options arguments in inla function
-#' @return MIDAS output
+#' Fit a spatial MIDAS model using INLA
+#'
+#' Fits a Mixed Data Sampling (MIDAS) regression model with optional
+#' spatially varying coefficients using Integrated Nested Laplace
+#' Approximation (INLA). High-frequency covariates are supplied as
+#' MIDAS objects created by [prepare_Minla_spatial()].
+#'
+#' The function constructs the INLA model by incorporating the
+#' MIDAS components specified in `hf_input`. Multiple high-frequency
+#' covariates can be included by supplying multiple MIDAS objects in
+#' `hf_input`.
+#'
+#' @param formula A model formula specifying the response and other
+#'   covariates. The response variable must be a column in `data`.
+#' @param data A data frame containing the response and any additional
+#'   model covariates. It must contain the variables specified by
+#'   `loc_var` and `time_var`.
+#' @param loc_var Character string specifying the name of the location
+#'   variable in `data`.
+#' @param time_var Character string specifying the name of the time
+#'   variable in `data`.
+#' @param family Character string specifying the likelihood family for
+#'   the response. For example, `"poisson"` or `"binomial"`.
+#' @param hf_input A list of MIDAS objects returned by
+#'   [prepare_Minla_spatial()]. Each object specifies a high-frequency
+#'   covariate and its MIDAS lag structure. Multiple MIDAS objects can
+#'   be supplied.
+#' @param Ntrials Optional vector specifying the number of trials for a
+#'   binomial response. Used only when `family = "binomial"`.
+#' @param E Optional vector of expected counts or exposure values for a
+#'   Poisson model. Its length must match the number of rows in `data`.
+#'   Used only when `family = "poisson"`.
+#' @param inla_options A named list of additional arguments passed to
+#'   [INLA::inla()]. By default, `control.compute$config` is set to
+#'   `TRUE` if it is not already specified.
+#'
+#' @return A list containing:
+#'   \describe{
+#'     \item{formula_final}{The final INLA model formula, including the
+#'       MIDAS components.}
+#'     \item{data_final}{The response data used for model fitting after
+#'       ordering by location and time and removing rows with incomplete
+#'       lagged covariate information.}
+#'     \item{rm_max}{The maximum number of initial observations removed
+#'       across locations because of incomplete MIDAS lagged covariates.}
+#'     \item{res}{The fitted INLA model returned by [INLA::inla()].}
+#'     \item{hf_input}{The list of MIDAS objects supplied through
+#'       `hf_input`.}
+#'   }
+#'
+#' @examples
+#' \dontrun{
+#' data(data_spatialpoisson_example)
+#'
+#' # Read the spatial adjacency graph
+#' g <- INLA::inla.read.graph(
+#'   filename = system.file("map.adj", package = "midasINLA")
+#' )
+#'
+#' # Prepare a spatial MIDAS predictor
+#' Midas_x1 <- prepare_Minla_spatial(
+#'   x = data_spatialpoisson_example$data_x1$x1,
+#'   loc_x = data_spatialpoisson_example$data_x1$loc,
+#'   constraint = "hyperbolic",
+#'   K = 0:29,
+#'   m = 30,
+#'   svc = TRUE,
+#'   svc_prior = "icar",
+#'   g = g
+#' )
+#'
+#' # Fit the spatial Poisson MIDAS model
+#' fit <- fit_Minla_spatial(
+#'   formula = y ~ 1,
+#'   data = data_spatialpoisson_example$data_y,
+#'   loc_var = "loc",
+#'   time_var = "Time",
+#'   family = "poisson",
+#'   hf_input = list(Midas_x1),
+#'   inla_options = list(
+#'     verbose = FALSE,
+#'     control.predictor = list(
+#'     compute = TRUE,link = 1)
+#'   )
+#' )
+#'
+#' # Inspect the fitted INLA model
+#' fit$res
+#' }
+#'
 #' @export
 fit_Minla_spatial <- function(formula,
                               data,
@@ -764,9 +982,101 @@ fit_Minla_spatial <- function(formula,
 
 
 
-#' Compute beta summaries for the spatial model
-#' @param model output from fit_Minla_spatial
-#' @param n_loc number of locations
+#' Compute posterior summaries of MIDAS coefficients
+#'
+#' Computes posterior summaries of the MIDAS regression coefficients from
+#' a fitted spatial MIDAS model returned by [fit_Minla_spatial()]. The
+#' output depends on whether the MIDAS coefficient is spatially varying
+#' and on the specified spatial prior.
+#'
+#' For spatially varying coefficients with an ICAR prior, the function
+#' returns summaries and marginal distributions for the global coefficient,
+#' the location-specific spatial deviations, and the resulting
+#' location-specific total coefficients. Posterior samples of the total
+#' coefficients are also returned.
+#'
+#' For spatially varying coefficients with an IID prior, the function
+#' returns posterior summaries and marginal distributions for the
+#' location-specific coefficients.
+#'
+#' For non-spatially varying coefficients, the function returns the
+#' posterior marginal distribution and summary of the MIDAS coefficient
+#' associated with each high-frequency covariate.
+#'
+#' @param model A fitted spatial MIDAS model returned by
+#'   [fit_Minla_spatial()].
+#' @param n_loc Integer specifying the number of spatial locations for
+#'   which coefficient summaries should be computed.
+#'
+#' @return A list containing one element for each high-frequency MIDAS
+#'   covariate in `model$hf_input`. The elements are named
+#'   `"hf_index_1"`, `"hf_index_2"`, and so on. The contents of each
+#'   element depend on the spatial structure of the corresponding MIDAS
+#'   covariate:
+#'   \describe{
+#'     \item{Spatially varying coefficient with ICAR prior}{
+#'       A list containing `summary.global.beta`,
+#'       `marginal.global.beta`, `summary.icar.beta`,
+#'       `marginal.icar.beta`, `summary.total.beta`, and
+#'       `sample.total.beta`.
+#'     }
+#'     \item{Spatially varying coefficient with IID prior}{
+#'       A list containing `summary.beta` and `marginal.beta`.
+#'     }
+#'     \item{Non-spatially varying coefficient}{
+#'       A list containing `summary.beta` and `marginal.beta`.
+#'     }
+#'   }
+#'
+#'   The summary data frames contain the posterior mean, standard
+#'   deviation, and 2.5%, 50%, and 97.5% posterior quantiles.
+#'
+#' @examples
+#' \dontrun{
+#' data(data_spatialpoisson_example)
+#'
+#' # Read the spatial adjacency graph
+#' g <- INLA::inla.read.graph(
+#'   filename = system.file("map.adj", package = "midasINLA")
+#' )
+#'
+#' # Prepare a spatial MIDAS predictor
+#' Midas_x1 <- prepare_Minla_spatial(
+#'   x = data_spatialpoisson_example$data_x1$x1,
+#'   loc_x = data_spatialpoisson_example$data_x1$loc,
+#'   constraint = "hyperbolic",
+#'   K = 0:29,
+#'   m = 30,
+#'   svc = TRUE,
+#'   svc_prior = "icar",
+#'   g = g
+#' )
+#'
+#' # Fit the spatial Poisson MIDAS model
+#' fit <- fit_Minla_spatial(
+#'   formula = y ~ 1,
+#'   data = data_spatialpoisson_example$data_y,
+#'   loc_var = "loc",
+#'   time_var = "Time",
+#'   family = "poisson",
+#'   hf_input = list(Midas_x1),
+#'   inla_options = list(
+#'     verbose = FALSE,
+#'     control.predictor = list(
+#'     compute = TRUE,link = 1)
+#'   )
+#' )
+#'
+#' # Compute posterior summaries of the MIDAS coefficients
+#' beta_summary <- compute_beta_spatial(
+#'   model = fit,
+#'   n_loc = 16
+#' )
+#'
+#' # Inspect summaries of the location-specific total coefficients
+#' beta_summary$hf_index_1$summary.total.beta
+#' }
+#'
 #' @export
 compute_beta_spatial <- function(model,
                                  n_loc){

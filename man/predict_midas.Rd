@@ -2,22 +2,94 @@
 % Please edit documentation in R/estimation_functions.R
 \name{predict_midas}
 \alias{predict_midas}
-\title{Make predictions form a MIDAS model output}
+\title{Generate posterior predictive samples from a MIDAS model}
 \usage{
 predict_midas(model, family = "gaussian", Ntrials = NULL, nsamples = 1000)
 }
 \arguments{
-\item{model}{MIDAS model output}
+\item{model}{A fitted MIDAS model returned by
+\code{\link[=fit_Minla_spatial]{fit_Minla_spatial()}}.}
 
-\item{family}{Likelihood family for response data}
+\item{family}{Character string specifying the likelihood family.
+Supported values are \code{"gaussian"}, \code{"poisson"}, and \code{"binomial"}.
+Defaults to \code{"gaussian"}.}
 
-\item{Ntrials}{Number of trials for a binomial family response}
+\item{Ntrials}{Optional vector specifying the number of trials for
+each observation when \code{family = "binomial"}. If omitted, the
+function attempts to use the \code{Ntrials} column in
+\code{model$data_final}.}
 
-\item{nsamples}{Number of posterior samples}
+\item{nsamples}{Positive integer specifying the number of posterior
+samples used to generate the predictive distribution. Defaults to
+\code{1000}.}
 }
 \value{
-A list containing the predictions and the samples
+A list with two components:
+\describe{
+\item{computed_y}{
+A list containing posterior predictive summaries:
+\describe{
+\item{mean}{Posterior predictive mean for each observation.}
+\item{sd}{Posterior predictive standard deviation for each
+observation.}
+\item{q2.5}{2.5\% posterior predictive quantile for each
+observation.}
+\item{q97.5}{97.5\% posterior predictive quantile for each
+observation.}
+}
+}
+\item{samples}{
+A list containing posterior samples of the latent predictor and,
+for Gaussian responses, the posterior samples of the observation
+variance.
+}
+}
 }
 \description{
-Make predictions form a MIDAS model output
+Generates posterior predictive samples from a fitted MIDAS model
+using posterior samples of the latent linear predictor. The function
+supports Gaussian, Poisson, and binomial response distributions.
+}
+\details{
+For a Gaussian response, posterior samples of the observation
+variance are obtained from the posterior samples of the Gaussian
+precision parameter and used to generate predictive observations.
+For Poisson and binomial responses, observations are generated using
+the appropriate inverse-link function.
+}
+\examples{
+\dontrun{
+data(data_spatialpoisson_example)
+
+Midas_x1 <- prepare_Minla_spatial(
+  x = data_spatialpoisson_example$data_x1$x1,
+  loc_x = data_spatialpoisson_example$data_x1$loc,
+  constraint = "hyperbolic",
+  K = 0:29,
+  m = 30,
+  svc = FALSE
+)
+
+fit <- fit_Minla_spatial(
+  formula = y ~ 1,
+  data = data_spatialpoisson_example$data_y,
+  loc_var = "loc",
+  time_var = "Time",
+  family = "poisson",
+  hf_input = list(Midas_x1),
+  inla_options = list(verbose = FALSE)
+)
+
+predictions <- predict_midas(
+  model = fit,
+  family = "poisson",
+  nsamples = 1000
+)
+
+# Inspect posterior predictive summaries
+head(predictions$computed_y$mean)
+head(predictions$computed_y$q2.5)
+head(predictions$computed_y$q97.5)
+}
+
 }
