@@ -1,8 +1,10 @@
 ---
-title: "Getting Started with midasINLA"
-output: rmarkdown::html_vignette
+title: "Getting started with midasINLA"
+output:
+  rmarkdown::html_vignette:
+    math_method: mathjax
 vignette: >
-  %\VignetteIndexEntry{Getting Started with midasINLA}
+  %\VignetteIndexEntry{Getting started with midasINLA}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,7 +19,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(midasINLA)
 library(INLA)
-
+library(ggplot2)
 INLA::inla.setOption(num.threads = 1)
 ```
 
@@ -31,8 +33,112 @@ lower-frequency response model through MIDAS lag-weight functions. Different
 constraint schemes can be used to model the lag weights, while coefficients
 can be either constant or spatially varying.
 
-This vignette demonstrates the main workflow using a simulated spatial
-Poisson example. The example contains two high-frequency covariates with
+## Model 
+
+Consider a response variable $y_{it}$, indexed by spatial unit $i=1,\ldots,N$ and low-frequency time point $t=1,\ldots,T$. The predictor $x_{i\tau}$ is observed at a higher frequency. The MIDAS framework relates the low-frequency response to multiple high-frequency observations through a weighted distributed lag:
+
+$$
+\begin{aligned}
+        &y_{it} \sim F, \;\;\; \mathbb{E}(y_{it}) = \mu_{it} \\
+        &g(\mu_{it}) = \beta_0 + \beta_i\sum_{k=0}^K w_kx_{i,s(t)-k} + \epsilon_{it} \\
+        &w_k=h(\boldsymbol{\gamma},k) \; \text{and} \; \sum_{k=0}^K w_k=1.
+\end{aligned}
+$$
+
+Here, $g(\cdot)$ is the link function, $\beta_0$ is the intercept, and $\beta_i$ is the regression coefficient for the high-frequency predictor for the $i^{\text{th}}$ spatial unit. The function $h(\boldsymbol{\gamma},k)$ determines the MIDAS lag weights, where $\boldsymbol{\gamma}\in\mathbb{R}^d$ contains the parameters governing the shape of the weighting function. The weights are constrained to sum to one, which separates the overall magnitude of the predictor effect, represented by $\beta_i$, from the relative contributions of the individual lags.
+
+The index $s(t)$ denotes the cumulative number of high-frequency observations up to low-frequency time point t,
+
+$$
+s(t)=\sum_{j=1}^{t}m_j,
+$$
+
+where $m_t$ is the number of high-frequency observations associated with the $t^{\text{th}}$ low-frequency observation. In the examples below, the same high-frequency sampling structure is assumed across spatial units.
+
+The main flexibility of the model comes from the choice of the lag-weight function $h(\boldsymbol{\gamma},k)$. midasINLA provides functions for constructing different MIDAS weighting schemes and incorporating them into an INLA model, while allowing the regression coefficient to be either constant or spatially varying.
+
+### Spatially varying coefficients
+
+midasINLA allows the regression coefficient $\beta_i$ to vary across spatial units in two ways:
+
+* Spatially structured coefficient:
+    $$
+    \beta_i = \beta^* + b_i, \qquad
+    \boldsymbol{b} \sim \operatorname{iCAR}(\tau_b,\mathbf{W}),
+    $$
+    where $\beta^*$ is the overall effect and $b_i$ represents the spatially structured deviation for unit $i$. The deviations follow an intrinsic conditional autoregressive (iCAR) model with precision $\tau_b$ and spatial weights matrix $\mathbf{W}$, subject to the sum-to-zero constraint $\sum_i b_i=0$.
+* Unstructured coefficient:
+    $$
+    \beta_i \overset{iid}{\sim}
+    N(0,\sigma_\beta^2),
+    $$
+    where the coefficients are independent across spatial units.
+
+A constant coefficient, $\beta_i\equiv\beta$, is also supported and corresponds to the special case in which the effect is the same across all spatial units.
+
+
+### Constraint functions
+
+The lag weights are obtained by normalising a constraint function $\psi(\boldsymbol{\gamma},k)$:
+
+$$
+w_k = h(\boldsymbol{\gamma},k)
+= \frac{\psi(\boldsymbol{\gamma},k)}
+{\sum_{j=0}^K \psi(\boldsymbol{\gamma},j)}.
+$$
+
+midasINLA implements several commonly used constraint functions.
+
+1. Exponential Almon polynomial (order 2):
+
+$$
+\psi(\boldsymbol{\gamma},k) = \exp\left(\sum_{j=1}^{2}\gamma_j k^j\right),
+$$
+
+where $\boldsymbol{\gamma}=(\gamma_1,\gamma_2)$.
+
+2. Beta polynomial:
+
+$$
+\psi(\boldsymbol{\gamma},k) = x_k^{\gamma_1-1}(1-x_k)^{\gamma_2-1},
+$$
+
+where
+
+$$
+x_k=\xi+(1-2\xi)\frac{k}{K},
+$$
+
+with $\xi>0$ a small fixed constant and $\boldsymbol{\gamma}=(\gamma_1,\gamma_2)$. A one-parameter version is obtained by fixing $\gamma_1=1$.
+
+3. Hyperbolic scheme:
+
+$$
+\psi(\gamma,k) = \frac{\Gamma(k+\gamma)}{\Gamma(k+1)\Gamma(\gamma)},
+$$
+where $\gamma>0$.
+
+4. Gaussian kernel:
+
+$$
+\psi(\boldsymbol{\gamma},k)=\exp\left\{-\frac{(k-\gamma_1)^2}{2\gamma_2}\right\}.
+$$
+
+where $\boldsymbol{\gamma}=(\gamma_1,\gamma_2)$ and $\gamma_2>0$.
+
+
+## INLA implementation
+
+The MIDAS lag structure is incorporated into the latent Gaussian model through INLA’s `rgeneric` interface. The MIDAS constraint functions define the lag weights as a function of a low-dimensional parameter vector, while the resulting weighted high-frequency covariates are represented as part of the latent model.
+
+The functions in `midasINLA` construct the required `rgeneric` model components and interface them with `INLA::inla()`. This allows the MIDAS lag-weight parameters and regression coefficients to be estimated within the INLA framework, while retaining the spatial structure specified for the regression coefficients.
+
+Users do not need to construct the `rgeneric` model directly; this is handled internally by the package functions demonstrated below.
+
+
+## Simulated spatial Poisson example
+
+We show an example with two high-frequency covariates with
 different lag-weight constraints. The first covariate has a spatially
 varying coefficient, whereas the second has a constant coefficient.
 
@@ -45,9 +151,6 @@ The example illustrates the main functions in midasINLA:
     coefficients;
 * `compute_weights`() obtains posterior summaries of the MIDAS lag weights;
 * `predict_midas`() generates posterior predictions.
-
-
-## Simulated spatial Poisson example
 
 We consider an outcome $y_{it}$ observed at 16 spatial locations and
 192 time points. Two high-frequency covariates, $x_{1it}$ and $x_{2it}$,
@@ -68,21 +171,19 @@ The simulated data are included with the package and can be loaded using:
 data("data_spatialpoisson_example")
 ```
 
-The dataset is a list containing the response, the two high-frequency
-covariates, and the spatial neighbourhood structure. For example:
+The dataset is provided as a list containing the response, two high-frequency covariates, the spatial polygons, and the true parameter values used to generate the data. The available components can be inspected with:
 
 ```{r inspect-data}
 names(data_spatialpoisson_example)
 ```
 
-The response data contain the outcome, location index, and time index:
+The response data are stored in data_y and contain the outcome together with the spatial and temporal indices:
 
 ```{r response-data}
 head(data_spatialpoisson_example[["data_y"]])
 ```
 
-The high-frequency covariates contain the covariate values and their
-corresponding location indices:
+The high-frequency covariates are stored in `data_x1` and `data_x2`. Each contains the covariate values together with their corresponding spatial indices:
 
 ```{r covariate-data}
 head(data_spatialpoisson_example$data_x1)
@@ -90,7 +191,8 @@ head(data_spatialpoisson_example$data_x2)
 ```
 
 The neighbourhood structure used to generate the spatially varying
-coefficient is stored as an inla.graph object:
+coefficient is stored as an `inla.graph` object. It can be loaded from
+the package using:
 
 ```{r graph}
 g <- INLA::inla.read.graph(
@@ -171,7 +273,7 @@ response_data[which(response_data[["Time"]] %in% 183:192),"y"] <- NA
 ```
 
 The model can then be fitted using `fit_Minla_spatial`():
-
+  
 ```{r fit-model, eval = TRUE}
 fit_res <- fit_Minla_spatial(
   formula = y ~ 1,
@@ -180,21 +282,24 @@ fit_res <- fit_Minla_spatial(
   time_var = "Time",
   family = "poisson",
   hf_input = list(Midas_x1, Midas_x2),
-  inla_options = list(verbose = FALSE)
-)
+  inla_options = list(verbose = FALSE,
+                      control.predictor = list(
+                        compute = TRUE,link = 1)))
 ```
 
 
 A summary of the fitted model can be obtained using the standard
 `summary`() method:
-
+  
 ```{r model-summary}
 summary(fit_res[["res"]])
 ```
 
 The fitted model contains two MIDAS components, corresponding to the two
 high-frequency covariates. The model also estimates the spatially varying
-coefficient associated with the first covariate.
+coefficient associated with the first covariate. The parameters governing
+the MIDAS lag-weight functions are reported with names beginning with
+`hf_idx_`.
 
 
 ## Posterior summaries of regression coefficients
@@ -209,23 +314,33 @@ beta_results <- compute_beta_spatial(
 )
 ```
 
-The returned object contains results for each high-frequency covariate.
-For the first covariate, the posterior summaries of the spatially varying
-component can be accessed using:
+The returned object contains results for each high-frequency covariate,
+including marginal distributions and posterior summaries.
 
+For the first covariate, the posterior summaries of the spatially varying
+component $b_i$ can be accessed using:
+  
 ```{r beta-summary}
 beta_results$hf_index_1$summary.icar.beta
 ```
 
-The spatially varying coefficient at location $i$ is given by
+The spatially varying coefficient at location $i$ is defined as
 
 $$
-\beta_{1,i} = \beta_1^* + b_i.
+  \beta_{1,i} = \beta_1^* + b_i.
 $$
+Posterior summaries of the resulting total coefficient can be accessed using:
 
-The posterior estimates can therefore be compared with the known
-coefficients used to generate the simulated data.
+```{r total-beta-summary}
+beta_results$hf_index_1$summary.total.beta
+```
 
+For the second covariate, which has a constant regression coefficient,
+posterior summaries of $\beta_2$ are available using:
+
+```{r constant-beta-summary}
+beta_results$hf_index_2$summary.beta
+```
 
 ## Estimating the MIDAS lag weights
 
@@ -252,40 +367,100 @@ The weights for the second covariate can be inspected similarly:
 head(res_weights$hf_2)
 ```
 
-These posterior summaries can be used to visualise the estimated
-lag-weight functions. For example:
+The posterior summaries can be used to visualise the estimated
+lag-weight functions. Because the data are simulated, the true lag
+weights are also available for comparison.
 
 ```{r plot-weights, fig.width = 7, fig.height = 4.5}
-plot(
-  res_weights$hf_1$lag,
-  res_weights$hf_1$mean,
-  type = "l",
-  xlab = "Lag",
-  ylab = "Posterior mean weight",
-  ylim = range(
-    c(res_weights$hf_1$q2.5, res_weights$hf_1$q97.5)
+ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
+  geom_errorbar(
+    aes(
+      ymin = q2.5,
+      ymax = q97.5
+    ),
+    width = 0.2,
+    colour = "grey30"
+  ) +
+  geom_point(
+    aes(
+      colour = "Posterior mean"
+    ),
+    size = 2
+  ) +
+  geom_point(
+    aes(
+      y = data_spatialpoisson_example$weights1,
+      colour = "True value"
+    ),
+    size = 2
+  ) +
+  scale_colour_manual(
+    name = NULL,
+    values = c(
+      "Posterior mean" = "red",
+      "True value" = "blue"
+    )
+  ) +
+  labs(
+    x = "Lag",
+    y = "Lag weight"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom"
   )
-)
-
-lines(
-  res_weights$hf_1$lag,
-  res_weights$hf_1$q2.5,
-  lty = 2
-)
-
-lines(
-  res_weights$hf_1$lag,
-  res_weights$hf_1$q97.5,
-  lty = 2
-)
 ```
+
+The corresponding lag-weight function for the second covariate can be
+visualised in the same way:
+
+```{r plot-weights-x2, fig.width = 7, fig.height = 4.5}
+ggplot(res_weights$hf_2, aes(x = lag, y = mean)) +
+  geom_errorbar(
+    aes(
+      ymin = q2.5,
+      ymax = q97.5
+    ),
+    width = 0.2,
+    colour = "grey30"
+  ) +
+  geom_point(
+    aes(
+      colour = "Posterior mean"
+    ),
+    size = 2
+  ) +
+  geom_point(
+    aes(
+      y = data_spatialpoisson_example$weights2,
+      colour = "True value"
+    ),
+    size = 2
+  ) +
+  scale_colour_manual(
+    name = NULL,
+    values = c(
+      "Posterior mean" = "red",
+      "True value" = "blue"
+    )
+  ) +
+  labs(
+    x = "Lag",
+    y = "Lag weight"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom"
+  )
+```
+
 
 ## Prediction for held-out observations
 
-The final 10 time points were withheld from the model fit and can be used
-to illustrate prediction.
+The final 10 time points were withheld from the model fit and are used here
+to illustrate posterior prediction.
 
-Posterior predictions are generated using `predict_midas`():
+Posterior predictions can be generated using `predict_midas()`:
 
 ```{r prediction}
 pred_res <- predict_midas(
@@ -296,13 +471,14 @@ pred_res <- predict_midas(
 )
 ```
 
-The returned object contains posterior summaries of the predicted outcome
-as well as posterior samples of the latent predictor:
-
+The returned object contains posterior summaries of the predicted outcome,
+including posterior means and 95% credible intervals, as well as posterior
+samples of the latent predictor. For example:
+  
 ```{r prediction-structure}
 str(pred_res, max.level = 2)
 ```
-
+The posterior summaries of the predicted outcome can be accessed using:
 
 ```{r prediction-summary}
 head(pred_res$computed_y$mean)
@@ -310,75 +486,94 @@ head(pred_res$computed_y$q2.5)
 head(pred_res$computed_y$q97.5)
 ```
 
-The predictions can then be compared with the observations in the held-out
-test set. For example, the following code displays the observed and
-predicted values for the first location:
+The predicted and observed outcomes can also be compared graphically. The
+following example shows the results for the first four spatial locations.
+The dashed vertical line indicates the boundary between the training and
+held-out prediction periods.
 
-```{r plot-predictions, fig.width = 7, fig.height = 4.5}
-loc1 <- response_data$loc == 1
 
-time1 <- response_data$Time[loc1]
-observed1 <- response_data$y_all[loc1]
-
-pred_mean1 <- pred_res$computed_y$mean[loc1]
-pred_lower1 <- pred_res$computed_y$q2.5[loc1]
-pred_upper1 <- pred_res$computed_y$q97.5[loc1]
-
-plot(
-  time1,
-  observed1,
-  type = "p",
-  xlab = "Time",
-  ylab = "Outcome",
-  pch = 16
+```{r prediction-plot, fig.width = 7, fig.height = 6}
+plot_data <- data.frame(
+  observed = fit_res$data_final$y_all,
+  predicted = pred_res$computed_y$mean,
+  lower = pred_res$computed_y$q2.5,
+  upper = pred_res$computed_y$q97.5,
+  loc = fit_res$data_final$loc,
+  Time = fit_res$data_final$Time
 )
 
-lines(
-  time1,
-  pred_mean1,
-  lty = 1
+plot_long <- plot_data |>
+  dplyr::filter(loc %in% 1:4) |>
+  tidyr::pivot_longer(
+    cols = c(observed, predicted),
+    names_to = "series",
+    values_to = "value"
+  )
+
+# Determine the training/held-out boundary for each location
+non_na <- !is.na(fit_res$data_final$y)
+
+segment <- cumsum(
+  non_na != dplyr::lag(non_na, default = TRUE)
+)
+segment[!non_na] <- NA
+
+rel_idx <- ave(
+  seq_along(non_na),
+  segment,
+  FUN = seq_along
 )
 
-lines(
-  time1,
-  pred_lower1,
-  lty = 2
+first_na <- which(
+  diff(c(FALSE, is.na(fit_res$data_final$y))) == 1
 )
 
-lines(
-  time1,
-  pred_upper1,
-  lty = 2
-)
+vlines <- data.frame(
+  cut = rel_idx[first_na - 1] + 1,
+  loc = seq_len(16)
+) |>
+  dplyr::filter(loc %in% 1:4)
 
-abline(
-  v = 182.5,
-  lty = 3
-)
+ggplot(plot_long, aes(x = Time, y = value, colour = series)) +
+  geom_ribbon(
+    data = plot_data |>
+      dplyr::filter(loc %in% 1:4),
+    aes(
+      x = Time,
+      ymin = lower,
+      ymax = upper
+    ),
+    inherit.aes = FALSE,
+    fill = "red",
+    alpha = 0.2
+  ) +
+  geom_line() +
+  geom_vline(
+    data = vlines,
+    aes(xintercept = cut),
+    colour = "black",
+    linetype = "dashed"
+  ) +
+  facet_wrap(
+    ~loc,
+    ncol = 2,
+    labeller = labeller(
+      loc = function(x) paste("Loc =", x)
+    )
+  ) +
+  scale_colour_manual(
+    values = c(
+      "observed" = "blue",
+      "predicted" = "red"
+    )
+  ) +
+  labs(
+    x = "Time",
+    y = "Outcome",
+    colour = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom"
+  )
 ```
-
-The vertical line separates the training period from the forecast test
-period. The same approach can be used to obtain predictions for all
-locations and to evaluate predictive performance using appropriate
-pointwise or probabilistic scoring rules.
-
-
-## Summary 
-
-This vignette demonstrated the main workflow for fitting a spatial
-SDL-MIDAS model using midasINLA.
-
-The analysis consisted of the following steps:
-
-1. Load the simulated spatial Poisson data.
-2. Prepare each high-frequency covariate using `prepare_Minla_spatial`().
-3. Fit the model using `fit_Minla_spatial`().
-4. Obtain posterior summaries of the regression coefficients using
-    `compute_beta_spatial`().
-5. Obtain posterior summaries of the MIDAS lag weights using
-    `compute_weights`().
-6. Generate posterior predictions using `predict_midas`().
-
-The simulated example is designed to illustrate the functionality of the
-package. A real-data application demonstrating the use of midasINLA in a
-substantive setting is presented in the accompanying R Journal article.
