@@ -418,17 +418,77 @@ prepare_Minla_spatial <- function(x,
 
 
 
-#' Fit MIDAS model (spatial case) using INLA
-#' @param formula model formula
-#' @param data response data frame
-#' @param loc_var variable name for location in response data frame
-#' @param time_var variable name for time in response data frame
-#' @param family Likelihood family for response data
-#' @param hf_input list of output objects from prepare_Minla_spatial
-#' @param Ntrials Number of trials for a binomial family response
-#' @param E expected cases for Poisson model
-#' @param inla_options arguments in inla function
-#' @return MIDAS output
+#' Prepare a spatial MIDAS object for INLA estimation
+#'
+#' Constructs the MIDAS design matrix and associated model specifications
+#' for use with [fit_Minla_spatial()]. The function creates lagged
+#' high-frequency covariate values for each location and optionally
+#' specifies a spatially varying coefficient (SVC) component.
+#'
+#' @param x Numeric vector of high-frequency covariate observations.
+#' @param loc_x Vector identifying the location associated with each
+#'   observation in `x`. The length of `loc_x` must equal the length of `x`.
+#' @param constraint Character string specifying the constraint used for
+#'   the MIDAS lag-response association. Supported constraints include
+#'   `"hyperbolic"`, `"gaussian"`, `"beta1"`, `"beta2"`, and `"almon2"`.
+#' @param K Numeric vector specifying the lags to be included in the
+#'   MIDAS representation.
+#' @param m Numeric vector specifying the number of high-frequency
+#'   covariate observations associated with each response observation.
+#'   A single value can be supplied when the number of observations is
+#'   constant over time, or a vector can be supplied when this number
+#'   varies across response times.
+#' @param svc Logical; if `TRUE`, specifies a spatially varying
+#'   coefficient model. Defaults to `FALSE`.
+#' @param svc_prior Character string specifying the prior for the spatially
+#'   varying coefficient component. Must be either `"icar"` or `"iid"`.
+#'   Defaults to `"iid"`.
+#' @param g An INLA graph object used for the `"icar"` prior. Required
+#'   when `svc_prior = "icar"`.
+#'
+#' @return A list containing the MIDAS design matrix and model
+#'   specifications. The returned object includes:
+#'   \describe{
+#'     \item{X_matrix}{The MIDAS design matrix, including a location
+#'       index.}
+#'     \item{constraint}{The MIDAS constraint used for the lag-response
+#'       association.}
+#'     \item{lag_k}{The maximum lag specified in `K`.}
+#'     \item{K}{The vector of lags used to construct the design matrix.}
+#'     \item{m}{The number of high-frequency observations associated with
+#'       each response observation.}
+#'     \item{rm.row}{The number of initial rows removed from each location
+#'       because of incomplete lagged observations.}
+#'     \item{svc}{Whether a spatially varying coefficient component is
+#'       specified.}
+#'     \item{svc_prior}{The prior specified for the spatially varying
+#'       coefficient component.}
+#'     \item{g}{The INLA graph object, included when `svc_prior = "icar"`.}
+#'   }
+#'
+#' @examples
+#' data(data_spatialpoisson_example)
+#'
+#' # Prepare a MIDAS object using a hyperbolic lag constraint
+#' # and a spatially varying coefficient with an ICAR prior.
+#' g <- INLA::inla.read.graph(
+#'   filename = system.file("map.adj", package = "midasINLA")
+#' )
+#'
+#' Midas_x1 <- prepare_Minla_spatial(
+#'   x = data_spatialpoisson_example$data_x1$x1,
+#'   loc_x = data_spatialpoisson_example$data_x1$loc,
+#'   constraint = "hyperbolic",
+#'   K = 0:29,
+#'   m = 30,
+#'   svc = TRUE,
+#'   svc_prior = "icar",
+#'   g = g
+#' )
+#'
+#' # Inspect the resulting MIDAS design matrix
+#' head(Midas_x1$X_matrix)
+#'
 #' @export
 fit_Minla_spatial <- function(formula,
                               data,

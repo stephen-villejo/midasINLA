@@ -1,6 +1,6 @@
 Package: midasINLA
 Title: MIDAS Models Using INLA
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R:
     person(
         "Stephen Jun", "Villejo",
@@ -22,7 +22,6 @@ BugReports: https://github.com/stephen-villejo/midasINLA/issues
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0),
     testthat (>= 3.0.0),
     dplyr,
     ggplot2,
