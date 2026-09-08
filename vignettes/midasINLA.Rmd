@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 library(midasINLA)
 library(INLA)
 library(ggplot2)
+library(dplyr)
+library(tidyr)
 INLA::inla.setOption(num.threads = 1)
 ```
 

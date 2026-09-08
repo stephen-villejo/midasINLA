@@ -304,7 +304,7 @@ dev.off()
 
 
 
-s#### Compute weights ####
+#### Compute weights ####
 
 res_weights <- compute_weights(fit_res)
 str(res_weights)
