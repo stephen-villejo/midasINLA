@@ -18,11 +18,14 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(midasINLA)
-library(INLA)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
-INLA::inla.setOption(num.threads = 1)
+
+has_INLA <- requireNamespace("INLA", quietly = TRUE)
+if (has_INLA) {
+  INLA::inla.setOption(num.threads = 1)
+}
 ```
 
 
@@ -169,25 +172,25 @@ coefficient is constant across locations.
 
 The simulated data are included with the package and can be loaded using:
 
-```{r load-data}
+```{r load-data, eval = has_INLA}
 data("data_spatialpoisson_example")
 ```
 
 The dataset is provided as a list containing the response, two high-frequency covariates, the spatial polygons, and the true parameter values used to generate the data. The available components can be inspected with:
 
-```{r inspect-data}
+```{r inspect-data, eval = has_INLA}
 names(data_spatialpoisson_example)
 ```
 
 The response data are stored in data_y and contain the outcome together with the spatial and temporal indices:
 
-```{r response-data}
+```{r response-data, eval = has_INLA}
 head(data_spatialpoisson_example[["data_y"]])
 ```
 
 The high-frequency covariates are stored in `data_x1` and `data_x2`. Each contains the covariate values together with their corresponding spatial indices:
 
-```{r covariate-data}
+```{r covariate-data, eval = has_INLA}
 head(data_spatialpoisson_example$data_x1)
 head(data_spatialpoisson_example$data_x2)
 ```
@@ -196,7 +199,7 @@ The neighbourhood structure used to generate the spatially varying
 coefficient is stored as an `inla.graph` object. It can be loaded from
 the package using:
 
-```{r graph}
+```{r graph, eval = has_INLA}
 g <- INLA::inla.read.graph(
   filename = system.file("map.adj", package = "midasINLA")
 )
@@ -233,7 +236,7 @@ For the first covariate, we use the hyperbolic constraint and allow the
 coefficient to vary spatially according to an iCAR model:
 
 
-```{r prepare-x1}
+```{r prepare-x1, eval = has_INLA}
 Midas_x1 <- prepare_Minla_spatial(
   x = data_spatialpoisson_example$data_x1$x1,
   loc_x = data_spatialpoisson_example$data_x1$loc,
@@ -246,7 +249,7 @@ Midas_x1 <- prepare_Minla_spatial(
 )
 ```
 
-```{r prepare-x2}
+```{r prepare-x2, eval = has_INLA}
 Midas_x2 <- prepare_Minla_spatial(
   x = data_spatialpoisson_example$data_x2$x2,
   loc_x = data_spatialpoisson_example$data_x2$loc,
@@ -266,7 +269,7 @@ The resulting objects contain the information required by
 The response data are stored in data_y. To illustrate prediction, we
 reserve the final 10 response time points at each location as a test set.
 
-```{r prepare-response}
+```{r prepare-response, eval = has_INLA}
 response_data <- data_spatialpoisson_example[["data_y"]]
 
 response_data$y_all <- response_data$y
@@ -276,7 +279,7 @@ response_data[which(response_data[["Time"]] %in% 183:192),"y"] <- NA
 
 The model can then be fitted using `fit_Minla_spatial`():
   
-```{r fit-model, eval = TRUE}
+```{r fit-model, eval = has_INLA}
 fit_res <- fit_Minla_spatial(
   formula = y ~ 1,
   data = response_data,
@@ -293,7 +296,7 @@ fit_res <- fit_Minla_spatial(
 A summary of the fitted model can be obtained using the standard
 `summary`() method:
   
-```{r model-summary}
+```{r model-summary, eval = has_INLA}
 summary(fit_res[["res"]])
 ```
 
@@ -309,7 +312,7 @@ the MIDAS lag-weight functions are reported with names beginning with
 Posterior summaries of the MIDAS regression coefficients can be obtained
 using `compute_beta_spatial`().
 
-```{r beta-results}
+```{r beta-results, eval = has_INLA}
 beta_results <- compute_beta_spatial(
   model = fit_res,
   n_loc = 16
@@ -322,7 +325,7 @@ including marginal distributions and posterior summaries.
 For the first covariate, the posterior summaries of the spatially varying
 component $b_i$ can be accessed using:
   
-```{r beta-summary}
+```{r beta-summary, eval = has_INLA}
 beta_results$hf_index_1$summary.icar.beta
 ```
 
@@ -333,14 +336,14 @@ $$
 $$
 Posterior summaries of the resulting total coefficient can be accessed using:
 
-```{r total-beta-summary}
+```{r total-beta-summary, eval = has_INLA}
 beta_results$hf_index_1$summary.total.beta
 ```
 
 For the second covariate, which has a constant regression coefficient,
 posterior summaries of $\beta_2$ are available using:
 
-```{r constant-beta-summary}
+```{r constant-beta-summary, eval = has_INLA}
 beta_results$hf_index_2$summary.beta
 ```
 
@@ -349,7 +352,7 @@ beta_results$hf_index_2$summary.beta
 The posterior distributions of the lag weights can be obtained using
 `compute_weights`():
 
-```{r weights}
+```{r weights, eval = has_INLA}
 res_weights <- compute_weights(fit_res)
 ```
 
@@ -359,13 +362,13 @@ upper posterior quantiles.
 
 For example, the estimated weights for the first covariate are:
 
-```{r weights-x1}
+```{r weights-x1, eval = has_INLA}
 head(res_weights$hf_1)
 ```
 
 The weights for the second covariate can be inspected similarly:
 
-```{r weights-x2}
+```{r weights-x2, eval = has_INLA}
 head(res_weights$hf_2)
 ```
 
@@ -373,7 +376,7 @@ The posterior summaries can be used to visualise the estimated
 lag-weight functions. Because the data are simulated, the true lag
 weights are also available for comparison.
 
-```{r plot-weights, fig.width = 7, fig.height = 4.5}
+```{r plot-weights, fig.width = 7, fig.height = 4.5, eval = has_INLA}
 ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
   geom_errorbar(
     aes(
@@ -416,7 +419,7 @@ ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
 The corresponding lag-weight function for the second covariate can be
 visualised in the same way:
 
-```{r plot-weights-x2, fig.width = 7, fig.height = 4.5}
+```{r plot-weights-x2, fig.width = 7, fig.height = 4.5, eval = has_INLA}
 ggplot(res_weights$hf_2, aes(x = lag, y = mean)) +
   geom_errorbar(
     aes(
@@ -464,7 +467,7 @@ to illustrate posterior prediction.
 
 Posterior predictions can be generated using `predict_midas()`:
 
-```{r prediction}
+```{r prediction, eval = has_INLA}
 pred_res <- predict_midas(
   model = fit_res,
   family = "poisson",
@@ -477,12 +480,12 @@ The returned object contains posterior summaries of the predicted outcome,
 including posterior means and 95% credible intervals, as well as posterior
 samples of the latent predictor. For example:
   
-```{r prediction-structure}
+```{r prediction-structure, eval = has_INLA}
 str(pred_res, max.level = 2)
 ```
 The posterior summaries of the predicted outcome can be accessed using:
 
-```{r prediction-summary}
+```{r prediction-summary, eval = has_INLA}
 head(pred_res$computed_y$mean)
 head(pred_res$computed_y$q2.5)
 head(pred_res$computed_y$q97.5)
@@ -494,7 +497,7 @@ The dashed vertical line indicates the boundary between the training and
 held-out prediction periods.
 
 
-```{r prediction-plot, fig.width = 7, fig.height = 6}
+```{r prediction-plot, fig.width = 7, fig.height = 6, eval = has_INLA}
 plot_data <- data.frame(
   observed = fit_res$data_final$y_all,
   predicted = pred_res$computed_y$mean,
