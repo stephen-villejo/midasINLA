@@ -153,6 +153,13 @@ predict_midas <- function(model,
                           Ntrials = NULL,
                           nsamples = 1000) {
 
+  if (!requireNamespace("INLA", quietly = TRUE)) {
+    stop(
+      "Package 'INLA' is required for `predict_midas()`. ",
+      "Please install INLA from the R-INLA repository."
+    )
+  }
+
   data <- model$data_final
 
   if (is.null(data)) {
@@ -320,6 +327,13 @@ predict_midas <- function(model,
 #'
 #' @export
 compute_weights <- function(model, n.samples = 200) {
+
+  if (!requireNamespace("INLA", quietly = TRUE)){
+    stop(
+      "Package 'INLA' is required for `compute_weights()`. ",
+      "Please install INLA from the R-INLA repository."
+    )
+  }
 
   if (is.null(model$res)) {
     stop("`model$res` not found. `model` must be the output of `fit_Minla()`.")
@@ -719,6 +733,12 @@ fit_Minla_spatial <- function(formula,
                               E = NULL,
                               inla_options = list()) {
 
+  if (!requireNamespace("INLA", quietly = TRUE)) {
+    stop(
+      "Package 'INLA' is required for this function. ",
+      "Please install INLA from the R-INLA repository."
+    )
+  }
 
   build_rgen <- function(temp_data, hf_info) {
 
@@ -1080,6 +1100,13 @@ fit_Minla_spatial <- function(formula,
 #' @export
 compute_beta_spatial <- function(model,
                                  n_loc){
+
+  if (!requireNamespace("INLA", quietly = TRUE)) {
+    stop(
+      "Package 'INLA' is required for this function. ",
+      "Please install INLA from the R-INLA repository."
+    )
+  }
 
   length_hf <- length(model$hf_input)
 

@@ -13,19 +13,21 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
 Imports: 
-    INLA,
     matrixStats,
     Matrix,
     stats
 URL: https://github.com/stephen-villejo/midasINLA
 BugReports: https://github.com/stephen-villejo/midasINLA/issues
 Suggests: 
+    INLA,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
     dplyr,
     ggplot2,
     tidyr
+Additional_repositories:
+    https://inla.r-inla-download.org/R/stable
 VignetteBuilder: knitr
 Depends: 
     R (>= 4.2)
