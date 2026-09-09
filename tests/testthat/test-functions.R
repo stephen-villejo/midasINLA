@@ -10,8 +10,11 @@ test_that("package functions are available", {
 })
 
 
-test_that("compute_weights returns valid normalized weights", {
+test_that("check workflow", {
+
   skip_if_not_installed("INLA")
+
+  INLA::inla.setOption(num.threads = 1)
 
   data("data_spatialpoisson_example", package = "midasINLA")
 
