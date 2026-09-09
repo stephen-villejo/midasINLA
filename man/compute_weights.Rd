@@ -39,44 +39,45 @@ covariate, the resulting weights are normalized to sum to one across
 all included lags.
 }
 \examples{
-\dontrun{
-data(data_spatialpoisson_example)
+if (requireNamespace("INLA", quietly = TRUE)) {
+  data(data_spatialpoisson_example)
 
-g <- INLA::inla.read.graph(
-  filename = system.file("map.adj", package = "midasINLA")
-)
-
-Midas_x1 <- prepare_Minla_spatial(
-  x = data_spatialpoisson_example$data_x1$x1,
-  loc_x = data_spatialpoisson_example$data_x1$loc,
-  constraint = "hyperbolic",
-  K = 0:29,
-  m = 30,
-  svc = TRUE,
-  svc_prior = "icar",
-  g = g
-)
-
-fit <- fit_Minla_spatial(
-  formula = y ~ 1,
-  data = data_spatialpoisson_example$data_y,
-  loc_var = "loc",
-  time_var = "Time",
-  family = "poisson",
-  hf_input = list(Midas_x1),
-  inla_options = list(
-    verbose = FALSE,
-    control.predictor = list(
-    compute = TRUE,link = 1)
+  g <- INLA::inla.read.graph(
+    filename = system.file("map.adj", package = "midasINLA")
   )
-)
 
-weights <- compute_weights(
-  model = fit,
-  n.samples = 200
-)
+  Midas_x1 <- prepare_Minla_spatial(
+    x = data_spatialpoisson_example$data_x1$x1,
+    loc_x = data_spatialpoisson_example$data_x1$loc,
+    constraint = "hyperbolic",
+    K = 0:29,
+    m = 30,
+    svc = TRUE,
+    svc_prior = "icar",
+    g = g
+  )
 
-head(weights$hf_1)
+  fit <- fit_Minla_spatial(
+    formula = y ~ 1,
+    data = data_spatialpoisson_example$data_y,
+    loc_var = "loc",
+    time_var = "Time",
+    family = "poisson",
+    hf_input = list(Midas_x1),
+    inla_options = list(
+      verbose = FALSE,
+      control.predictor = list(
+        compute = TRUE,
+        link = 1
+      )
+    )
+  )
+
+  weights <- compute_weights(
+    model = fit,
+    n.samples = 200
+  )
+
+  head(weights$hf_1)
 }
-
 }

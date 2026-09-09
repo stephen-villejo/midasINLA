@@ -59,49 +59,50 @@ posterior marginal distribution and summary of the MIDAS coefficient
 associated with each high-frequency covariate.
 }
 \examples{
-\dontrun{
-data(data_spatialpoisson_example)
+if (requireNamespace("INLA", quietly = TRUE)) {
+  data(data_spatialpoisson_example)
 
-# Read the spatial adjacency graph
-g <- INLA::inla.read.graph(
-  filename = system.file("map.adj", package = "midasINLA")
-)
-
-# Prepare a spatial MIDAS predictor
-Midas_x1 <- prepare_Minla_spatial(
-  x = data_spatialpoisson_example$data_x1$x1,
-  loc_x = data_spatialpoisson_example$data_x1$loc,
-  constraint = "hyperbolic",
-  K = 0:29,
-  m = 30,
-  svc = TRUE,
-  svc_prior = "icar",
-  g = g
-)
-
-# Fit the spatial Poisson MIDAS model
-fit <- fit_Minla_spatial(
-  formula = y ~ 1,
-  data = data_spatialpoisson_example$data_y,
-  loc_var = "loc",
-  time_var = "Time",
-  family = "poisson",
-  hf_input = list(Midas_x1),
-  inla_options = list(
-    verbose = FALSE,
-    control.predictor = list(
-    compute = TRUE,link = 1)
+  # Read the spatial adjacency graph
+  g <- INLA::inla.read.graph(
+    filename = system.file("map.adj", package = "midasINLA")
   )
-)
 
-# Compute posterior summaries of the MIDAS coefficients
-beta_summary <- compute_beta_spatial(
-  model = fit,
-  n_loc = 16
-)
+  # Prepare a spatial MIDAS predictor
+  Midas_x1 <- prepare_Minla_spatial(
+    x = data_spatialpoisson_example$data_x1$x1,
+    loc_x = data_spatialpoisson_example$data_x1$loc,
+    constraint = "hyperbolic",
+    K = 0:29,
+    m = 30,
+    svc = TRUE,
+    svc_prior = "icar",
+    g = g
+  )
 
-# Inspect summaries of the location-specific total coefficients
-beta_summary$hf_index_1$summary.total.beta
+  # Fit the spatial Poisson MIDAS model
+  fit <- fit_Minla_spatial(
+    formula = y ~ 1,
+    data = data_spatialpoisson_example$data_y,
+    loc_var = "loc",
+    time_var = "Time",
+    family = "poisson",
+    hf_input = list(Midas_x1),
+    inla_options = list(
+      verbose = FALSE,
+      control.predictor = list(
+        compute = TRUE,
+        link = 1
+      )
+    )
+  )
+
+  # Compute posterior summaries of the MIDAS coefficients
+  beta_summary <- compute_beta_spatial(
+    model = fit,
+    n_loc = 16
+  )
+
+  # Inspect summaries of the location-specific total coefficients
+  beta_summary$hf_index_1$summary.total.beta
 }
-
 }

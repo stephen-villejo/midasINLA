@@ -77,43 +77,44 @@ covariates can be included by supplying multiple MIDAS objects in
 \code{hf_input}.
 }
 \examples{
-\dontrun{
-data(data_spatialpoisson_example)
+if (requireNamespace("INLA", quietly = TRUE)) {
+  data(data_spatialpoisson_example)
 
-# Read the spatial adjacency graph
-g <- INLA::inla.read.graph(
-  filename = system.file("map.adj", package = "midasINLA")
-)
-
-# Prepare a spatial MIDAS predictor
-Midas_x1 <- prepare_Minla_spatial(
-  x = data_spatialpoisson_example$data_x1$x1,
-  loc_x = data_spatialpoisson_example$data_x1$loc,
-  constraint = "hyperbolic",
-  K = 0:29,
-  m = 30,
-  svc = TRUE,
-  svc_prior = "icar",
-  g = g
-)
-
-# Fit the spatial Poisson MIDAS model
-fit <- fit_Minla_spatial(
-  formula = y ~ 1,
-  data = data_spatialpoisson_example$data_y,
-  loc_var = "loc",
-  time_var = "Time",
-  family = "poisson",
-  hf_input = list(Midas_x1),
-  inla_options = list(
-    verbose = FALSE,
-    control.predictor = list(
-    compute = TRUE,link = 1)
+  # Read the spatial adjacency graph
+  g <- INLA::inla.read.graph(
+    filename = system.file("map.adj", package = "midasINLA")
   )
-)
 
-# Inspect the fitted INLA model
-fit$res
+  # Prepare a spatial MIDAS predictor
+  Midas_x1 <- prepare_Minla_spatial(
+    x = data_spatialpoisson_example$data_x1$x1,
+    loc_x = data_spatialpoisson_example$data_x1$loc,
+    constraint = "hyperbolic",
+    K = 0:29,
+    m = 30,
+    svc = TRUE,
+    svc_prior = "icar",
+    g = g
+  )
+
+  # Fit the spatial Poisson MIDAS model
+  fit <- fit_Minla_spatial(
+    formula = y ~ 1,
+    data = data_spatialpoisson_example$data_y,
+    loc_var = "loc",
+    time_var = "Time",
+    family = "poisson",
+    hf_input = list(Midas_x1),
+    inla_options = list(
+      verbose = FALSE,
+      control.predictor = list(
+        compute = TRUE,
+        link = 1
+      )
+    )
+  )
+
+  # Inspect the fitted INLA model
+  fit$res
 }
-
 }

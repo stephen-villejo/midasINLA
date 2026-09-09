@@ -72,26 +72,27 @@ high-frequency covariate values for each location and optionally
 specifies a spatially varying coefficient (SVC) component.
 }
 \examples{
-data(data_spatialpoisson_example)
+if (requireNamespace("INLA", quietly = TRUE)) {
+  data(data_spatialpoisson_example)
 
-# Prepare a MIDAS object using a hyperbolic lag constraint
-# and a spatially varying coefficient with an ICAR prior.
-g <- INLA::inla.read.graph(
-  filename = system.file("map.adj", package = "midasINLA")
-)
+  # Prepare a MIDAS object using a hyperbolic lag constraint
+  # and a spatially varying coefficient with an ICAR prior.
+  g <- INLA::inla.read.graph(
+    filename = system.file("map.adj", package = "midasINLA")
+  )
 
-Midas_x1 <- prepare_Minla_spatial(
-  x = data_spatialpoisson_example$data_x1$x1,
-  loc_x = data_spatialpoisson_example$data_x1$loc,
-  constraint = "hyperbolic",
-  K = 0:29,
-  m = 30,
-  svc = TRUE,
-  svc_prior = "icar",
-  g = g
-)
+  Midas_x1 <- prepare_Minla_spatial(
+    x = data_spatialpoisson_example$data_x1$x1,
+    loc_x = data_spatialpoisson_example$data_x1$loc,
+    constraint = "hyperbolic",
+    K = 0:29,
+    m = 30,
+    svc = TRUE,
+    svc_prior = "icar",
+    g = g
+  )
 
-# Inspect the resulting MIDAS design matrix
-head(Midas_x1$X_matrix)
-
+  # Inspect the resulting MIDAS design matrix
+  head(Midas_x1$X_matrix)
+}
 }

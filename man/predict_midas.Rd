@@ -58,38 +58,37 @@ For Poisson and binomial responses, observations are generated using
 the appropriate inverse-link function.
 }
 \examples{
-\dontrun{
-data(data_spatialpoisson_example)
+if (requireNamespace("INLA", quietly = TRUE)) {
+  data(data_spatialpoisson_example)
 
-Midas_x1 <- prepare_Minla_spatial(
-  x = data_spatialpoisson_example$data_x1$x1,
-  loc_x = data_spatialpoisson_example$data_x1$loc,
-  constraint = "hyperbolic",
-  K = 0:29,
-  m = 30,
-  svc = FALSE
-)
+  Midas_x1 <- prepare_Minla_spatial(
+    x = data_spatialpoisson_example$data_x1$x1,
+    loc_x = data_spatialpoisson_example$data_x1$loc,
+    constraint = "hyperbolic",
+    K = 0:29,
+    m = 30,
+    svc = FALSE
+  )
 
-fit <- fit_Minla_spatial(
-  formula = y ~ 1,
-  data = data_spatialpoisson_example$data_y,
-  loc_var = "loc",
-  time_var = "Time",
-  family = "poisson",
-  hf_input = list(Midas_x1),
-  inla_options = list(verbose = FALSE)
-)
+  fit <- fit_Minla_spatial(
+    formula = y ~ 1,
+    data = data_spatialpoisson_example$data_y,
+    loc_var = "loc",
+    time_var = "Time",
+    family = "poisson",
+    hf_input = list(Midas_x1),
+    inla_options = list(verbose = FALSE)
+  )
 
-predictions <- predict_midas(
-  model = fit,
-  family = "poisson",
-  nsamples = 1000
-)
+  predictions <- predict_midas(
+    model = fit,
+    family = "poisson",
+    nsamples = 1000
+  )
 
-# Inspect posterior predictive summaries
-head(predictions$computed_y$mean)
-head(predictions$computed_y$q2.5)
-head(predictions$computed_y$q97.5)
+  # Inspect posterior predictive summaries
+  head(predictions$computed_y$mean)
+  head(predictions$computed_y$q2.5)
+  head(predictions$computed_y$q97.5)
 }
-
 }
