@@ -14,7 +14,7 @@ x1_ts <- ts(data_binomial_example$x1, frequency = 1)
 x2_ts <- ts(data_binomial_example$x2, frequency = 1)
 
 
-png("inst/paper/figures/data_binomial_example_covariate1.png", width=17, height=10, units = 'cm', res = 300)
+png("paper/figures/data_binomial_example_covariate1.png", width=17, height=10, units = 'cm', res = 300)
 autoplot(x1_ts, color = "brown") + theme_bw() + geom_point(color = "red", size = .01) +
   theme(axis.text.x=element_text(size=16),
         axis.title.x=element_text(size=16,face="bold"),
@@ -24,7 +24,7 @@ autoplot(x1_ts, color = "brown") + theme_bw() + geom_point(color = "red", size =
         legend.text=element_text(size=20, face = "plain"),
         legend.title=element_blank())
 dev.off()
-png("inst/paper/figures/data_binomial_example_covariate2.png", width=17, height=10, units = 'cm', res = 300)
+png("paper/figures/data_binomial_example_covariate2.png", width=17, height=10, units = 'cm', res = 300)
 autoplot(x2_ts, color = "brown") + theme_bw() + geom_point(color = "red", size = .01) +
   theme(axis.text.x=element_text(size=16),
         axis.title.x=element_text(size=16,face="bold"),
@@ -34,7 +34,7 @@ autoplot(x2_ts, color = "brown") + theme_bw() + geom_point(color = "red", size =
         legend.text=element_text(size=20, face = "plain"),
         legend.title=element_blank())
 dev.off()
-png("inst/paper/figures/data_binomial_example_response.png", width=17, height=10, units = 'cm', res = 300)
+png("paper/figures/data_binomial_example_response.png", width=17, height=10, units = 'cm', res = 300)
 autoplot(y_ts, color = "black") + theme_bw() + geom_point(color = "gray", size = .01) +
   theme(axis.text.x=element_text(size=16),
         axis.title.x=element_text(size=16,face="bold"),
@@ -77,7 +77,7 @@ fit_res <- fit_Minla(formula = y ~ 1 + f(trend, model = "linear"),
 summary(fit_res$res)
 
 
-png("inst/paper/figures/Example_binomial_hyperbolic_paramestimates.png", width=30, height=10, units = 'cm', res = 300)
+png("paper/figures/Example_binomial_hyperbolic_paramestimates.png", width=30, height=10, units = 'cm', res = 300)
 par(mfrow=c(1,4))
 
 plot(inla.smarginal(fit_res$res$marginals.fixed[["(Intercept)"]]),
@@ -117,7 +117,7 @@ dev.off()
 res_weights <- compute_weights(fit_res)
 str(res_weights)
 
-png("inst/paper/figures/data_binomial_example_weights_covariate1.png", width=27, height=12, units = 'cm', res = 300)
+png("paper/figures/data_binomial_example_weights_covariate1.png", width=27, height=12, units = 'cm', res = 300)
 res_weights$hf_1$lag <- factor(res_weights$hf_1$lag, levels=unique(res_weights$hf_1$lag))
 ggplot(res_weights$hf_1, aes(x=lag, y=mean)) +
   geom_point(aes(col="Posterior mean")) +
@@ -136,7 +136,7 @@ ggplot(res_weights$hf_1, aes(x=lag, y=mean)) +
   ylab("")
 dev.off()
 
-png("inst/paper/figures/data_binomial_example_weights_covariate2.png", width=27, height=12, units = 'cm', res = 300)
+png("paper/figures/data_binomial_example_weights_covariate2.png", width=27, height=12, units = 'cm', res = 300)
 res_weights$hf_2$lag <- factor(res_weights$hf_2$lag, levels=unique(res_weights$hf_2$lag))
 ggplot(res_weights$hf_2, aes(x=lag, y=mean)) +
   geom_point(aes(col="Posterior mean")) +
@@ -173,7 +173,7 @@ PI$Time <- time(both_ts)
 
 
 
-png("inst/paper/figures/data_binomial_example_predsVSobs.png", width=25, height=12, units = 'cm', res = 300)
+png("paper/figures/data_binomial_example_predsVSobs.png", width=25, height=12, units = 'cm', res = 300)
 autoplot(both_ts) +
   geom_ribbon(data = PI,
               aes(x = Time, ymin = lower, ymax = upper),
@@ -252,7 +252,7 @@ PI <- data.frame(lower = predicted_y$q2.5,
                  Time = 1:length(predicted_y$mean))
 PI$Time <- time(both_ts)
 
-png("inst/paper/figures/data_binomial_example_predsVSobs_baseline.png", width=25, height=12, units = 'cm', res = 300)
+png("paper/figures/data_binomial_example_predsVSobs_baseline.png", width=25, height=12, units = 'cm', res = 300)
 autoplot(both_ts) +
   geom_ribbon(data = PI,
               aes(x = Time, ymin = lower, ymax = upper),

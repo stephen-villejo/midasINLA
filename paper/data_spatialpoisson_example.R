@@ -66,7 +66,7 @@ c <- ggplot(df_weights, aes(x = lag, y = weight)) +
 library(patchwork)
 final_plot <- a + (b / c) +
   plot_layout(widths = c(.6, 1))
-png("inst/paper/figures/data_spatialpoisson_example.png", width=17, height=10, units = 'cm', res = 300)
+png("paper/figures/data_spatialpoisson_example.png", width=17, height=10, units = 'cm', res = 300)
 final_plot
 dev.off()
 
@@ -136,7 +136,7 @@ beta_results$hf_index_1$summary.global.beta
 beta_results$hf_index_1$summary.icar.beta
 beta_results$hf_index_2$summary.beta
 
-png("inst/paper/figures/Example_spatialpoisson_betaestimates.png", width=20, height=9, units = 'cm', res = 300)
+png("paper/figures/Example_spatialpoisson_betaestimates.png", width=20, height=9, units = 'cm', res = 300)
 
 par(mgp = c(4, 1, 0))
 par(mar = c(5, 4, 2, 1),
@@ -238,7 +238,7 @@ plot_data <- posterior %>%
   left_join(true_values, by = "index")
 
 # Plot
-png("inst/paper/figures/Example_spatialpoisson_totalbetastimates.png", width=20, height=9, units = 'cm', res = 300)
+png("paper/figures/Example_spatialpoisson_totalbetastimates.png", width=20, height=9, units = 'cm', res = 300)
 ggplot(plot_data, aes(x = index)) +
   geom_errorbar(
     aes(
@@ -310,7 +310,7 @@ res_weights <- compute_weights(fit_res)
 str(res_weights)
 
 
-png("inst/paper/figures/Example_spatialpoisson_weights_covariate1.png", width=30, height=15, units = 'cm', res = 300)
+png("paper/figures/Example_spatialpoisson_weights_covariate1.png", width=30, height=15, units = 'cm', res = 300)
 res_weights$hf_1$lag <- factor(res_weights$hf_1$lag, levels=unique(res_weights$hf_1$lag))
 ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
   geom_errorbar(
@@ -366,7 +366,7 @@ ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
 dev.off()
 
 
-png("inst/paper/figures/Example_spatialpoisson_weights_covariate2.png", width=30, height=15, units = 'cm', res = 300)
+png("paper/figures/Example_spatialpoisson_weights_covariate2.png", width=30, height=15, units = 'cm', res = 300)
 res_weights$hf_2$lag <- factor(res_weights$hf_2$lag, levels=unique(res_weights$hf_2$lag))
 ggplot(res_weights$hf_2, aes(x = lag, y = mean)) +
   geom_errorbar(
@@ -464,7 +464,7 @@ PI_sub <- PI[which(PI$loc %in% 1:4),]
 
 
 
-png("inst/paper/figures/Example_spatialpoisson_forecast.png", width=35, height=20, units = 'cm', res = 300)
+png("paper/figures/Example_spatialpoisson_forecast.png", width=35, height=20, units = 'cm', res = 300)
 ggplot(both_long_sub, aes(x = Time, y = value, colour = series)) +
   geom_line() +
   geom_ribbon(
