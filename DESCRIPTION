@@ -16,8 +16,6 @@ Imports:
     matrixStats,
     Matrix,
     stats
-URL: https://github.com/stephen-villejo/midasINLA
-BugReports: https://github.com/stephen-villejo/midasINLA/issues
 Suggests: 
     INLA,
     knitr,
