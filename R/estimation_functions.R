@@ -113,40 +113,39 @@ create_lag_Xmatrix <- function(tsdata,
 #'   }
 #'
 #' @examples
-#' \dontrun{
-#' data(data_spatialpoisson_example)
+#' if (requireNamespace("INLA", quietly = TRUE)) {
+#'   data(data_spatialpoisson_example)
 #'
-#' Midas_x1 <- prepare_Minla_spatial(
-#'   x = data_spatialpoisson_example$data_x1$x1,
-#'   loc_x = data_spatialpoisson_example$data_x1$loc,
-#'   constraint = "hyperbolic",
-#'   K = 0:29,
-#'   m = 30,
-#'   svc = FALSE
-#' )
+#'   Midas_x1 <- prepare_Minla_spatial(
+#'     x = data_spatialpoisson_example$data_x1$x1,
+#'     loc_x = data_spatialpoisson_example$data_x1$loc,
+#'     constraint = "hyperbolic",
+#'     K = 0:29,
+#'     m = 30,
+#'     svc = FALSE
+#'   )
 #'
-#' fit <- fit_Minla_spatial(
-#'   formula = y ~ 1,
-#'   data = data_spatialpoisson_example$data_y,
-#'   loc_var = "loc",
-#'   time_var = "Time",
-#'   family = "poisson",
-#'   hf_input = list(Midas_x1),
-#'   inla_options = list(verbose = FALSE)
-#' )
+#'   fit <- fit_Minla_spatial(
+#'     formula = y ~ 1,
+#'     data = data_spatialpoisson_example$data_y,
+#'     loc_var = "loc",
+#'     time_var = "Time",
+#'     family = "poisson",
+#'     hf_input = list(Midas_x1),
+#'     inla_options = list(verbose = FALSE)
+#'   )
 #'
-#' predictions <- predict_midas(
-#'   model = fit,
-#'   family = "poisson",
-#'   nsamples = 1000
-#' )
+#'   predictions <- predict_midas(
+#'     model = fit,
+#'     family = "poisson",
+#'     nsamples = 1000
+#'   )
 #'
-#' # Inspect posterior predictive summaries
-#' head(predictions$computed_y$mean)
-#' head(predictions$computed_y$q2.5)
-#' head(predictions$computed_y$q97.5)
+#'   # Inspect posterior predictive summaries
+#'   head(predictions$computed_y$mean)
+#'   head(predictions$computed_y$q2.5)
+#'   head(predictions$computed_y$q97.5)
 #' }
-#'
 #' @export
 predict_midas <- function(model,
                           family = "gaussian",
@@ -285,46 +284,47 @@ predict_midas <- function(model,
 #'   }
 #'
 #' @examples
-#' \dontrun{
-#' data(data_spatialpoisson_example)
+#' if (requireNamespace("INLA", quietly = TRUE)) {
+#'   data(data_spatialpoisson_example)
 #'
-#' g <- INLA::inla.read.graph(
-#'   filename = system.file("map.adj", package = "midasINLA")
-#' )
-#'
-#' Midas_x1 <- prepare_Minla_spatial(
-#'   x = data_spatialpoisson_example$data_x1$x1,
-#'   loc_x = data_spatialpoisson_example$data_x1$loc,
-#'   constraint = "hyperbolic",
-#'   K = 0:29,
-#'   m = 30,
-#'   svc = TRUE,
-#'   svc_prior = "icar",
-#'   g = g
-#' )
-#'
-#' fit <- fit_Minla_spatial(
-#'   formula = y ~ 1,
-#'   data = data_spatialpoisson_example$data_y,
-#'   loc_var = "loc",
-#'   time_var = "Time",
-#'   family = "poisson",
-#'   hf_input = list(Midas_x1),
-#'   inla_options = list(
-#'     verbose = FALSE,
-#'     control.predictor = list(
-#'     compute = TRUE,link = 1)
+#'   g <- INLA::inla.read.graph(
+#'     filename = system.file("map.adj", package = "midasINLA")
 #'   )
-#' )
 #'
-#' weights <- compute_weights(
-#'   model = fit,
-#'   n.samples = 200
-#' )
+#'   Midas_x1 <- prepare_Minla_spatial(
+#'     x = data_spatialpoisson_example$data_x1$x1,
+#'     loc_x = data_spatialpoisson_example$data_x1$loc,
+#'     constraint = "hyperbolic",
+#'     K = 0:29,
+#'     m = 30,
+#'     svc = TRUE,
+#'     svc_prior = "icar",
+#'     g = g
+#'   )
 #'
-#' head(weights$hf_1)
+#'   fit <- fit_Minla_spatial(
+#'     formula = y ~ 1,
+#'     data = data_spatialpoisson_example$data_y,
+#'     loc_var = "loc",
+#'     time_var = "Time",
+#'     family = "poisson",
+#'     hf_input = list(Midas_x1),
+#'     inla_options = list(
+#'       verbose = FALSE,
+#'       control.predictor = list(
+#'         compute = TRUE,
+#'         link = 1
+#'       )
+#'     )
+#'   )
+#'
+#'   weights <- compute_weights(
+#'     model = fit,
+#'     n.samples = 200
+#'   )
+#'
+#'   head(weights$hf_1)
 #' }
-#'
 #' @export
 compute_weights <- function(model, n.samples = 200) {
 
@@ -540,28 +540,29 @@ compute_weights <- function(model, n.samples = 200) {
 #'   }
 #'
 #' @examples
-#' data(data_spatialpoisson_example)
+#' if (requireNamespace("INLA", quietly = TRUE)) {
+#'   data(data_spatialpoisson_example)
 #'
-#' # Prepare a MIDAS object using a hyperbolic lag constraint
-#' # and a spatially varying coefficient with an ICAR prior.
-#' g <- INLA::inla.read.graph(
-#'   filename = system.file("map.adj", package = "midasINLA")
-#' )
+#'   # Prepare a MIDAS object using a hyperbolic lag constraint
+#'   # and a spatially varying coefficient with an ICAR prior.
+#'   g <- INLA::inla.read.graph(
+#'     filename = system.file("map.adj", package = "midasINLA")
+#'   )
 #'
-#' Midas_x1 <- prepare_Minla_spatial(
-#'   x = data_spatialpoisson_example$data_x1$x1,
-#'   loc_x = data_spatialpoisson_example$data_x1$loc,
-#'   constraint = "hyperbolic",
-#'   K = 0:29,
-#'   m = 30,
-#'   svc = TRUE,
-#'   svc_prior = "icar",
-#'   g = g
-#' )
+#'   Midas_x1 <- prepare_Minla_spatial(
+#'     x = data_spatialpoisson_example$data_x1$x1,
+#'     loc_x = data_spatialpoisson_example$data_x1$loc,
+#'     constraint = "hyperbolic",
+#'     K = 0:29,
+#'     m = 30,
+#'     svc = TRUE,
+#'     svc_prior = "icar",
+#'     g = g
+#'   )
 #'
-#' # Inspect the resulting MIDAS design matrix
-#' head(Midas_x1$X_matrix)
-#'
+#'   # Inspect the resulting MIDAS design matrix
+#'   head(Midas_x1$X_matrix)
+#' }
 #' @export
 prepare_Minla_spatial <- function(x,
                                   loc_x,
@@ -683,45 +684,46 @@ prepare_Minla_spatial <- function(x,
 #'   }
 #'
 #' @examples
-#' \dontrun{
-#' data(data_spatialpoisson_example)
+#' if (requireNamespace("INLA", quietly = TRUE)) {
+#'   data(data_spatialpoisson_example)
 #'
-#' # Read the spatial adjacency graph
-#' g <- INLA::inla.read.graph(
-#'   filename = system.file("map.adj", package = "midasINLA")
-#' )
-#'
-#' # Prepare a spatial MIDAS predictor
-#' Midas_x1 <- prepare_Minla_spatial(
-#'   x = data_spatialpoisson_example$data_x1$x1,
-#'   loc_x = data_spatialpoisson_example$data_x1$loc,
-#'   constraint = "hyperbolic",
-#'   K = 0:29,
-#'   m = 30,
-#'   svc = TRUE,
-#'   svc_prior = "icar",
-#'   g = g
-#' )
-#'
-#' # Fit the spatial Poisson MIDAS model
-#' fit <- fit_Minla_spatial(
-#'   formula = y ~ 1,
-#'   data = data_spatialpoisson_example$data_y,
-#'   loc_var = "loc",
-#'   time_var = "Time",
-#'   family = "poisson",
-#'   hf_input = list(Midas_x1),
-#'   inla_options = list(
-#'     verbose = FALSE,
-#'     control.predictor = list(
-#'     compute = TRUE,link = 1)
+#'   # Read the spatial adjacency graph
+#'   g <- INLA::inla.read.graph(
+#'     filename = system.file("map.adj", package = "midasINLA")
 #'   )
-#' )
 #'
-#' # Inspect the fitted INLA model
-#' fit$res
+#'   # Prepare a spatial MIDAS predictor
+#'   Midas_x1 <- prepare_Minla_spatial(
+#'     x = data_spatialpoisson_example$data_x1$x1,
+#'     loc_x = data_spatialpoisson_example$data_x1$loc,
+#'     constraint = "hyperbolic",
+#'     K = 0:29,
+#'     m = 30,
+#'     svc = TRUE,
+#'     svc_prior = "icar",
+#'     g = g
+#'   )
+#'
+#'   # Fit the spatial Poisson MIDAS model
+#'   fit <- fit_Minla_spatial(
+#'     formula = y ~ 1,
+#'     data = data_spatialpoisson_example$data_y,
+#'     loc_var = "loc",
+#'     time_var = "Time",
+#'     family = "poisson",
+#'     hf_input = list(Midas_x1),
+#'     inla_options = list(
+#'       verbose = FALSE,
+#'       control.predictor = list(
+#'         compute = TRUE,
+#'         link = 1
+#'       )
+#'     )
+#'   )
+#'
+#'   # Inspect the fitted INLA model
+#'   fit$res
 #' }
-#'
 #' @export
 fit_Minla_spatial <- function(formula,
                               data,
@@ -1052,51 +1054,52 @@ fit_Minla_spatial <- function(formula,
 #'   deviation, and 2.5%, 50%, and 97.5% posterior quantiles.
 #'
 #' @examples
-#' \dontrun{
-#' data(data_spatialpoisson_example)
+#' if (requireNamespace("INLA", quietly = TRUE)) {
+#'   data(data_spatialpoisson_example)
 #'
-#' # Read the spatial adjacency graph
-#' g <- INLA::inla.read.graph(
-#'   filename = system.file("map.adj", package = "midasINLA")
-#' )
-#'
-#' # Prepare a spatial MIDAS predictor
-#' Midas_x1 <- prepare_Minla_spatial(
-#'   x = data_spatialpoisson_example$data_x1$x1,
-#'   loc_x = data_spatialpoisson_example$data_x1$loc,
-#'   constraint = "hyperbolic",
-#'   K = 0:29,
-#'   m = 30,
-#'   svc = TRUE,
-#'   svc_prior = "icar",
-#'   g = g
-#' )
-#'
-#' # Fit the spatial Poisson MIDAS model
-#' fit <- fit_Minla_spatial(
-#'   formula = y ~ 1,
-#'   data = data_spatialpoisson_example$data_y,
-#'   loc_var = "loc",
-#'   time_var = "Time",
-#'   family = "poisson",
-#'   hf_input = list(Midas_x1),
-#'   inla_options = list(
-#'     verbose = FALSE,
-#'     control.predictor = list(
-#'     compute = TRUE,link = 1)
+#'   # Read the spatial adjacency graph
+#'   g <- INLA::inla.read.graph(
+#'     filename = system.file("map.adj", package = "midasINLA")
 #'   )
-#' )
 #'
-#' # Compute posterior summaries of the MIDAS coefficients
-#' beta_summary <- compute_beta_spatial(
-#'   model = fit,
-#'   n_loc = 16
-#' )
+#'   # Prepare a spatial MIDAS predictor
+#'   Midas_x1 <- prepare_Minla_spatial(
+#'     x = data_spatialpoisson_example$data_x1$x1,
+#'     loc_x = data_spatialpoisson_example$data_x1$loc,
+#'     constraint = "hyperbolic",
+#'     K = 0:29,
+#'     m = 30,
+#'     svc = TRUE,
+#'     svc_prior = "icar",
+#'     g = g
+#'   )
 #'
-#' # Inspect summaries of the location-specific total coefficients
-#' beta_summary$hf_index_1$summary.total.beta
+#'   # Fit the spatial Poisson MIDAS model
+#'   fit <- fit_Minla_spatial(
+#'     formula = y ~ 1,
+#'     data = data_spatialpoisson_example$data_y,
+#'     loc_var = "loc",
+#'     time_var = "Time",
+#'     family = "poisson",
+#'     hf_input = list(Midas_x1),
+#'     inla_options = list(
+#'       verbose = FALSE,
+#'       control.predictor = list(
+#'         compute = TRUE,
+#'         link = 1
+#'       )
+#'     )
+#'   )
+#'
+#'   # Compute posterior summaries of the MIDAS coefficients
+#'   beta_summary <- compute_beta_spatial(
+#'     model = fit,
+#'     n_loc = 16
+#'   )
+#'
+#'   # Inspect summaries of the location-specific total coefficients
+#'   beta_summary$hf_index_1$summary.total.beta
 #' }
-#'
 #' @export
 compute_beta_spatial <- function(model,
                                  n_loc){
