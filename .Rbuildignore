@@ -1,3 +1,4 @@
 ^paper$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^data-raw$
