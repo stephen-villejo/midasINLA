@@ -1055,6 +1055,8 @@ fit_Minla_spatial <- function(formula,
 #'
 #' @examples
 #' if (requireNamespace("INLA", quietly = TRUE)) {
+#'   INLA::inla.setOption(num.threads = 1)
+#'
 #'   data(data_spatialpoisson_example)
 #'
 #'   # Read the spatial adjacency graph
