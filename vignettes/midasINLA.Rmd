@@ -280,16 +280,33 @@ response_data[which(response_data[["Time"]] %in% 183:192),"y"] <- NA
 The model can then be fitted using `fit_Minla_spatial`():
   
 ```{r fit-model, eval = has_INLA}
-fit_res <- fit_Minla_spatial(
-  formula = y ~ 1,
-  data = response_data,
-  loc_var = "loc",
-  time_var = "Time",
-  family = "poisson",
-  hf_input = list(Midas_x1, Midas_x2),
-  inla_options = list(verbose = FALSE,
-                      control.predictor = list(
-                        compute = TRUE,link = 1)))
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  # Full model fit for normal vignette builds
+  fit_res <- fit_Minla_spatial(
+    formula = y ~ 1,
+    data = response_data,
+    loc_var = "loc",
+    time_var = "Time",
+    family = "poisson",
+    hf_input = list(Midas_x1, Midas_x2),
+    inla_options = list(
+      verbose = FALSE,
+      control.predictor = list(
+        compute = TRUE,
+        link = 1
+      )
+    )
+  )
+} else {
+  # Precomputed fit for CRAN
+  fit_res <- readRDS(
+    system.file(
+      "extdata",
+      "fit_res.rds",
+      package = "midasINLA"
+    )
+  )
+}
 ```
 
 
