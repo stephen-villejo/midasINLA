@@ -113,6 +113,7 @@ create_lag_Xmatrix <- function(tsdata,
 #'   }
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("INLA", quietly = TRUE)) {
 #'   data(data_spatialpoisson_example)
 #'
@@ -145,6 +146,7 @@ create_lag_Xmatrix <- function(tsdata,
 #'   head(predictions$computed_y$mean)
 #'   head(predictions$computed_y$q2.5)
 #'   head(predictions$computed_y$q97.5)
+#' }
 #' }
 #' @export
 predict_midas <- function(model,
@@ -284,6 +286,7 @@ predict_midas <- function(model,
 #'   }
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("INLA", quietly = TRUE)) {
 #'   data(data_spatialpoisson_example)
 #'
@@ -324,6 +327,7 @@ predict_midas <- function(model,
 #'   )
 #'
 #'   head(weights$hf_1)
+#' }
 #' }
 #' @export
 compute_weights <- function(model, n.samples = 200) {
@@ -684,6 +688,7 @@ prepare_Minla_spatial <- function(x,
 #'   }
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("INLA", quietly = TRUE)) {
 #'   data(data_spatialpoisson_example)
 #'
@@ -723,6 +728,7 @@ prepare_Minla_spatial <- function(x,
 #'
 #'   # Inspect the fitted INLA model
 #'   fit$res
+#' }
 #' }
 #' @export
 fit_Minla_spatial <- function(formula,
@@ -1054,6 +1060,7 @@ fit_Minla_spatial <- function(formula,
 #'   deviation, and 2.5%, 50%, and 97.5% posterior quantiles.
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("INLA", quietly = TRUE)) {
 #'   INLA::inla.setOption(num.threads = 1)
 #'
@@ -1101,6 +1108,7 @@ fit_Minla_spatial <- function(formula,
 #'
 #'   # Inspect summaries of the location-specific total coefficients
 #'   beta_summary$hf_index_1$summary.total.beta
+#' }
 #' }
 #' @export
 compute_beta_spatial <- function(model,
