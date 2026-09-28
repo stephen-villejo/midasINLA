@@ -58,6 +58,7 @@ For Poisson and binomial responses, observations are generated using
 the appropriate inverse-link function.
 }
 \examples{
+\dontrun{
 if (requireNamespace("INLA", quietly = TRUE)) {
   data(data_spatialpoisson_example)
 
@@ -90,5 +91,6 @@ if (requireNamespace("INLA", quietly = TRUE)) {
   head(predictions$computed_y$mean)
   head(predictions$computed_y$q2.5)
   head(predictions$computed_y$q97.5)
+}
 }
 }

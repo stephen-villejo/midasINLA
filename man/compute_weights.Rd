@@ -39,6 +39,7 @@ covariate, the resulting weights are normalized to sum to one across
 all included lags.
 }
 \examples{
+\dontrun{
 if (requireNamespace("INLA", quietly = TRUE)) {
   data(data_spatialpoisson_example)
 
@@ -79,5 +80,6 @@ if (requireNamespace("INLA", quietly = TRUE)) {
   )
 
   head(weights$hf_1)
+}
 }
 }

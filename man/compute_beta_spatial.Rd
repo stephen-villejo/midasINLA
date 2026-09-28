@@ -59,6 +59,7 @@ posterior marginal distribution and summary of the MIDAS coefficient
 associated with each high-frequency covariate.
 }
 \examples{
+\dontrun{
 if (requireNamespace("INLA", quietly = TRUE)) {
   INLA::inla.setOption(num.threads = 1)
 
@@ -106,5 +107,6 @@ if (requireNamespace("INLA", quietly = TRUE)) {
 
   # Inspect summaries of the location-specific total coefficients
   beta_summary$hf_index_1$summary.total.beta
+}
 }
 }

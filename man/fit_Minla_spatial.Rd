@@ -77,6 +77,7 @@ covariates can be included by supplying multiple MIDAS objects in
 \code{hf_input}.
 }
 \examples{
+\dontrun{
 if (requireNamespace("INLA", quietly = TRUE)) {
   data(data_spatialpoisson_example)
 
@@ -116,5 +117,6 @@ if (requireNamespace("INLA", quietly = TRUE)) {
 
   # Inspect the fitted INLA model
   fit$res
+}
 }
 }
