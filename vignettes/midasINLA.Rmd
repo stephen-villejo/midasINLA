@@ -278,38 +278,35 @@ response_data[which(response_data[["Time"]] %in% 183:192),"y"] <- NA
 ```
 
 The model can then be fitted using `fit_Minla_spatial`():
-  
-```{r fit-model, eval = has_INLA}
-if (identical(Sys.getenv("NOT_CRAN"), "true")) {
-  
-  fit_res <- fit_Minla_spatial(
-    formula = y ~ 1,
-    data = response_data,
-    loc_var = "loc",
-    time_var = "Time",
-    family = "poisson",
-    hf_input = list(Midas_x1, Midas_x2),
-    inla_options = list(
-      verbose = FALSE,
-      control.predictor = list(
-        compute = TRUE,
-        link = 1
-      )
+
+```{r fit-model-code, eval=FALSE}
+fit_res <- fit_Minla_spatial(
+  formula = y ~ 1,
+  data = response_data,
+  loc_var = "loc",
+  time_var = "Time",
+  family = "poisson",
+  hf_input = list(Midas_x1, Midas_x2),
+  inla_options = list(
+    verbose = FALSE,
+    control.predictor = list(
+      compute = TRUE,
+      link = 1
     )
   )
+)
+```
   
-} else {
-  
-  fit_file <- system.file(
-    "extdata",
-    "fit_res.rds",
-    package = "midasINLA"
-  )
-  
-  stopifnot(nzchar(fit_file))
-  
-  fit_res <- readRDS(fit_file)
-}
+```{r fit-model, eval = has_INLA, include = FALSE}
+fit_file <- system.file(
+  "extdata",
+  "fit_res.rds",
+  package = "midasINLA"
+)
+
+stopifnot(nzchar(fit_file))
+
+fit_res <- readRDS(fit_file)
 ```
 
 
