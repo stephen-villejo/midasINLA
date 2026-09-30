@@ -64,10 +64,39 @@ saveRDS(
   )
 )
 
+
+beta_results <- compute_beta_spatial(
+  model = fit_res,
+  n_loc = 16
+)
+res_weights <- compute_weights(fit_res)
+pred_res <- predict_midas(
+  model = fit_res,
+  family = "poisson",
+  Ntrials = NULL,
+  nsamples = 1000
+)
+
+fit_res <- fit_res[c("data_final")]
+pred_res <- pred_res[c("computed_y")]
+
+
 saveRDS(
-  fit_res,
+  list(
+    beta_results = beta_results,
+    res_weights = res_weights
+  ),
   file = file.path(
-    "tests", "testthat", "fixtures", "fit_res.rds"
+    "inst","extdata","vignette_results.rds"
+  )
+)
+saveRDS(
+  list(
+    pred_res = pred_res,
+    fit_res = fit_res
+  ),
+  file = file.path(
+    "inst","extdata","vignette_prediction.rds"
   )
 )
 

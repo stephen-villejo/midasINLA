@@ -297,25 +297,38 @@ fit_res <- fit_Minla_spatial(
 )
 ```
   
-```{r fit-model, eval = has_INLA, include = FALSE}
-fit_file <- system.file(
-  "extdata",
-  "fit_res.rds",
-  package = "midasINLA"
-)
-
-stopifnot(nzchar(fit_file))
-
-fit_res <- readRDS(fit_file)
-```
-
-
 A summary of the fitted model can be obtained using the standard
 `summary`() method:
   
-```{r model-summary, eval = has_INLA}
+```{r model-summary, eval = FALSE}
 summary(fit_res[["res"]])
 ```
+
+\begin{verbatim}
+Time used:
+    Pre = 1, Running = 19.1, Post = 0.326, Total = 20.5 
+Fixed effects:
+             mean   sd 0.025quant 0.5quant 0.975quant  mode kld
+(Intercept) 0.997 0.02      0.957    0.997      1.037 0.997   0
+
+Random effects:
+  Name      Model
+    hf_idx_1 RGeneric2
+    hf_idx_2 RGeneric2
+
+Model hyperparameters:
+                     mean    sd 0.025quant 0.5quant 0.975quant  mode
+Theta1 for hf_idx_1  2.17 0.076       2.02     2.17       2.32  2.16
+Theta2 for hf_idx_1  2.23 0.526       1.15     2.25       3.21  2.32
+Theta1 for hf_idx_2 -1.31 0.035      -1.38    -1.31      -1.24 -1.30
+Theta2 for hf_idx_2  2.50 0.023       2.46     2.50       2.55  2.50
+Theta3 for hf_idx_2 -1.99 0.023      -2.04    -1.99      -1.95 -1.99
+
+Marginal log-Likelihood:  -8839.31 
+ is computed 
+Posterior summaries for the linear predictor and the fitted values are computed
+(Posterior marginals needs also 'control.compute=list(return.marginals.predictor=TRUE)')
+\end{verbatim}
 
 The fitted model contains two MIDAS components, corresponding to the two
 high-frequency covariates. The model also estimates the spatially varying
@@ -326,10 +339,25 @@ the MIDAS lag-weight functions are reported with names beginning with
 
 ## Posterior summaries of regression coefficients
 
-Posterior summaries of the MIDAS regression coefficients can be obtained
-using `compute_beta_spatial`().
+```{r load-results, include = FALSE}
+result_file <- system.file(
+  "extdata",
+  "vignette_results.rds",
+  package = "midasINLA"
+)
 
-```{r beta-results, eval = has_INLA}
+stopifnot(nzchar(result_file))
+
+vignette_results <- readRDS(result_file)
+
+beta_results <- vignette_results$beta_results
+res_weights <- vignette_results$res_weights
+```
+
+Posterior summaries of the MIDAS regression coefficients can be obtained
+using `compute_beta_spatial()`.
+
+```{r beta-results, eval = FALSE}
 beta_results <- compute_beta_spatial(
   model = fit_res,
   n_loc = 16
@@ -342,7 +370,7 @@ including marginal distributions and posterior summaries.
 For the first covariate, the posterior summaries of the spatially varying
 component $b_i$ can be accessed using:
   
-```{r beta-summary, eval = has_INLA}
+```{r beta-summary}
 beta_results$hf_index_1$summary.icar.beta
 ```
 
@@ -353,23 +381,23 @@ $$
 $$
 Posterior summaries of the resulting total coefficient can be accessed using:
 
-```{r total-beta-summary, eval = has_INLA}
+```{r total-beta-summary}
 beta_results$hf_index_1$summary.total.beta
 ```
 
 For the second covariate, which has a constant regression coefficient,
 posterior summaries of $\beta_2$ are available using:
 
-```{r constant-beta-summary, eval = has_INLA}
+```{r constant-beta-summary}
 beta_results$hf_index_2$summary.beta
 ```
 
 ## Estimating the MIDAS lag weights
 
 The posterior distributions of the lag weights can be obtained using
-`compute_weights`():
+`compute_weights()`:
 
-```{r weights, eval = has_INLA}
+```{r weights, eval = FALSE}
 res_weights <- compute_weights(fit_res)
 ```
 
@@ -379,13 +407,13 @@ upper posterior quantiles.
 
 For example, the estimated weights for the first covariate are:
 
-```{r weights-x1, eval = has_INLA}
+```{r weights-x1}
 head(res_weights$hf_1)
 ```
 
 The weights for the second covariate can be inspected similarly:
 
-```{r weights-x2, eval = has_INLA}
+```{r weights-x2}
 head(res_weights$hf_2)
 ```
 
@@ -393,7 +421,7 @@ The posterior summaries can be used to visualise the estimated
 lag-weight functions. Because the data are simulated, the true lag
 weights are also available for comparison.
 
-```{r plot-weights, fig.width = 7, fig.height = 4.5, eval = has_INLA}
+```{r plot-weights, fig.width = 7, fig.height = 4.5}
 ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
   geom_errorbar(
     aes(
@@ -436,7 +464,7 @@ ggplot(res_weights$hf_1, aes(x = lag, y = mean)) +
 The corresponding lag-weight function for the second covariate can be
 visualised in the same way:
 
-```{r plot-weights-x2, fig.width = 7, fig.height = 4.5, eval = has_INLA}
+```{r plot-weights-x2, fig.width = 7, fig.height = 4.5}
 ggplot(res_weights$hf_2, aes(x = lag, y = mean)) +
   geom_errorbar(
     aes(
@@ -484,7 +512,20 @@ to illustrate posterior prediction.
 
 Posterior predictions can be generated using `predict_midas()`:
 
-```{r prediction, eval = has_INLA}
+```{r load-results, include = FALSE}
+prediction_results <- readRDS(
+  system.file(
+    "extdata",
+    "vignette_prediction.rds",
+    package = "midasINLA"
+  )
+)
+
+pred_res <- prediction_results$pred_res
+fit_res <- prediction_results$fit_res
+```
+
+```{r prediction, eval = FALSE}
 pred_res <- predict_midas(
   model = fit_res,
   family = "poisson",
@@ -495,14 +536,11 @@ pred_res <- predict_midas(
 
 The returned object contains posterior summaries of the predicted outcome,
 including posterior means and 95% credible intervals, as well as posterior
-samples of the latent predictor. For example:
-  
-```{r prediction-structure, eval = has_INLA}
-str(pred_res, max.level = 2)
-```
+samples of the latent predictor. 
+
 The posterior summaries of the predicted outcome can be accessed using:
 
-```{r prediction-summary, eval = has_INLA}
+```{r prediction-summary}
 head(pred_res$computed_y$mean)
 head(pred_res$computed_y$q2.5)
 head(pred_res$computed_y$q97.5)
@@ -514,7 +552,7 @@ The dashed vertical line indicates the boundary between the training and
 held-out prediction periods.
 
 
-```{r prediction-plot, fig.width = 7, fig.height = 6, eval = has_INLA}
+```{r prediction-plot, fig.width = 7, fig.height = 6}
 plot_data <- data.frame(
   observed = fit_res$data_final$y_all,
   predicted = pred_res$computed_y$mean,
