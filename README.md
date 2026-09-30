@@ -12,7 +12,13 @@ MIDAS models allow high-frequency covariates to be incorporated into models for 
 
 ## Installation
 
-The development version of `midasINLA` can be installed from GitHub using `remotes`:
+The latest released version of midasINLA can be installed from CRAN:
+
+```r
+install.packages("midasINLA")
+```
+
+The development version can be installed from GitHub using `remotes`:
 
 ``` r
 if (!requireNamespace("remotes", quietly = TRUE)) {
