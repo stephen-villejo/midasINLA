@@ -512,7 +512,7 @@ to illustrate posterior prediction.
 
 Posterior predictions can be generated using `predict_midas()`:
 
-```{r load-results, include = FALSE}
+```{r load-prediction-results, include = FALSE}
 prediction_results <- readRDS(
   system.file(
     "extdata",
