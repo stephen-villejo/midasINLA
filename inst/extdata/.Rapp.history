@@ -1,0 +1,3 @@
+load("/Users/stephenjunvillejo/Documents/midasINLA/inst/extdata/fit_res.rds")
+object.size(fit_res) / 1024^2
+ls()
