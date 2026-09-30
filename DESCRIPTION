@@ -7,7 +7,7 @@ Authors@R:
         email = "s.villejo@imperial.ac.uk",
         role = c("aut", "cre")
     )
-Description: Provides tools for fitting spatial Mixed Data Sampling (MIDAS) regression models using Integrated Nested Laplace Approximation (INLA). The package is designed for settings where responses and explanatory variables are observed at different temporal frequencies and supports both constant and spatially varying regression coefficients.
+Description: Provides tools for fitting spatial Mixed-Data Sampling (MIDAS) regression models using Integrated Nested Laplace Approximation (INLA) (Rue et al., 2009) <doi:10.1111/j.1467-9868.2008.00700.x>. The package is designed for settings where responses and explanatory variables are observed at different temporal frequencies and supports both constant and spatially varying regression coefficients.
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
