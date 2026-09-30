@@ -19,8 +19,15 @@ test_that("downstream functions work", {
 
   hf_input <- readRDS(testthat::test_path("fixtures", "hf_input.rds"))
 
-  fit_res <- readRDS(testthat::test_path("fixtures", "fit_res.rds"))
+  fit_file <- system.file(
+    "extdata",
+    "fit_res.rds",
+    package = "midasINLA"
+  )
 
+  skip_if(!nzchar(fit_file), "Precomputed fit not available")
+
+  fit_res <- readRDS(fit_file)
 
   hyperpar <- summary(fit_res$res)$hyperpar
   hyperpar_names <- rownames(hyperpar)
