@@ -1,6 +1,6 @@
 Package: midasINLA
 Title: Spatial MIDAS Models Using INLA
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     person(
         "Stephen Jun", "Villejo",
