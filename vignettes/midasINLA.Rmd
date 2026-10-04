@@ -354,6 +354,13 @@ result_file <- system.file(
   package = "midasINLA"
 )
 
+if (!nzchar(result_file)) {
+  result_file <- file.path(
+    "..", "inst", "extdata", "vignette_results.rds"
+  )
+}
+
+stopifnot(nzchar(result_file))
 stopifnot(nzchar(result_file))
 
 vignette_results <- readRDS(result_file)
@@ -521,13 +528,21 @@ to illustrate posterior prediction.
 Posterior predictions can be generated using `predict_midas()`:
 
 ```{r load-prediction-results, include = FALSE}
-prediction_results <- readRDS(
-  system.file(
-    "extdata",
-    "vignette_prediction.rds",
-    package = "midasINLA"
-  )
+prediction_file <- system.file(
+  "extdata",
+  "vignette_prediction.rds",
+  package = "midasINLA"
 )
+
+if (!nzchar(prediction_file)) {
+  prediction_file <- file.path(
+    "..", "inst", "extdata", "vignette_prediction.rds"
+  )
+}
+
+stopifnot(file.exists(prediction_file))
+
+prediction_results <- readRDS(prediction_file)
 
 pred_res <- prediction_results$pred_res
 fit_res <- prediction_results$fit_res

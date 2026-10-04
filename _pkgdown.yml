@@ -4,3 +4,5 @@ template:
   bootswatch: flatly
 
 #pkgdown::build_site()
+#browseURL("docs/index.html")
+#pkgdown::deploy_to_branch()
