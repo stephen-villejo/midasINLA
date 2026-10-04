@@ -1,4 +1,4 @@
 url: https://stephen-villejo.github.io/midasINLA/
 template:
   bootstrap: 5
-
+  bootswatch: flatly
