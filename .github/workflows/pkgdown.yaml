@@ -1,5 +1,3 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
@@ -15,13 +13,17 @@ permissions: read-all
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
+
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      CRAN: c(INLA = "https://inla.r-inla-download.org/R/stable/", CRAN = "https://cloud.r-project.org")
+
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v6
 
@@ -29,9 +31,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-repositories: |
-            CRAN: https://cloud.r-project.org
-            INLA: https://inla.r-inla-download.org/R/stable
+          use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -44,7 +44,7 @@ jobs:
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f # v4.8.0
+        uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f
         with:
           clean: false
           branch: gh-pages
