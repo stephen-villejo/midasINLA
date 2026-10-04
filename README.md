@@ -10,9 +10,24 @@
 
 MIDAS models allow high-frequency covariates to be incorporated into models for lower-frequency responses through weighted distributed lags. midasINLA combines this framework with INLA, allowing MIDAS regression models to be fitted efficiently within a latent Gaussian modelling framework.
 
+**Conceptual framework for spatial distributed-lag MIDAS modelling.**  
+  High-frequency covariates are linked to lower-frequency responses through
+weighted distributed lags, with MIDAS coefficients potentially varying across
+spatial locations.
+
+<p align="center">
+  <img src="man/figures/schematic_paper.png" width="70%">
+</p>
+
 ## Installation
 
-The development version of `midasINLA` can be installed from GitHub using `remotes`:
+The latest released version of midasINLA can be installed from CRAN:
+
+```r
+install.packages("midasINLA")
+```
+
+The development version can be installed from GitHub using `remotes`:
 
 ``` r
 if (!requireNamespace("remotes", quietly = TRUE)) {
