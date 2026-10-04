@@ -2,10 +2,20 @@ Package: midasINLA
 Title: Spatial MIDAS Models Using INLA
 Version: 0.1.1
 Authors@R:
-    person(
-        "Stephen Jun", "Villejo",
-        email = "s.villejo@imperial.ac.uk",
-        role = c("aut", "cre")
+    c(
+        person(
+            "Stephen Jun", "Villejo",
+            email = "s.villejo@imperial.ac.uk",
+            role = c("aut", "cre")
+        ),
+        person(
+            "Håvard", "Rue",
+            role = "aut"
+        ),
+        person(
+            "Marta", "Blangiardo",
+            role = "aut"
+        )
     )
 Description: Provides tools for fitting spatial Mixed-Data Sampling (MIDAS) regression models using Integrated Nested Laplace Approximation (INLA) (Rue et al., 2009) <doi:10.1111/j.1467-9868.2008.00700.x>. The package is designed for settings where responses and explanatory variables are observed at different temporal frequencies and supports both constant and spatially varying regression coefficients.
 License: GPL-3
