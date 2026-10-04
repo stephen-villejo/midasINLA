@@ -10,8 +10,12 @@
 
 MIDAS models allow high-frequency covariates to be incorporated into models for lower-frequency responses through weighted distributed lags. midasINLA combines this framework with INLA, allowing MIDAS regression models to be fitted efficiently within a latent Gaussian modelling framework.
 
+**Conceptual framework for spatial distributed-lag MIDAS modelling.** 
+High-frequency covariates are linked to lower-frequency responses through weighted distributed lags, with MIDAS coefficients potentially varying across spatial locations.
+
 ```{r schematic, echo=FALSE, out.width="90%", fig.align="center"}
 knitr::include_graphics("man/figures/schematic-paper.png")
+```
 
 ## Installation
 
