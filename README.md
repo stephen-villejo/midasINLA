@@ -26,7 +26,7 @@ coefficients potentially varying across spatial locations.
 
 <div class="figure" style="text-align: center">
 
-<img src="inst/figures/schematic_paper.png" alt="Figure 1. Schematic representation of the spatial mixed-frequency setting and the MIDAS aggregation mechanism. (a) Spatial domain with three areal units. (b) Daily high-frequency covariate processes for each unit. (c) Temporal misalignment between daily covariates and weekly outcomes, with the highlighted lag window corresponding to the covariates used to predict the current weekly response. (d) MIDAS-based weighted aggregation of lagged daily covariates into a low-frequency predictor. (e) Weekly low-frequency response process for each spatial unit." width="70%" />
+<img src="man/figures/schematic_paper.png" alt="Figure 1. Schematic representation of the spatial mixed-frequency setting and the MIDAS aggregation mechanism. (a) Spatial domain with three areal units. (b) Daily high-frequency covariate processes for each unit. (c) Temporal misalignment between daily covariates and weekly outcomes, with the highlighted lag window corresponding to the covariates used to predict the current weekly response. (d) MIDAS-based weighted aggregation of lagged daily covariates into a low-frequency predictor. (e) Weekly low-frequency response process for each spatial unit." width="70%" />
 <p class="caption">
 
 Figure 1. Schematic representation of the spatial mixed-frequency
