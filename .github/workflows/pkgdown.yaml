@@ -32,6 +32,9 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
+          repositories: |
+            CRAN: https://cloud.r-project.org
+            INLA: https://inla.r-inla-download.org/R/stable
           needs: website
 
       - name: Build site
