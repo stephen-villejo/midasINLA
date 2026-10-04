@@ -15,7 +15,7 @@ MIDAS models allow high-frequency covariates to be incorporated into models for 
 weighted distributed lags, with MIDAS coefficients potentially varying across
 spatial locations.
 
-![Conceptual framework for spatial distributed-lag MIDAS modelling](man/figures/schematic_paper.png)
+<img src="man/figures/schematic_paper.png" width="80%" />
 
 ## Installation
 
