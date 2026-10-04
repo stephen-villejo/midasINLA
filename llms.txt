@@ -27,7 +27,7 @@ outcomes, with the highlighted lag window corresponding to the
 covariates used to predict the current weekly response. (d) MIDAS-based
 weighted aggregation of lagged daily covariates into a low-frequency
 predictor. (e) Weekly low-frequency response process for each spatial
-unit.](inst/figures/schematic_paper.png)
+unit.](reference/figures/schematic_paper.png)
 
 Figure 1. Schematic representation of the spatial mixed-frequency
 setting and the MIDAS aggregation mechanism. (a) Spatial domain with
