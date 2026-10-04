@@ -10,6 +10,9 @@
 
 MIDAS models allow high-frequency covariates to be incorporated into models for lower-frequency responses through weighted distributed lags. midasINLA combines this framework with INLA, allowing MIDAS regression models to be fitted efficiently within a latent Gaussian modelling framework.
 
+```{r schematic, echo=FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics("man/figures/schematic-paper.png")
+
 ## Installation
 
 The latest released version of midasINLA can be installed from CRAN:
