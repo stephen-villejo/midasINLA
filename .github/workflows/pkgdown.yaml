@@ -19,7 +19,6 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      CRAN: c(INLA = "https://inla.r-inla-download.org/R/stable/", CRAN = "https://cloud.r-project.org")
 
     permissions:
       contents: write
