@@ -148,7 +148,7 @@ Illustration of the MIDAS lag weights for exponential Almon polynomial
 constraint of order 2.
 
 ![Illustration of the MIDAS lag weights for hyperbolic scheme polynomial
-constraint.](figures/hyperbolic_scheme_weights_illustration.png)
+constraint.](figures/hyperbolic_weights_illustration.png)
 
 Illustration of the MIDAS lag weights for hyperbolic scheme polynomial
 constraint.
