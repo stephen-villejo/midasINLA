@@ -125,7 +125,7 @@ The shape of the lag-weight distribution depends on the constraint function and 
 knitr::include_graphics("figures/Almon_weights_illustration.png")
 ```
 ```{r weights_illustration_hyperbolic, echo=FALSE, out.width="90%", fig.cap="Illustration of the MIDAS lag weights for hyperbolic scheme polynomial constraint.", fig.align="center"}
-knitr::include_graphics("figures/hyperbolic_scheme_weights_illustration.png")
+knitr::include_graphics("figures/Hyperbolic_scheme_weights_illustration.png")
 ```
 
 
