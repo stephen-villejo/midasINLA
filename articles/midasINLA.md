@@ -136,13 +136,30 @@ where $`\gamma>0`$.
 
 where $`\boldsymbol{\gamma}=(\gamma_1,\gamma_2)`$ and $`\gamma_2>0`$.
 
-## INLA implementation
+The shape of the lag-weight distribution depends on the constraint
+function and its parameters. The following figures illustrate
+representative weight profiles for the constraint functions implemented
+in `midasINLA`.
+
+![Illustration of the MIDAS lag weights for exponential Almon polynomial
+constraint of order 2.](figures/Almon_weights_illustration.png)
+
+Illustration of the MIDAS lag weights for exponential Almon polynomial
+constraint of order 2.
+
+![Illustration of the MIDAS lag weights for hyperbolic scheme polynomial
+constraint.](figures/Hyperbolic_scheme_weights_illustration.png)
+
+Illustration of the MIDAS lag weights for hyperbolic scheme polynomial
+constraint.
+
+## Implementation
 
 The MIDAS lag structure is incorporated into the latent Gaussian model
 through INLA’s `rgeneric` interface. The MIDAS constraint functions
 define the lag weights as a function of a low-dimensional parameter
 vector, while the resulting weighted high-frequency covariates are
-represented as part of the latent model.
+represented as part of the latent field.
 
 The functions in `midasINLA` construct the required `rgeneric` model
 components and interface them with
@@ -152,9 +169,16 @@ estimated within the INLA framework, while retaining the spatial
 structure specified for the regression coefficients.
 
 Users do not need to construct the `rgeneric` model directly; this is
-handled internally by the package functions demonstrated below.
+handled internally by the package functions.
 
-The example below illustrates the main functions in midasINLA:
+The general workflow for fitting and analysing an SDL-MIDAS model using
+`midasINLA` is shown below:
+
+![General workflow.](figures/workflow.png)
+
+General workflow.
+
+The main functions are:
 
 - `prepare_Minla_spatial`() prepares high-frequency covariates for
   inclusion in the model;
